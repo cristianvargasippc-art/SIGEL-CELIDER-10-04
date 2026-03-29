@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGEL · CELIDER 10-04</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- ══ FIREBASE — cargado antes del módulo ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#002247;--c2:#005286;--c3:#0087f1;--c4:#00cbff;--c5:#a7e8ff;
+  --r10:#8a9bb0;--r10d:#5a6b7e;--r10l:#b8c8d8;
+  --bg:#f0f3f7;--sur:#fff;--bord:#dde3ec;
+  --txt:#0a1628;--mut:#526070;--hin:#8fa0b0;
+  --ok:#0d7a52;--ok-bg:#e6f5ee;
+  --danger:#c0271e;--danger-bg:#fdecea;
+  --sh:0 1px 4px rgba(0,34,71,.08),0 2px 8px rgba(0,34,71,.04);
+  --shlg:0 8px 32px rgba(0,34,71,.14);
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* SCREENS */
+.scr{display:none!important;flex-direction:column;min-height:100vh}
+.scr.on{display:flex!important;animation:fu .28s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOADING */
+#ldOv{position:fixed;inset:0;background:var(--c1);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .4s}
+#ldOv.hide{opacity:0;pointer-events:none}
+.spin{width:34px;height:34px;border:2px solid rgba(0,203,255,.2);border-top-color:var(--c4);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ldOv p{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:rgba(255,255,255,.35)}
+
+/* ── HOME ───────────────────────────────────────── */
+#sHome{background:var(--c1)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap;gap:10px}
+.tb-brand{display:flex;align-items:center;gap:13px}
+.tb-hex{width:38px;height:38px;background:rgba(0,203,255,.12);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-hex span{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--c4);letter-spacing:1px}
+.tb-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;line-height:1}
+.tb-sub{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.6px;text-transform:uppercase;margin-top:2px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.pill-r10{background:rgba(138,155,176,.2);border:1px solid rgba(138,155,176,.3);color:var(--r10l);font-size:10.5px;font-weight:700;letter-spacing:.8px;padding:3px 11px;border-radius:20px;text-transform:uppercase}
+.btn-admin{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;padding:8px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-admin:hover{background:rgba(255,255,255,.16)}
+.btn-admin svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(0,135,241,.18) 0%,transparent 70%)}
+.eyebrow{position:relative;display:inline-flex;align-items:center;gap:8px;background:rgba(0,203,255,.09);border:1px solid rgba(0,203,255,.2);border-radius:30px;padding:5px 16px;font-size:11px;font-weight:600;color:var(--c5);letter-spacing:1px;text-transform:uppercase;margin-bottom:26px}
+.pdot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pd 2s ease infinite}
+@keyframes pd{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:68px;letter-spacing:4px;color:#fff;line-height:.95;position:relative}
+.h-title span{color:var(--c4)}
+.h-reg{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;margin:10px 0 36px;position:relative}
+.h-desc{font-size:15.5px;color:rgba(255,255,255,.5);max-width:500px;line-height:1.7;margin-bottom:40px;position:relative}
+
+.srch-wrap{position:relative;max-width:480px;width:100%;margin-bottom:10px}
+.srch-wrap input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:15px 58px 15px 22px;font-family:'DM Sans',sans-serif;font-size:15px;color:#fff;outline:none;transition:all .2s}
+.srch-wrap input::placeholder{color:rgba(255,255,255,.28)}
+.srch-wrap input:focus{background:rgba(255,255,255,.11);border-color:rgba(0,203,255,.45);box-shadow:0 0 0 3px rgba(0,203,255,.1)}
+.srch-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--c3);border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.srch-btn:hover{background:var(--c4)}
+.srch-btn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.srch-hint{font-size:11.5px;color:rgba(255,255,255,.22);letter-spacing:.2px}
+
+.hstats{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.08);margin-top:auto;width:100%}
+.hst{flex:1;padding:22px 28px;border-right:1px solid rgba(255,255,255,.07);text-align:center}
+.hst:last-child{border-right:none}
+.hst-n{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;color:#fff;line-height:1}
+.hst-l{font-size:10.5px;color:rgba(255,255,255,.3);letter-spacing:.7px;text-transform:uppercase;margin-top:3px}
+
+/* Search results panel */
+.srp-ov{position:fixed;inset:0;background:rgba(0,18,45,.88);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.srp-ov.on{display:flex}
+.srp-box{background:var(--c1);border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:540px;overflow:hidden;animation:fu .22s ease}
+.srp-hd{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.srp-hd h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:#fff}
+.srp-hd p{font-size:12px;color:rgba(255,255,255,.35);margin-top:1px}
+.srp-x{width:28px;height:28px;background:rgba(255,255,255,.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.srp-x:hover{background:rgba(255,255,255,.18)}
+.srp-list{padding:10px;max-height:360px;overflow-y:auto}
+.srp-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:all .15s}
+.srp-item:hover{background:rgba(255,255,255,.06);border-color:rgba(0,203,255,.2)}
+.srp-iname{font-weight:600;color:#fff;font-size:14px}
+.srp-imeta{font-size:11.5px;color:rgba(255,255,255,.35);margin-top:2px}
+.srp-iid{font-family:'DM Mono',monospace;font-size:11px;color:var(--c4);background:rgba(0,203,255,.1);padding:2px 8px;border-radius:6px;flex-shrink:0}
+.srp-empty{padding:36px;text-align:center;color:rgba(255,255,255,.3);font-size:14px}
+.srp-nodb{padding:36px;text-align:center}
+.srp-nodb p{color:rgba(255,255,255,.4);font-size:14px;margin-bottom:8px}
+.srp-nodb small{color:rgba(255,255,255,.2);font-size:12px}
+
+/* ── PROFILE ────────────────────────────────────── */
+#sProfile{background:var(--c1)}
+.prof-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.07)}
+.prof-brand{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:rgba(255,255,255,.4)}
+.prof-back{display:flex;align-items:center;gap:6px;background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:color .2s}
+.prof-back:hover{color:#fff}
+.prof-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prof-body{flex:1;padding:28px 24px;max-width:660px;margin:0 auto;width:100%}
+
+.cred-card{background:linear-gradient(145deg,rgba(0,82,134,.5),rgba(0,34,71,.85) 60%,rgba(90,107,126,.25) 100%);border:1px solid rgba(0,203,255,.14);border-radius:20px;padding:28px;margin-bottom:18px;position:relative;overflow:hidden}
+.cred-card::before{content:'';position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:radial-gradient(circle,rgba(0,203,255,.1) 0%,transparent 70%);pointer-events:none}
+.cred-card::after{content:'R 10';position:absolute;bottom:16px;right:22px;font-family:'Bebas Neue',sans-serif;font-size:60px;letter-spacing:4px;color:rgba(255,255,255,.04);pointer-events:none;line-height:1}
+.cred-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.cred-id{font-family:'DM Mono',monospace;font-size:12px;color:var(--c4);background:rgba(0,203,255,.1);border:1px solid rgba(0,203,255,.2);padding:4px 12px;border-radius:6px;letter-spacing:1px}
+.cred-lv{padding:4px 12px;border-radius:6px;font-size:11.5px;font-weight:700;letter-spacing:.3px}
+.cred-lv.A{background:rgba(16,185,129,.14);color:#34d399;border:1px solid rgba(16,185,129,.2)}
+.cred-lv.B{background:rgba(59,130,246,.14);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.cred-lv.C{background:rgba(245,158,11,.14);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.cred-lv.D{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.cred-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:#fff;line-height:1;margin-bottom:10px}
+.cred-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px}
+.cc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:5px 11px;font-size:12px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:5px}
+.cc svg{width:11px;height:11px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.cred-tot{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(0,203,255,.06);border:1px solid rgba(0,203,255,.12);border-radius:12px}
+.cred-tot-lbl{font-size:12px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.cred-tot-n{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;color:#fff;line-height:1}
+.cred-tot-n span{font-family:'DM Sans',sans-serif;font-size:15px;color:rgba(255,255,255,.35);font-weight:400}
+
+.breakdown{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;margin-bottom:18px}
+.bk-hd{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:7px}
+.bk-hd span{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,.4)}
+.bk-hd svg{width:13px;height:13px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;stroke-linecap:round}
+.bk-row{display:flex;align-items:center;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);gap:12px}
+.bk-row:last-child{border-bottom:none}
+.bk-nm{font-size:12.5px;color:rgba(255,255,255,.6);flex:1;min-width:0}
+.bk-bar{width:110px;flex-shrink:0}
+.bk-bg{background:rgba(255,255,255,.07);border-radius:99px;height:5px;overflow:hidden}
+.bk-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c2),var(--c4));transition:width .7s ease}
+.bk-val{font-family:'DM Mono',monospace;font-size:12px;color:#fff;width:36px;text-align:right;flex-shrink:0}
+.bk-max{font-size:11px;color:rgba(255,255,255,.22);width:28px;flex-shrink:0}
+
+.qr-sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;text-align:center;margin-bottom:18px}
+.qr-sec p{font-size:11px;color:rgba(255,255,255,.28);margin-bottom:14px;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+.qr-box{background:#fff;border-radius:11px;padding:12px;display:inline-block;margin-bottom:14px}
+.prof-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ── LOGIN ──────────────────────────────────────── */
+#sLogin{background:var(--c1);align-items:center;justify-content:center;padding:20px}
+.login-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:390px;overflow:hidden}
+.lc-hd{background:linear-gradient(135deg,rgba(0,82,134,.6),rgba(0,34,71,.95));padding:30px 28px 26px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center}
+.lc-hex{width:58px;height:58px;background:rgba(0,203,255,.1);border:1px solid rgba(0,203,255,.2);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.lc-hex span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--c4);letter-spacing:1px}
+.lc-hd h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#fff;margin-bottom:3px}
+.lc-hd p{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.2px}
+.lc-body{padding:26px 26px 22px}
+.lc-err{background:rgba(192,39,30,.14);border:1px solid rgba(192,39,30,.25);border-radius:8px;padding:10px 13px;font-size:13px;color:#f87171;margin-bottom:14px;display:none}
+.lc-err.on{display:block}
+.lfield{margin-bottom:15px}
+.lfield label{display:block;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.lfield input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:9px;padding:12px 15px;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;outline:none;transition:all .2s}
+.lfield input::placeholder{color:rgba(255,255,255,.18)}
+.lfield input:focus{border-color:rgba(0,203,255,.45);background:rgba(0,203,255,.06);box-shadow:0 0 0 3px rgba(0,203,255,.08)}
+.btn-lsub{width:100%;background:var(--c3);border:none;border-radius:10px;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background .2s;margin-bottom:13px}
+.btn-lsub:hover{background:var(--c2)}
+.btn-lsub:disabled{opacity:.4;cursor:not-allowed}
+.lback{text-align:center}
+.lback button{background:none;border:none;color:rgba(255,255,255,.25);font-size:13px;cursor:pointer;transition:color .2s;font-family:'DM Sans',sans-serif}
+.lback button:hover{color:rgba(255,255,255,.55)}
+
+/* ── ADMIN ──────────────────────────────────────── */
+#sAdmin{background:var(--bg)}
+.atb{background:var(--c1);padding:0 28px;display:flex;align-items:stretch;min-height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,34,71,.2);flex-wrap:wrap;gap:0}
+.atb-brand{display:flex;align-items:center;gap:11px;padding-right:22px;border-right:1px solid rgba(255,255,255,.09);margin-right:16px;flex-shrink:0}
+.atb-hex{width:34px;height:34px;background:rgba(0,203,255,.12);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.atb-hex span{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--c4)}
+.atb-nm{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:#fff;line-height:1}
+.atb-sb{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.5px;text-transform:uppercase}
+.atb-nav{display:flex;align-items:stretch;flex:1;overflow-x:auto;min-width:0}
+.atn{display:flex;align-items:center;padding:0 15px;background:none;border:none;border-bottom:2.5px solid transparent;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;gap:6px}
+.atn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.atn:hover{color:rgba(255,255,255,.7)}
+.atn.on{color:var(--c4);border-bottom-color:var(--c4)}
+.atb-r{display:flex;align-items:center;gap:9px;padding-left:14px;border-left:1px solid rgba(255,255,255,.09);margin-left:auto;flex-shrink:0}
+.atb-em{font-size:11.5px;color:rgba(255,255,255,.35);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atb-role{font-size:10px;color:var(--c4);background:rgba(0,203,255,.1);padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.atb-out{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);color:rgba(255,255,255,.45);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.atb-out:hover{background:rgba(255,255,255,.13);color:#fff}
+
+.ac{flex:1;padding:26px 28px 52px;max-width:1380px;margin:0 auto;width:100%}
+.atab{display:none}.atab.on{display:block;animation:fu .22s ease}
+
+/* Page heading */
+.ph{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1.5px;color:var(--c1)}
+.ph p{font-size:12.5px;color:var(--mut);margin-top:2px}
+.ph-acts{display:flex;gap:8px;flex-shrink:0}
+
+/* Stats */
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
+.scard{background:var(--sur);border:1px solid var(--bord);border-radius:13px;padding:18px 20px;box-shadow:var(--sh)}
+.scard .sn{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;color:var(--c1);line-height:1}
+.scard .sl{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
+.scard .sbar{height:3px;background:var(--bord);border-radius:99px;margin-top:13px;overflow:hidden}
+.scard .sfill{height:100%;background:linear-gradient(90deg,var(--c2),var(--c3));border-radius:99px;transition:width .7s ease}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 17px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;white-space:nowrap}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-pri{background:var(--c1);color:#fff;border-color:var(--c1)}.btn-pri:hover{background:var(--c2)}
+.btn-sky{background:var(--c3);color:#fff}.btn-sky:hover{background:var(--c2)}
+.btn-out{background:var(--sur);color:var(--c1);border-color:var(--bord)}.btn-out:hover{background:var(--bg)}
+.btn-sm{padding:7px 13px;font-size:12px}
+
+/* Card */
+.card{background:var(--sur);border:1px solid var(--bord);border-radius:12px;box-shadow:var(--sh);overflow:hidden}
+.chd{padding:14px 18px;border-bottom:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chd h3{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--c1)}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--bg);color:var(--mut);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 13px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--bord)}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--bord);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+.tdn{font-weight:600;color:var(--c1)}
+.tdid{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--c3);background:rgba(0,135,241,.07);padding:2px 8px;border-radius:5px;white-space:nowrap}
+.tdlk{color:var(--c3);font-weight:600;cursor:pointer;font-size:12.5px}.tdlk:hover{text-decoration:underline}
+
+/* Badge */
+.bdg{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.bA{background:#d1fae5;color:#065f46}.bB{background:#dbeafe;color:#1e40af}
+.bC{background:#fef3c7;color:#92400e}.bD{background:#fee2e2;color:#991b1b}
+
+/* Upload */
+.upzone{background:var(--sur);border:1.5px dashed var(--bord);border-radius:14px;padding:50px 36px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:18px}
+.upzone:hover,.upzone.drag{border-color:var(--c3);background:#f0f8ff}
+.up-ico{width:50px;height:50px;background:var(--bg);border:1px solid var(--bord);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.up-ico svg{width:22px;height:22px;stroke:var(--r10d);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.upzone h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--c1);margin-bottom:5px}
+.upzone p{font-size:13px;color:var(--mut)}
+.fmt{display:inline-flex;gap:5px;margin-top:13px;flex-wrap:wrap;justify-content:center}
+.fmt span{background:var(--bg);border:1px solid var(--bord);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--mut);font-family:'DM Mono',monospace}
+
+/* Filter bar */
+.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.inw{position:relative;flex:1;min-width:180px}
+.inw svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--hin);fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none}
+.inw input{width:100%;padding:9px 13px 9px 33px;border:1px solid var(--bord);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;transition:border-color .15s}
+.inw input:focus{border-color:var(--c3)}
+.fsel{padding:9px 13px;border:1px solid var(--bord);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;cursor:pointer}
+
+/* Score input */
+.sinp{width:50px;padding:6px 7px;border:1px solid var(--bord);border-radius:6px;font-family:'DM Mono',monospace;font-size:13px;text-align:center;outline:none;background:var(--sur);transition:border-color .15s}
+.sinp:focus{border-color:var(--c3)}
+
+/* Rubrica */
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:11px;margin-bottom:18px}
+.rc{background:var(--sur);border:1px solid var(--bord);border-radius:12px;padding:16px 18px;border-top:3px solid var(--c2)}
+.rpts{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:var(--c1);line-height:1;margin-bottom:3px}
+.rpts span{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--hin);font-weight:400}
+.rnm{font-weight:700;font-size:13.5px;color:var(--c1);margin-bottom:3px}
+.rdsc{font-size:12px;color:var(--mut);line-height:1.6}
+
+.lvlbar{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px}
+.lvi{border-radius:9px;padding:11px 13px;border:1px solid}
+.lvi.A{background:#ecfdf5;border-color:#6ee7b7}.lvi.A .lvin{color:#065f46}
+.lvi.B{background:#eff6ff;border-color:#93c5fd}.lvi.B .lvin{color:#1e40af}
+.lvi.C{background:#fffbeb;border-color:#fcd34d}.lvi.C .lvin{color:#92400e}
+.lvi.D{background:#fef2f2;border-color:#fca5a5}.lvi.D .lvin{color:#991b1b}
+.lvin{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.5px}
+.lvil{font-size:11px;color:var(--mut);margin-top:1px}
+
+/* QR Modal */
+.mOv{position:fixed;inset:0;background:rgba(0,18,45,.88);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.mOv.on{display:flex}
+.mBox{background:var(--c1);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px;max-width:380px;width:100%;animation:fu .22s ease;text-align:center}
+.mBox h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.5px;color:#fff;margin-bottom:4px}
+.mBox p{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:18px}
+.mQR{background:#fff;border-radius:10px;padding:12px;display:inline-block;margin-bottom:16px}
+.mActs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* Toast */
+#toast{position:fixed;bottom:22px;right:22px;background:var(--c1);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .25s;box-shadow:var(--shlg);pointer-events:none;max-width:280px;display:flex;align-items:center;gap:9px;border:1px solid rgba(0,203,255,.15)}
+#toast.on{transform:translateY(0);opacity:1}
+#toast svg{width:14px;height:14px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* Info alert */
+.info-alert{background:rgba(0,135,241,.08);border:1px solid rgba(0,135,241,.2);border-radius:9px;padding:12px 16px;font-size:13px;color:var(--c2);margin-bottom:16px}
+.info-alert strong{display:block;font-size:13px;margin-bottom:2px}
+
+@media(max-width:800px){
+  .topbar,.atb,.ac{padding-left:16px;padding-right:16px}
+  .h-title{font-size:48px}
+  .srow{grid-template-columns:1fr 1fr}
+  .hstats{flex-wrap:wrap}
+  .hst{min-width:50%}
+  .lvlbar{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .h-title{font-size:38px}
+  .srow{grid-template-columns:1fr}
+  .cred-name{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="ldOv"><div class="spin"></div><p>Conectando sistema...</p></div>
+
+<!-- ══ HOME ═════════════════════════════════════════ -->
+<div class="scr" id="sHome">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-hex"><span>C</span></div>
+      <div>
+        <div class="tb-name">SIGEL CELIDER 10-04</div>
+        <div class="tb-sub">Sistema de Gestion y Evaluacion de Liderazgo</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <span class="pill-r10">Regional 10</span>
+      <button class="btn-admin" id="btnAdmin">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Panel Admin
+      </button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow"><span class="pdot"></span>Sistema Activo — CELIDER 2026</div>
+    <div class="h-title">SIGEL<br><span>CELIDER</span></div>
+    <div class="h-reg">10 — 04 &nbsp;·&nbsp; Regional 10 &nbsp;·&nbsp; PLERD · MINERD</div>
+    <div class="h-desc">Consulta tus calificaciones en tiempo real usando tu ID de delegado o tu nombre completo.</div>
+    <div class="srch-wrap">
+      <input type="text" id="homeSearch" placeholder="Escribe tu ID (CEL-001) o tu nombre completo...">
+      <button class="srch-btn" id="btnSearch">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+    <p class="srch-hint">Solo tienes acceso a tu propia informacion como delegado.</p>
+  </div>
+
+  <div class="hstats">
+    <div class="hst"><div class="hst-n" id="hs-t">—</div><div class="hst-l">Delegados</div></div>
+    <div class="hst"><div class="hst-n" id="hs-c">—</div><div class="hst-l">Comisiones</div></div>
+    <div class="hst"><div class="hst-n" id="hs-r">—</div><div class="hst-l">Calificados</div></div>
+    <div class="hst"><div class="hst-n" id="hs-a">—</div><div class="hst-l">Promedio</div></div>
+  </div>
+</div>
+
+<!-- Search Results Panel -->
+<div class="srp-ov" id="srpOv">
+  <div class="srp-box">
+    <div class="srp-hd">
+      <div><h3>Resultados</h3><p id="srpCount"></p></div>
+      <button class="srp-x" id="btnSrpX">&#x2715;</button>
+    </div>
+    <div class="srp-list" id="srpList"></div>
+  </div>
+</div>
+
+<!-- ══ PROFILE ══════════════════════════════════════ -->
+<div class="scr" id="sProfile">
+  <div class="prof-bar">
+    <span class="prof-brand">SIGEL · CELIDER 10-04</span>
+    <button class="prof-back" id="btnProfBack">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver
+    </button>
+  </div>
+  <div class="prof-body">
+    <div class="cred-card">
+      <div class="cred-top">
+        <span class="cred-id" id="pId">—</span>
+        <span class="cred-lv" id="pLv">—</span>
+      </div>
+      <div class="cred-name" id="pName">—</div>
+      <div class="cred-chips" id="pChips"></div>
+      <div class="cred-tot">
+        <span class="cred-tot-lbl">Calificacion Total</span>
+        <div class="cred-tot-n" id="pTotal">0<span>/100</span></div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <div class="bk-hd">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Desglose por Criterio</span>
+      </div>
+      <div id="pBreakdown"></div>
+    </div>
+
+    <div class="qr-sec">
+      <p>Tu codigo QR personal — CELIDER 2026</p>
+      <div class="qr-box"><div id="pQR"></div></div>
+      <div class="prof-acts">
+        <button class="btn btn-sky btn-sm" id="btnDlQR">Descargar QR</button>
+        <button class="btn btn-out btn-sm" id="btnPrint">Imprimir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOGIN ═════════════════════════════════════════ -->
+<div class="scr" id="sLogin">
+  <div class="login-card">
+    <div class="lc-hd">
+      <div class="lc-hex"><span>C</span></div>
+      <h2>Acceso Administrativo</h2>
+      <p>Panel de gestion SIGEL CELIDER 10-04</p>
+    </div>
+    <div class="lc-body">
+      <div class="lc-err" id="loginErr"></div>
+      <div class="lfield">
+        <label>Correo electronico</label>
+        <input type="email" id="loginEmail" autocomplete="email">
+      </div>
+      <div class="lfield">
+        <label>Contrasena</label>
+        <input type="password" id="loginPass" autocomplete="current-password">
+      </div>
+      <button class="btn-lsub" id="btnLoginSub">INGRESAR AL PANEL</button>
+      <div class="lback"><button id="btnLoginBack">&#8592; Volver al inicio</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN ═════════════════════════════════════════ -->
+<div class="scr" id="sAdmin">
+  <div class="atb">
+    <div class="atb-brand">
+      <div class="atb-hex"><span>C</span></div>
+      <div><div class="atb-nm">SIGEL CELIDER</div><div class="atb-sb">Panel Admin</div></div>
+    </div>
+    <div class="atb-nav">
+      <button class="atn on" id="atnDash" data-tab="dash">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Panel
+      </button>
+      <button class="atn" id="atnUpload" data-tab="upload">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Cargar
+      </button>
+      <button class="atn" id="atnScore" data-tab="score">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificaciones
+      </button>
+      <button class="atn" id="atnDels" data-tab="dels">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Delegados
+      </button>
+      <button class="atn" id="atnRub" data-tab="rub">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rubrica
+      </button>
+    </div>
+    <div class="atb-r">
+      <div class="atb-em" id="atbEmail">—</div>
+      <span class="atb-role" id="atbRole">—</span>
+      <button class="atb-out" id="btnLogout">Salir</button>
+    </div>
+  </div>
+
+  <div class="ac">
+
+    <!-- DASH -->
+    <div class="atab on" id="tabDash">
+      <div class="ph"><div><h2>Panel General</h2><p>Vision en tiempo real del sistema</p></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--hin)" id="dashTime"></span></div>
+      <div class="srow">
+        <div class="scard"><div class="sn" id="dTotal">0</div><div class="sl">Delegados Totales</div><div class="sbar"><div class="sfill" id="dBar1" style="width:100%"></div></div></div>
+        <div class="scard"><div class="sn" id="dComs">0</div><div class="sl">Comisiones</div><div class="sbar"><div class="sfill" id="dBar2" style="width:100%"></div></div></div>
+        <div class="scard"><div class="sn" id="dCal">0</div><div class="sl">Calificados</div><div class="sbar"><div class="sfill" id="dBar3" style="width:0%"></div></div></div>
+        <div class="scard"><div class="sn" id="dAvg">—</div><div class="sl">Promedio General</div><div class="sbar"><div class="sfill" id="dBar4" style="width:0%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="chd"><h3>Resumen por Comision</h3></div>
+        <div class="tw"><table><thead><tr><th>Comision</th><th>Delegados</th><th>Calificados</th><th>Promedio</th><th>Avance</th></tr></thead><tbody id="dashTbl"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="atab" id="tabUpload">
+      <div class="ph"><div><h2>Cargar Lista de Delegados</h2><p>El sistema asigna IDs automaticamente al subir el Excel</p></div></div>
+      <div class="info-alert"><strong>Reglas de Firebase necesarias</strong>En tu consola Firebase &rarr; Realtime Database &rarr; Rules, pega: <code style="font-size:11px;background:rgba(0,0,0,.1);padding:2px 6px;border-radius:4px">{"rules":{".read":true,".write":"auth != null"}}</code></div>
+      <div class="upzone" id="upZone">
+        <div class="up-ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <h3>Arrastra el Excel aqui o haz clic</h3>
+        <p>El ID se genera automaticamente por orden de aparicion</p>
+        <div class="fmt"><span>INSTITUCION</span><span>NOMBRE</span><span>DESIGNACION</span><span>COMISION</span></div>
+        <input type="file" id="fIn" accept=".xlsx,.xls" style="display:none">
+      </div>
+      <div id="upStatus"></div>
+      <div class="card" style="margin-top:18px">
+        <div class="chd"><h3>Formato del archivo Excel</h3></div>
+        <div class="tw"><table><thead><tr><th>Columna</th><th>Descripcion</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tdid">INSTITUCION</span></td><td>Centro educativo</td><td>Liceo Juan Pablo Duarte</td></tr>
+          <tr><td><span class="tdid">NOMBRE</span></td><td>Nombre completo del delegado</td><td>Maria Garcia Lopez</td></tr>
+          <tr><td><span class="tdid">DESIGNACION</span></td><td>Pais o delegacion asignada</td><td>Brasil</td></tr>
+          <tr><td><span class="tdid">COMISION</span></td><td>Nombre de la comision</td><td>OIT</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- SCORING -->
+    <div class="atab" id="tabScore">
+      <div class="ph">
+        <div><h2>Registrar Calificaciones</h2><p>Los cambios se guardan en Firebase en tiempo real</p></div>
+        <div class="ph-acts"><button class="btn btn-pri btn-sm" id="btnSaveAll">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Guardar Todo
+        </button></div>
+      </div>
+      <div class="fbar">
+        <select class="fsel" id="scorCom" style="min-width:220px"><option value="">-- Selecciona una comision --</option></select>
+      </div>
+      <div id="scorArea"></div>
+    </div>
+
+    <!-- DELEGADOS -->
+    <div class="atab" id="tabDels">
+      <div class="ph">
+        <div><h2>Todos los Delegados</h2><p>Directorio completo con IDs y calificaciones</p></div>
+        <div class="ph-acts">
+          <button class="btn btn-out btn-sm" id="btnExport">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar CSV
+          </button>
+        </div>
+      </div>
+      <div class="fbar">
+        <div class="inw"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="delF" placeholder="Buscar por nombre o ID..."></div>
+        <select class="fsel" id="delFC"><option value="">Todas las comisiones</option></select>
+      </div>
+      <div class="card">
+        <div class="tw"><table><thead><tr><th>ID</th><th>Nombre</th><th>Delegacion</th><th>Institucion</th><th>Comision</th><th>Total</th><th>Nivel</th><th>QR</th></tr></thead>
+        <tbody id="delTBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- RUBRICA -->
+    <div class="atab" id="tabRub">
+      <div class="ph"><div><h2>Rubrica de Evaluacion</h2><p>Criterios oficiales CELIDER 2026 — 100 puntos totales</p></div></div>
+      <div class="lvlbar">
+        <div class="lvi A"><div class="lvin">90–100</div><div class="lvil">Excelente</div></div>
+        <div class="lvi B"><div class="lvin">75–89</div><div class="lvil">Muy Bueno</div></div>
+        <div class="lvi C"><div class="lvin">60–74</div><div class="lvil">Satisfactorio</div></div>
+        <div class="lvi D"><div class="lvin">&lt;60</div><div class="lvil">En Desarrollo</div></div>
+      </div>
+      <div class="rg">
+        <div class="rc"><div class="rpts">15<span> pts</span></div><div class="rnm">Investigacion Academica</div><div class="rdsc">Profundidad y precision de la investigacion previa. Uso correcto de fuentes y datos actualizados.</div></div>
+        <div class="rc"><div class="rpts">15<span> pts</span></div><div class="rnm">Pensamiento Critico</div><div class="rdsc">Capacidad de analisis, sintesis y evaluacion de argumentos propios y contrarios.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Oratoria</div><div class="rdsc">Claridad, fluidez, proyeccion de voz y dominio del lenguaje formal durante los discursos.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Argumentacion</div><div class="rdsc">Solidez logica. Uso de evidencias y refutacion efectiva de argumentos contrarios.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Redaccion</div><div class="rdsc">Calidad de documentos escritos: resoluciones, enmiendas y posicion de pais.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Negociacion</div><div class="rdsc">Habilidad para alcanzar acuerdos mediante dialogo estrategico y diplomatico.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Resolucion de Conflictos</div><div class="rdsc">Gestion de desacuerdos y soluciones constructivas bajo presion.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Liderazgo</div><div class="rdsc">Iniciativa, influencia positiva y capacidad de guiar hacia objetivos comunes.</div></div>
+        <div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Colaboracion</div><div class="rdsc">Trabajo en equipo, respeto hacia otros delegados y contribucion al ambiente positivo.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- QR Modal -->
+<div class="mOv" id="qrMOv">
+  <div class="mBox">
+    <h3 id="qrmName">—</h3>
+    <p id="qrmMeta">—</p>
+    <div class="mQR"><div id="qrmDiv"></div></div>
+    <div class="mActs">
+      <button class="btn btn-sky btn-sm" id="btnDlMQR">Descargar</button>
+      <button class="btn btn-out btn-sm" id="btnCloseMQR">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<!-- ══════════════════════════════════════════════
+     SCRIPT — sin type=module para evitar scope issues
+     Firebase compat SDK ya está en window
+══════════════════════════════════════════════ -->
+<script>
+// ── Esperar que el DOM esté listo ────────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+// ── Firebase init ────────────────────────────────
+const _k = ['AIzaSyDNAoUx40Ax8cu0IKREgle3Bnf271NdKXo','sigel-celider-10-04.firebaseapp.com','sigel-celider-10-04','sigel-celider-10-04.firebasestorage.app','331346792233','1:331346792233:web:15589aa0b9b8c522d2f138','G-00SXM0XGLF'];
+firebase.initializeApp({
+  apiKey:_k[0], authDomain:_k[1], projectId:_k[2],
+  storageBucket:_k[3], messagingSenderId:_k[4],
+  appId:_k[5], measurementId:_k[6],
+  databaseURL:'https://sigel-celider-10-04-default-rtdb.firebaseio.com'
+});
+const auth = firebase.auth();
+const db   = firebase.database();
+
+// ── State ────────────────────────────────────────
+let delegates = {};
+let curUser   = null;
+let curRole   = 'admin';
+let curQRId   = null;
+let dbListenerSet = false;
+
+const SF = [
+  {k:'investigacion',l:'Investigacion Academica',m:15},
+  {k:'pensamiento',  l:'Pensamiento Critico',    m:15},
+  {k:'oratoria',     l:'Oratoria',               m:10},
+  {k:'argumentacion',l:'Argumentacion',          m:10},
+  {k:'redaccion',    l:'Redaccion',              m:10},
+  {k:'negociacion',  l:'Negociacion',            m:10},
+  {k:'conflictos',   l:'Resolucion Conflictos',  m:10},
+  {k:'liderazgo',    l:'Liderazgo',              m:10},
+  {k:'colaboracion', l:'Colaboracion',           m:10},
+];
+
+// ── Helpers ──────────────────────────────────────
+const $  = id => document.getElementById(id);
+const tot = s => s ? SF.reduce((a,f)=>a+(parseInt(s[f.k])||0),0) : 0;
+const lvl = t => t>=90?['A','Excelente']:t>=75?['B','Muy Bueno']:t>=60?['C','Satisfactorio']:['D','En Desarrollo'];
+const coms = () => [...new Set(Object.values(delegates).map(d=>d.comision).filter(Boolean))].sort();
+const genId = n => 'CEL-'+String(n).padStart(3,'0');
+
+function showToast(msg){
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(()=>$('toast').classList.remove('on'), 3000);
+}
+
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  const el=$(id);
+  if(el) el.classList.add('on');
+}
+
+// ── Live clock ───────────────────────────────────
+setInterval(()=>{
+  const el=$('dashTime');
+  if(el) el.textContent = new Date().toLocaleString('es-DO',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'short'});
+},1000);
+
+// ── Firebase DB listener ─────────────────────────
+function startDBListener(){
+  if(dbListenerSet) return;
+  dbListenerSet = true;
+  db.ref('delegates').on('value', snap => {
+    delegates = snap.val() || {};
+    updateHomeStats();
+    updateDashboard();
+    renderDels();
+    populateScoreComs();
+  });
+}
+
+// ── Auth state ───────────────────────────────────
+auth.onAuthStateChanged(user => {
+  $('ldOv').classList.add('hide');
+  startDBListener(); // start listener regardless of auth state
+  if(user){
+    curUser = user;
+    db.ref('admins/'+user.uid).once('value').then(snap=>{
+      curRole = snap.exists() ? (snap.val().role||'admin') : 'admin';
+      $('atbEmail').textContent = user.email;
+      $('atbRole').textContent  = curRole.toUpperCase();
+      showScr('sAdmin');
+    }).catch(()=>{
+      curRole='admin';
+      $('atbEmail').textContent = user.email;
+      $('atbRole').textContent  = 'ADMIN';
+      showScr('sAdmin');
+    });
+  } else {
+    curUser = null;
+    showScr('sHome');
+  }
+});
+
+// ── Stats ────────────────────────────────────────
+function updateHomeStats(){
+  const all   = Object.values(delegates);
+  const rated = all.filter(d=>tot(d.scores)>0);
+  const avg   = rated.length ? (rated.reduce((a,d)=>a+tot(d.scores),0)/rated.length).toFixed(1) : '—';
+  $('hs-t').textContent = all.length || '—';
+  $('hs-c').textContent = coms().length || '—';
+  $('hs-r').textContent = rated.length || '—';
+  $('hs-a').textContent = avg;
+}
+
+function updateDashboard(){
+  const all   = Object.values(delegates);
+  const rated = all.filter(d=>tot(d.scores)>0);
+  const avg   = rated.length ? (rated.reduce((a,d)=>a+tot(d.scores),0)/rated.length).toFixed(1) : '—';
+  $('dTotal').textContent = all.length;
+  $('dComs').textContent  = coms().length;
+  $('dCal').textContent   = rated.length;
+  $('dAvg').textContent   = avg;
+  const pct = all.length ? Math.round(rated.length/all.length*100) : 0;
+  $('dBar3').style.width = pct+'%';
+  $('dBar4').style.width = avg!=='—' ? Math.min(avg,100)+'%' : '0%';
+  const cs = coms();
+  $('dashTbl').innerHTML = cs.length ? cs.map(c=>{
+    const mem   = all.filter(d=>d.comision===c);
+    const r2    = mem.filter(d=>tot(d.scores)>0);
+    const avg2  = r2.length ? (r2.reduce((a,d)=>a+tot(d.scores),0)/r2.length).toFixed(1) : '—';
+    const p2    = mem.length ? Math.round(r2.length/mem.length*100) : 0;
+    return `<tr><td class="tdn">${c}</td><td>${mem.length}</td><td>${r2.length}</td><td>${avg2}</td>
+      <td><div style="background:var(--bord);border-radius:99px;height:6px;overflow:hidden;width:100px">
+      <div style="height:100%;width:${p2}%;background:linear-gradient(90deg,var(--c2),var(--c3));border-radius:99px"></div></div></td></tr>`;
+  }).join('') : '<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--hin)">Sin datos todavia</td></tr>';
+}
+
+// ── SEARCH ───────────────────────────────────────
+function doSearch(){
+  const q = ($('homeSearch').value||'').trim().toLowerCase();
+  if(!q){ showToast('Escribe tu ID o nombre'); return; }
+  const entries = Object.entries(delegates);
+  if(!entries.length){
+    $('srpList').innerHTML = '<div class="srp-nodb"><p>El sistema aun no tiene delegados cargados.</p><small>Contacta al administrador del evento.</small></div>';
+    $('srpCount').textContent = '';
+    $('srpOv').classList.add('on');
+    return;
+  }
+  const found = entries.filter(([id,d])=>
+    id.toLowerCase().includes(q) ||
+    (d.nombre||'').toLowerCase().includes(q)
+  );
+  if(!found.length){
+    $('srpList').innerHTML = '<div class="srp-empty">No se encontro ningun delegado con ese ID o nombre.<br><small style="color:rgba(255,255,255,.2)">Verifica que escribiste correctamente.</small></div>';
+    $('srpCount').textContent = '0 resultados';
+    $('srpOv').classList.add('on');
+    return;
+  }
+  if(found.length===1){
+    openProfile(found[0][0]);
+    return;
+  }
+  $('srpList').innerHTML = found.map(([id,d])=>`
+    <div class="srp-item" data-pid="${id}">
+      <div><div class="srp-iname">${d.nombre||'—'}</div>
+      <div class="srp-imeta">${d.comision||'—'} · ${d.delegacion||'—'}</div></div>
+      <span class="srp-iid">${id}</span>
+    </div>`).join('');
+  $('srpCount').textContent = found.length+' resultado(s)';
+  $('srpOv').classList.add('on');
+  // bind clicks
+  $('srpList').querySelectorAll('.srp-item').forEach(el=>{
+    el.addEventListener('click',()=>{ $('srpOv').classList.remove('on'); openProfile(el.dataset.pid); });
+  });
+}
+
+// ── PROFILE ──────────────────────────────────────
+function openProfile(id){
+  const d = delegates[id];
+  if(!d){ showToast('Delegado no encontrado'); return; }
+  const s  = d.scores||{};
+  const t  = tot(s);
+  const [cl,lb] = lvl(t);
+  $('pId').textContent  = id;
+  $('pLv').textContent  = lb;
+  $('pLv').className    = 'cred-lv '+cl;
+  $('pName').textContent= d.nombre||'—';
+  $('pChips').innerHTML = [
+    d.comision   ?`<span class="cc"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>${d.comision}</span>`:'',
+    d.delegacion ?`<span class="cc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>${d.delegacion}</span>`:'',
+    d.institucion?`<span class="cc"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11H3z"/></svg>${d.institucion}</span>`:'',
+  ].join('');
+  $('pTotal').innerHTML = t+'<span>/100</span>';
+  $('pBreakdown').innerHTML = SF.map(f=>{
+    const v   = parseInt(s[f.k])||0;
+    const pct = Math.round(v/f.m*100);
+    return `<div class="bk-row">
+      <span class="bk-nm">${f.l}</span>
+      <div class="bk-bar"><div class="bk-bg"><div class="bk-fill" style="width:${pct}%"></div></div></div>
+      <span class="bk-val">${v}</span><span class="bk-max">/${f.m}</span>
+    </div>`;
+  }).join('');
+  // QR
+  const qd = $('pQR'); qd.innerHTML='';
+  const url = window.location.origin+window.location.pathname+'?id='+id;
+  try{ new QRCode(qd,{text:url,width:160,height:160,colorDark:'#002247',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H}); }
+  catch(e){ qd.textContent='QR no disponible'; }
+  showScr('sProfile');
+}
+
+// ── LOGIN ─────────────────────────────────────────
+function doLogin(){
+  const email = ($('loginEmail').value||'').trim();
+  const pass  = $('loginPass').value||'';
+  if(!email||!pass){ showLoginErr('Completa los dos campos'); return; }
+  const btn=$('btnLoginSub');
+  btn.disabled=true; btn.textContent='VERIFICANDO...';
+  $('loginErr').classList.remove('on');
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(()=>{ btn.disabled=false; btn.textContent='INGRESAR AL PANEL'; })
+    .catch(e=>{
+      const msgs={'auth/invalid-credential':'Credenciales incorrectas','auth/user-not-found':'Usuario no registrado','auth/wrong-password':'Contrasena incorrecta','auth/invalid-email':'Correo invalido','auth/too-many-requests':'Demasiados intentos. Espera unos minutos.'};
+      showLoginErr(msgs[e.code]||('Error: '+e.code));
+      btn.disabled=false; btn.textContent='INGRESAR AL PANEL';
+    });
+}
+function showLoginErr(msg){ const e=$('loginErr'); e.textContent=msg; e.classList.add('on'); }
+
+// ── ADMIN TABS ────────────────────────────────────
+function showAdminTab(name){
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.atn').forEach(b=>b.classList.remove('on'));
+  const tabMap={dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',rub:'tabRub'};
+  const btnMap={dash:'atnDash',upload:'atnUpload',score:'atnScore',dels:'atnDels',rub:'atnRub'};
+  const t=$(tabMap[name]); if(t) t.classList.add('on');
+  const b=$(btnMap[name]); if(b) b.classList.add('on');
+  if(name==='score') populateScoreComs();
+  if(name==='dels')  renderDels();
+  if(name==='dash')  updateDashboard();
+}
+
+// ── UPLOAD ────────────────────────────────────────
+function processXL(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb   = XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      if(!rows.length){ showToast('Archivo vacio o sin datos'); return; }
+      const parsed=rows.map((row,i)=>({
+        id:         genId(i+1),
+        institucion:row['INSTITUCION']||row['INSTITUCIÓN']||row['Institucion']||'',
+        nombre:     row['NOMBRE']||row['Nombre']||'',
+        delegacion: row['DESIGNACION']||row['DESIGNACIÓN']||row['Delegacion']||'',
+        comision:   row['COMISION']||row['COMISIÓN']||row['Comision']||'',
+        scores:     null,
+      })).filter(d=>d.nombre.trim());
+      const updates={};
+      parsed.forEach(d=>{ updates['delegates/'+d.id]=d; });
+      db.ref().update(updates)
+        .then(()=>{
+          $('upStatus').innerHTML=`<div style="background:var(--ok-bg);border:1px solid #6ee7b7;border-radius:9px;padding:12px 16px;color:var(--ok);font-size:13px;font-weight:600;margin-top:4px">${parsed.length} delegados cargados correctamente · ${[...new Set(parsed.map(d=>d.comision))].filter(Boolean).length} comisiones detectadas</div>`;
+          showToast(parsed.length+' delegados guardados en Firebase');
+          showAdminTab('dels');
+        })
+        .catch(err=>{ showToast('Error al guardar: '+err.message); console.error(err); });
+    }catch(err){ showToast('Error procesando archivo: '+err.message); console.error(err); }
+  };
+  r.readAsArrayBuffer(file);
+}
+
+// ── DELEGATES TABLE ───────────────────────────────
+function renderDels(){
+  const q  = ($('delF')?.value||'').toLowerCase();
+  const qc = $('delFC')?.value||'';
+  const sel = $('delFC');
+  if(sel){
+    const cv=sel.value;
+    sel.innerHTML='<option value="">Todas las comisiones</option>'+coms().map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
+  }
+  const all = Object.entries(delegates);
+  const f   = all.filter(([id,d])=>(!q||(d.nombre||'').toLowerCase().includes(q)||id.toLowerCase().includes(q))&&(!qc||d.comision===qc));
+  $('delTBody').innerHTML = f.map(([id,d])=>{
+    const t=tot(d.scores||{}),[cl,lb]=lvl(t);
+    return`<tr>
+      <td><span class="tdid">${id}</span></td>
+      <td class="tdn">${d.nombre||'—'}</td>
+      <td>${d.delegacion||'—'}</td>
+      <td>${d.institucion||'—'}</td>
+      <td>${d.comision||'—'}</td>
+      <td><strong>${t}</strong>/100</td>
+      <td><span class="bdg b${cl}">${lb}</span></td>
+      <td><span class="tdlk" data-qrid="${id}">Ver QR</span></td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--hin)">Sin delegados cargados todavia</td></tr>`;
+  // Bind QR links
+  $('delTBody').querySelectorAll('[data-qrid]').forEach(el=>{
+    el.addEventListener('click',()=>openQRModal(el.dataset.qrid));
+  });
+}
+
+// ── QR MODAL ──────────────────────────────────────
+function openQRModal(id){
+  const d=delegates[id]; if(!d) return;
+  curQRId=id;
+  $('qrmName').textContent=d.nombre||'—';
+  $('qrmMeta').textContent=id+' · '+(d.comision||'—')+' · '+(d.delegacion||'—');
+  const qd=$('qrmDiv'); qd.innerHTML='';
+  const url=window.location.origin+window.location.pathname+'?id='+id;
+  try{ new QRCode(qd,{text:url,width:160,height:160,colorDark:'#002247',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H}); }
+  catch(e){ qd.textContent='Error'; }
+  $('qrMOv').classList.add('on');
+}
+
+// ── SCORING ───────────────────────────────────────
+function populateScoreComs(){
+  const sel=$('scorCom'); if(!sel) return;
+  const cv=sel.value;
+  sel.innerHTML='<option value="">-- Selecciona una comision --</option>'+coms().map(c=>`<option value="${c}"${c===cv?' selected':''}>${c}</option>`).join('');
+}
+
+function renderScoring(){
+  const com=$('scorCom').value;
+  const area=$('scorArea');
+  if(!com){ area.innerHTML=''; return; }
+  const mem=Object.entries(delegates).filter(([,d])=>d.comision===com);
+  if(!mem.length){ area.innerHTML='<div style="padding:28px;text-align:center;color:var(--hin)">Sin delegados en esta comision</div>'; return; }
+  area.innerHTML=`<div class="card"><div class="tw"><table>
+    <thead><tr><th>ID</th><th>Nombre</th><th>Delegacion</th>
+    ${SF.map(f=>`<th>${f.l}<br><small style="font-weight:400;color:var(--hin)">/${f.m}</small></th>`).join('')}
+    <th>Total</th></tr></thead>
+    <tbody>${mem.map(([id,d])=>{
+      const s=d.scores||{},t=tot(s);
+      return`<tr>
+        <td><span class="tdid">${id}</span></td>
+        <td class="tdn">${d.nombre}</td>
+        <td>${d.delegacion||'—'}</td>
+        ${SF.map(f=>`<td><input class="sinp" type="number" min="0" max="${f.m}" value="${s[f.k]||''}" placeholder="0" data-id="${id}" data-k="${f.k}"></td>`).join('')}
+        <td><strong id="st_${id}">${t}</strong>/100</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div></div>`;
+  // bind inputs
+  area.querySelectorAll('.sinp').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const id=inp.dataset.id;
+      const inputs=area.querySelectorAll(`[data-id="${id}"]`);
+      let t=0; inputs.forEach(i=>t+=parseInt(i.value)||0);
+      const el=$('st_'+id); if(el) el.textContent=t;
+    });
+  });
+}
+
+function saveAllScores(){
+  const com=$('scorCom').value; if(!com){ showToast('Selecciona una comision'); return; }
+  const area=$('scorArea');
+  const mem=Object.entries(delegates).filter(([,d])=>d.comision===com);
+  const updates={};
+  mem.forEach(([id])=>{
+    const inputs=area.querySelectorAll(`[data-id="${id}"]`);
+    if(inputs.length){ const s={}; inputs.forEach(i=>{s[i.dataset.k]=parseInt(i.value)||0}); updates['delegates/'+id+'/scores']=s; }
+  });
+  db.ref().update(updates)
+    .then(()=>showToast('Calificaciones guardadas — '+com))
+    .catch(err=>showToast('Error: '+err.message));
+}
+
+// ── EXPORT CSV ────────────────────────────────────
+function exportCSV(){
+  const rows=[['ID','Nombre','Delegacion','Institucion','Comision',...SF.map(f=>f.l),'Total']];
+  Object.entries(delegates).forEach(([id,d])=>{
+    const s=d.scores||{};
+    rows.push([id,d.nombre,d.delegacion,d.institucion,d.comision,...SF.map(f=>s[f.k]||0),tot(s)]);
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download='SIGEL_CELIDER_1004_delegados.csv'; a.click();
+  showToast('CSV exportado con IDs');
+}
+
+// ── QR PARAM ON LOAD ─────────────────────────────
+const urlId = new URLSearchParams(location.search).get('id');
+if(urlId){
+  let tries=0;
+  const wait=setInterval(()=>{
+    tries++;
+    if(Object.keys(delegates).length||tries>40){
+      clearInterval(wait);
+      if(delegates[urlId]) openProfile(urlId);
+      else { $('ldOv').classList.add('hide'); showScr('sHome'); showToast('ID de delegado no encontrado'); }
+    }
+  },200);
+}
+
+// ══════════════════════════════════════════════
+// BIND ALL EVENTS
+// ══════════════════════════════════════════════
+$('btnAdmin').addEventListener('click',()=>showScr('sLogin'));
+$('btnSearch').addEventListener('click',doSearch);
+$('homeSearch').addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); });
+$('btnSrpX').addEventListener('click',()=>$('srpOv').classList.remove('on'));
+$('btnProfBack').addEventListener('click',()=>showScr('sHome'));
+$('btnDlQR').addEventListener('click',()=>{
+  const c=document.querySelector('#pQR canvas');
+  if(!c){ showToast('QR no listo aun'); return; }
+  const a=document.createElement('a'); a.download='QR_'+$('pId').textContent+'_CELIDER2026.png'; a.href=c.toDataURL(); a.click();
+  showToast('QR descargado');
+});
+$('btnPrint').addEventListener('click',()=>{
+  const id=$('pId').textContent;
+  const d=delegates[id]; if(!d) return;
+  const c=document.querySelector('#pQR canvas');
+  const qrSrc=c?c.toDataURL():'';
+  const t=tot(d.scores||{}),[,lb]=lvl(t);
+  const rows=SF.map(f=>`<tr><td>${f.l}</td><td><strong>${d.scores?.[f.k]||0}/${f.m}</strong></td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Credencial ${d.nombre}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:#fff;padding:26px;max-width:440px;margin:0 auto}
+  .hd{background:#002247;color:#fff;border-radius:12px;padding:20px;margin-bottom:16px}
+  .hd h1{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-bottom:3px}
+  .hd p{font-size:10px;opacity:.5;letter-spacing:.3px}
+  .mid{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;margin-bottom:16px}
+  .qi img{border:3px solid #e2e8f0;border-radius:9px}
+  .nm{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#002247;margin-bottom:4px}
+  .idbl{font-family:monospace;font-size:11px;color:#0087f1;background:#e8f3fc;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:7px}
+  .tot{font-family:'Bebas Neue',sans-serif;font-size:30px;color:#002247;margin-bottom:3px}
+  table{width:100%;border-collapse:collapse;font-size:12px}td{padding:6px 9px;border-bottom:1px solid #e2e8f0}td:last-child{text-align:right}
+  @media print{@page{margin:7mm}}</style></head><body>
+  <div class="hd"><h1>SIGEL CELIDER 10-04 · REGIONAL 10</h1><p>PLERD · MINERD · CELIDER 2026</p></div>
+  <div class="mid"><div class="qi">${qrSrc?`<img src="${qrSrc}" width="110">`:'—'}</div>
+  <div><div class="idbl">${id}</div><div class="nm">${d.nombre}</div><div class="tot">${t}/100</div><div>${lb}</div></div></div>
+  <table><thead><tr><th>Criterio</th><th>Puntaje</th></tr></thead><tbody>${rows}</tbody></table>
+  <script>window.onload=()=>window.print()<\/script></body></html>`);
+});
+
+$('btnLoginSub').addEventListener('click',doLogin);
+$('loginPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('btnLoginBack').addEventListener('click',()=>showScr('sHome'));
+$('btnLogout').addEventListener('click',()=>auth.signOut());
+$('btnSaveAll').addEventListener('click',saveAllScores);
+$('btnExport').addEventListener('click',exportCSV);
+$('btnDlMQR').addEventListener('click',()=>{
+  const c=document.querySelector('#qrmDiv canvas'); if(!c) return;
+  const a=document.createElement('a'); a.download='QR_'+curQRId+'_CELIDER2026.png'; a.href=c.toDataURL(); a.click();
+});
+$('btnCloseMQR').addEventListener('click',()=>$('qrMOv').classList.remove('on'));
+$('qrMOv').addEventListener('click',e=>{ if(e.target===$('qrMOv')) $('qrMOv').classList.remove('on'); });
+$('srpOv').addEventListener('click',e=>{ if(e.target===$('srpOv')) $('srpOv').classList.remove('on'); });
+
+// Admin nav buttons
+document.querySelectorAll('.atn').forEach(btn=>{
+  btn.addEventListener('click',()=>showAdminTab(btn.dataset.tab));
+});
+
+// Upload zone
+const upZ=$('upZone');
+upZ.addEventListener('click',()=>$('fIn').click());
+upZ.addEventListener('dragover',e=>{e.preventDefault();upZ.classList.add('drag')});
+upZ.addEventListener('dragleave',()=>upZ.classList.remove('drag'));
+upZ.addEventListener('drop',e=>{e.preventDefault();upZ.classList.remove('drag');if(e.dataTransfer.files[0])processXL(e.dataTransfer.files[0])});
+$('fIn').addEventListener('change',e=>{ if(e.target.files[0]) processXL(e.target.files[0]); });
+
+// Score comision select
+$('scorCom').addEventListener('change',renderScoring);
+
+// Delegate filters
+$('delF').addEventListener('input',renderDels);
+$('delFC').addEventListener('change',renderDels);
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
