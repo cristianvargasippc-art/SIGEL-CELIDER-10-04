@@ -512,6 +512,7 @@ var curRole     = null;
 var curComision = null;
 var curQRId     = null;
 var adminListenerOn = false;
+var publicDelegateListenerOn = false;
 // Debounce timers per delegate
 var saveTimers  = {};
 
@@ -588,6 +589,15 @@ function startPublicStatsListener(){
   });
 }
 
+function startPublicDelegateListener(){
+  if(publicDelegateListenerOn) return;
+  publicDelegateListenerOn = true;
+  db.ref('delegates').on('value', function(snap){
+    delegates = snap.val() || {};
+    updateHomeStats();
+  });
+}
+
 function updatePublicStats(){
   var all    = Object.values(delegates);
   var rated  = all.filter(function(d){ return tot(d.scores) > 0; });
@@ -638,6 +648,7 @@ auth.onAuthStateChanged(function(user){
   } else {
     curUser = null; curRole = null; curComision = null;
     startPublicStatsListener();
+    startPublicDelegateListener();
     var urlId = new URLSearchParams(location.search).get('id');
     if(urlId){
       loadAndShowProfile(urlId);
@@ -704,23 +715,39 @@ function doSearch(){
   // Busqueda por nombre
   var entries = Object.entries(delegates);
   if(!entries.length){
-    showSRP('<div class="srp-empty">Usa tu ID de delegado (ejemplo: CEL-001).<br><small>Tu ID esta en la hoja que te entrego la mesa directiva.</small></div>', '');
+    $('ldOv').classList.remove('hide');
+    db.ref('delegates').once('value').then(function(snap){
+      delegates = snap.val() || {};
+      $('ldOv').classList.add('hide');
+      entries = Object.entries(delegates);
+      if(!entries.length){
+        showSRP('<div class="srp-empty">Usa tu ID de delegado (ejemplo: CEL-001).<br><small>Tu ID esta en la hoja que te entrego la mesa directiva.</small></div>', '');
+        return;
+      }
+      proceedSearch();
+    }).catch(function(){
+      $('ldOv').classList.add('hide');
+      showToast('Error al cargar datos de delegados');
+    });
     return;
   }
-  var found = entries.filter(function(e){ return (e[1].nombre||'').toLowerCase().indexOf(q) !== -1; });
-  if(!found.length){
-    showSRP('<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small>Intenta con tu ID: CEL-001, CEL-002...</small></div>', '0 resultados');
-    return;
+  proceedSearch();
+  function proceedSearch(){
+    var found = entries.filter(function(e){ return (e[1].nombre||'').toLowerCase().indexOf(q) !== -1; });
+    if(!found.length){
+      showSRP('<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small>Intenta con tu ID: CEL-001, CEL-002...</small></div>', '0 resultados');
+      return;
+    }
+    if(found.length === 1){ openProfile(found[0][0]); return; }
+    var html = found.map(function(e){
+      var id2 = e[0], d2 = e[1];
+      return '<div class="srp-item" data-pid="' + esc(id2) + '">' +
+        '<div><div class="srp-iname">' + esc(d2.nombre) + '</div>' +
+        '<div class="srp-imeta">' + esc(d2.comision||'—') + ' · ' + esc(d2.delegacion||'—') + '</div></div>' +
+        '<span class="srp-iid">' + esc(id2) + '</span></div>';
+    }).join('');
+    showSRP(html, found.length + ' resultado(s)');
   }
-  if(found.length === 1){ openProfile(found[0][0]); return; }
-  var html = found.map(function(e){
-    var id2 = e[0], d2 = e[1];
-    return '<div class="srp-item" data-pid="' + esc(id2) + '">' +
-      '<div><div class="srp-iname">' + esc(d2.nombre) + '</div>' +
-      '<div class="srp-imeta">' + esc(d2.comision||'—') + ' · ' + esc(d2.delegacion||'—') + '</div></div>' +
-      '<span class="srp-iid">' + esc(id2) + '</span></div>';
-  }).join('');
-  showSRP(html, found.length + ' resultado(s)');
 }
 
 function showSRP(html, count){
@@ -1099,7 +1126,11 @@ function processXL(file){
       db.ref().update(updates)
         .then(function(){
           var comsDetected = {};
-          parsed.forEach(function(d){ if(d.comision) comsDetected[d.comision]=1; });
+          parsed.forEach(function(d){
+            if(d.comision) comsDetected[d.comision]=1;
+            delegates[d.id] = d;
+          });
+          updateHomeStats();
           $('upStatus').innerHTML = '<div style="background:var(--ok-bg);border:1px solid #6ee7b7;border-radius:9px;padding:11px 14px;color:var(--ok);font-size:13px;font-weight:600;margin-top:4px">' +
             parsed.length + ' delegados cargados · ' + Object.keys(comsDetected).length + ' comisiones detectadas</div>';
           showToast(parsed.length + ' delegados guardados en Firebase');
@@ -1277,19 +1308,25 @@ function renderScoring(){
       btn.disabled = true;
       btn.textContent = pub ? 'Publicando...' : 'Despublicando...';
 
-      // Build update object using set per field to avoid object literal key issues
-      var ref1 = db.ref('delegates/' + did + '/published');
-      ref1.set(pub).then(function(){
+      var pendingSave = Promise.resolve();
+      if(saveTimers[did]){
+        clearTimeout(saveTimers[did]);
+        pendingSave = autoSaveDelegate(did, area);
+      }
+
+      pendingSave.then(function(){
+        return db.ref('delegates/' + did + '/published').set(pub);
+      }).then(function(){
+        if(!delegates[did]) delegates[did] = {};
+        delegates[did].published = pub;
         showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
         updatePublicStats();
-        // Refresh just the badge and button for this card
         var pubBadge = $('pub_' + did);
         if(pubBadge){
           pubBadge.textContent = pub ? 'Publicado' : 'Pendiente';
           pubBadge.className   = 'pub-badge ' + (pub ? 'published' : 'pending');
         }
         btn.disabled = false;
-        // Re-render to flip publish/unpublish button
         renderScoring();
       }).catch(function(err){
         showToast('Error: ' + err.message);
@@ -1303,11 +1340,13 @@ function renderScoring(){
 // Auto-save scores for one delegate
 function autoSaveDelegate(did, area){
   var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
-  if(!inputs.length) return;
+  if(!inputs.length) return Promise.resolve();
   var scores = {};
   inputs.forEach(function(i){ scores[i.dataset.k] = parseInt(i.value) || 0; });
-  db.ref('delegates/' + did + '/scores').set(scores)
+  return db.ref('delegates/' + did + '/scores').set(scores)
     .then(function(){
+      if(!delegates[did]) delegates[did] = {};
+      delegates[did].scores = scores;
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.add('show');
