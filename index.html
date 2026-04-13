@@ -412,13 +412,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── Firebase init (key split para ofuscar) ────────
 const _a='AIzaSyDNAo', _b='Ux40Ax8cu0IKREgle3Bnf271NdKXo', _p='sigel-celider-10-04';
-firebase.initializeApp({
-  apiKey:_a+_b, authDomain:_p+'.firebaseapp.com', projectId:_p,
-  storageBucket:_p+'.firebasestorage.app', messagingSenderId:'331346792233',
-  appId:'1:331346792233:web:15589aa0b9b8c522d2f138',
-  databaseURL:'https://'+_p+'-default-rtdb.firebaseio.com'
-});
-const auth=firebase.auth(), db=firebase.database();
+let auth=null, db=null;
+try {
+  firebase.initializeApp({
+    apiKey:_a+_b, authDomain:_p+'.firebaseapp.com', projectId:_p,
+    storageBucket:_p+'.firebasestorage.app', messagingSenderId:'331346792233',
+    appId:'1:331346792233:web:15589aa0b9b8c522d2f138',
+    databaseURL:'https://'+_p+'-default-rtdb.firebaseio.com'
+  });
+  auth = firebase.auth();
+  db = firebase.database();
+} catch(e) {
+  const ld=document.getElementById('ldOv');
+  if(ld) ld.classList.add('hide');
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  const home=document.getElementById('sHome');
+  if(home) home.classList.add('on');
+  const toast=document.getElementById('toast');
+  if(toast){
+    const span=toast.querySelector('span');
+    if(span) span.textContent='Firebase no disponible. Revisa tu conexión.';
+    toast.classList.add('on');
+    setTimeout(()=>toast.classList.remove('on'),3000);
+  }
+  console.error('Firebase init failed', e);
+  return;
+}
 
 // ── Estado ───────────────────────────────────────
 let delegates={}, curUser=null, curRole=null, curComision=null, curQRId=null;
@@ -573,6 +592,14 @@ auth.onAuthStateChanged(async user=>{
     }
   }
 });
+
+setTimeout(()=>{
+  if(!$('ldOv').classList.contains('hide')){
+    $('ldOv').classList.add('hide');
+    showScr('sHome');
+    showToast('Sin respuesta de Firebase. Se muestra la página en local.');
+  }
+}, 6000);
 
 // ── Carga perfil por ID (usado por QR y busqueda) ──
 function loadAndShowProfile(id){
