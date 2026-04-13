@@ -1193,7 +1193,10 @@ function renderScoring(){
         '<div class="dsc-right">' +
           '<div class="autosave-ind" id="saved_' + id + '"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Guardado</div>' +
           '<div class="saving-ind" id="saving_' + id + '">Guardando...</div>' +
-          '<span class="dsc-total" id="tot_' + id + '">' + t + '/100</span>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span class="dsc-total" id="tot_' + id + '">' + t + '/100</span>' +
+            '<span id="lvl_' + id + '" class="bdg b' + lvl(t)[0] + '" style="min-width:60px;text-align:center">' + lvl(t)[1] + '</span>' +
+          '</div>' +
           '<span class="pub-badge ' + (pub?'published':'pending') + '" id="pub_' + id + '">' + (pub?'Publicado':'Pendiente') + '</span>' +
         '</div>' +
       '</div>' +
@@ -1240,6 +1243,13 @@ function renderScoring(){
       var t2 = 0;
       inputs.forEach(function(i){ t2 += parseInt(i.value) || 0; });
       var te = $('tot_' + did); if(te) te.textContent = t2 + '/100';
+      // Update level badge
+      var lv = lvl(t2);
+      var le = $('lvl_' + did);
+      if(le){
+        le.textContent = lv[1];
+        le.className = 'bdg b' + lv[0];
+      }
       // Show saving indicator, hide saved
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
