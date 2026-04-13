@@ -550,8 +550,9 @@ auth.onAuthStateChanged(async user=>{
 // ── Carga perfil por ID (usado por QR y busqueda) ──
 function loadAndShowProfile(id){
   const idUp=id.toUpperCase();
-  // Si ya está en cache, mostrar directo
-  if(delegates[idUp]){openProfile(idUp);return;}
+  // Si el usuario NO está autenticado, siempre recargar desde Firebase.
+  // Esto evita que un delegado vea datos antiguos después de despublicar.
+  if(curUser && delegates[idUp]){openProfile(idUp);return;}
   // Si no, cargar desde Firebase
   $('ldOv').classList.remove('hide');
   loadDelegateById(idUp)
@@ -634,7 +635,7 @@ function showSRP(html,count){
 function openProfile(id){
   const d=delegates[id];
   if(!d){showToast('Delegado no encontrado');return;}
-  const pub=d.published===true;
+  const pub=d.published===true || d.published==='true';
   const s=d.scores||{};
   const t=tot(s);
   const [cl,lb]=lvl(t);
