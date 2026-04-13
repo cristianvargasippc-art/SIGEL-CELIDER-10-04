@@ -601,6 +601,7 @@ auth.onAuthStateChanged(async user=>{
     $('atbEmail').textContent=user.email;
     $('atbRole').textContent=curRole==='superadmin'?'SUPER ADMIN':'ADMIN COM.';
     startAdminListener(); // admin lee lista completa (requiere auth)
+    updatePublicStats(); // Forzar actualización inicial de publicStats para sincronización en tiempo real
     buildAdminUI();
     showScr('sAdmin');
   } else {
