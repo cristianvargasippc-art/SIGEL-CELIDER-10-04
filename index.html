@@ -423,6 +423,7 @@ const auth=firebase.auth(), db=firebase.database();
 // ── Estado ───────────────────────────────────────
 let delegates={}, curUser=null, curRole=null, curComision=null, curQRId=null;
 let adminListenerActive=false, publicStatsListenerActive=false;
+let delegateSaveTimers={};
 
 const SF=[
   {k:'investigacion',l:'Investigacion Academica',m:15},
@@ -516,6 +517,32 @@ function loadDelegateById(id){
     }
     return null;
   });
+}
+
+function saveDelegateDataById(id){
+  const area = $('scorArea');
+  if(!area) return;
+  const inputs = area.querySelectorAll(`[data-id="${id}"]`);
+  if(!inputs.length) return;
+  const scores = {};
+  inputs.forEach(i=>{scores[i.dataset.k] = parseInt(i.value) || 0;});
+  const feedbackEl = $('fb_' + id);
+  const updates = {['delegates/' + id + '/scores']: scores};
+  if(feedbackEl) updates['delegates/' + id + '/feedback'] = feedbackEl.value.trim();
+  db.ref().update(updates)
+    .then(()=>{
+      delegates[id] = delegates[id] || {};
+      delegates[id].scores = scores;
+      if(feedbackEl) delegates[id].feedback = feedbackEl.value.trim();
+      showToast('Guardado automático de ' + id);
+      updatePublicStats();
+    })
+    .catch(e=>showToast('Error guardando '+id+': '+e.message));
+}
+
+function scheduleAutoSaveDelegate(id){
+  if(delegateSaveTimers[id]) clearTimeout(delegateSaveTimers[id]);
+  delegateSaveTimers[id] = setTimeout(()=>{ saveDelegateDataById(id); delete delegateSaveTimers[id]; }, 800);
 }
 
 // ── Auth state ───────────────────────────────────
@@ -1148,6 +1175,8 @@ function renderScoring(){
   const pubRows=mem.map(([id,d])=>{
     const s=d.scores||{};const t=tot(s);const pub=d.published===true;
     const fb=d.feedback||'';
+    const pubLabel = pub ? 'Despublicar' : 'Publicar';
+    const pubClass = pub ? 'btn btn-warn btn-xs' : 'btn btn-ok btn-xs';
     return`<div class="pub-row">
       <div class="pub-row-top">
         <div style="display:flex;flex-direction:column;flex:1;min-width:0">
@@ -1157,8 +1186,7 @@ function renderScoring(){
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span class="del-tot" id="st2_${id}">${t}/100</span>
           <span class="pub-status ${pub?'ps-pub':'ps-npub'}" id="pst_${id}">${pub?'Publicado':'No publicado'}</span>
-          <button class="btn btn-ok btn-xs" data-pubid="${id}" data-pub="true"${pub?' disabled':''}>Publicar</button>
-          ${pub?`<button class="btn btn-warn btn-xs" data-pubid="${id}" data-pub="false">Despublicar</button>`:''}
+          <button class="${pubClass}" data-pubid="${id}" data-pub="${pub?'false':'true'}">${pubLabel}</button>
         </div>
       </div>
       <div class="fb-section">
@@ -1191,7 +1219,7 @@ function renderScoring(){
     </table></div>
   </div>
   <div class="card">
-    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Primero guarda, luego publica</small></div>
+    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Los cambios se guardan automáticamente en tiempo real</small></div>
     <div style="padding:12px">${pubRows}</div>
   </div>`;
 
@@ -1202,24 +1230,27 @@ function renderScoring(){
       let t=0;inputs.forEach(i=>t+=parseInt(i.value)||0);
       const el=$('st_'+id);
       const el2=$('st2_'+id);
-      let updated = false;
-      if(el){el.textContent=t+'/100'; updated = true;}
-      if(el2){el2.textContent=t+'/100'; updated = true;}
-      if(!updated){console.warn(`Score element not found for id: ${id}`);}
+      if(el) el.textContent=t+'/100';
+      if(el2) el2.textContent=t+'/100';
+      scheduleAutoSaveDelegate(id);
     });
   });
 
   // Feedback counters
   mem.forEach(([id])=>{
     const ta=$('fb_'+id);const ctr=$('fbc_'+id);
-    if(ta&&ctr){ta.addEventListener('input',()=>{ctr.textContent=ta.value.length;});}
+    if(ta&&ctr){
+      ta.addEventListener('input',()=>{
+        ctr.textContent=ta.value.length;
+        scheduleAutoSaveDelegate(id);
+      });
+    }
   });
 
   area.querySelectorAll('[data-pubid]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.pubid;
       const pub = btn.dataset.pub === 'true';
-      // Save feedback junto con la publicacion
       const ta = $('fb_' + id);
       const updates = { ['delegates/' + id + '/published']: pub };
       if (ta) updates['delegates/' + id + '/feedback'] = ta.value.trim();
@@ -1233,6 +1264,7 @@ function renderScoring(){
     });
   });
 
+  $('btnSaveAll')?.style.display='none';
 }
 
 function saveAllScores(){
@@ -1311,7 +1343,8 @@ function addAdmin(){
 
 // ── BIND ADMIN EVENTS ─────────────────────────────
 function bindAdminEvents(){
-  $('btnSaveAll')?.addEventListener('click',saveAllScores);
+  const saveAllBtn = $('btnSaveAll');
+  if(saveAllBtn){ saveAllBtn.style.display = 'none'; saveAllBtn.removeEventListener('click', saveAllScores); }
   $('btnExport')?.addEventListener('click',exportExcel);
   $('btnAddAdm')?.addEventListener('click',addAdmin);
   $('delF')?.addEventListener('input',renderDels);
