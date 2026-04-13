@@ -1291,7 +1291,8 @@ function renderScoring(){
     });
   });
 
-  $('btnSaveAll')?.style.display='none';
+  const saveAllBtn = $('btnSaveAll');
+  if(saveAllBtn) saveAllBtn.style.display='none';
 }
 
 function saveAllScores(){
