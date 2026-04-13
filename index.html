@@ -512,6 +512,7 @@ var curRole     = null;
 var curComision = null;
 var curQRId     = null;
 var adminListenerOn = false;
+var publicStatsListenerOn = false;
 // Debounce timers per delegate
 var saveTimers  = {};
 
@@ -579,6 +580,8 @@ function startAdminListener(){
 }
 
 function startPublicStatsListener(){
+  if(publicStatsListenerOn) return;
+  publicStatsListenerOn = true;
   // Publico solo ve contadores agregados
   db.ref('publicStats').on('value', function(snap){
     var s = snap.val() || {};
@@ -1294,7 +1297,11 @@ function renderScoring(){
       var ref1 = db.ref('delegates/' + did + '/published');
       ref1.set(pub).then(function(){
         showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
+        if(delegates[did]){
+          delegates[did].published = pub;
+        }
         updatePublicStats();
+        updateHomeStats();
         
         // Update badge and button locally WITHOUT re-rendering
         var pubBadge = $('pub_' + did);
@@ -1325,11 +1332,15 @@ function autoSaveDelegate(did, area){
   inputs.forEach(function(i){ scores[i.dataset.k] = parseInt(i.value) || 0; });
   db.ref('delegates/' + did + '/scores').set(scores)
     .then(function(){
+      if(delegates[did]){
+        delegates[did].scores = scores;
+      }
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.add('show');
       if(savInd) savInd.classList.remove('show');
       updatePublicStats();
+      updateHomeStats();
     })
     .catch(function(err){ showToast('Error al guardar: ' + err.message); });
 }
@@ -1338,6 +1349,9 @@ function autoSaveDelegate(did, area){
 function autoSaveFeedback(did, text){
   db.ref('delegates/' + did + '/feedback').set(text.trim())
     .then(function(){
+      if(delegates[did]){
+        delegates[did].feedback = text.trim();
+      }
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.add('show');
