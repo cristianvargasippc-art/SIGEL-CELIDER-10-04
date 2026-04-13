@@ -571,6 +571,7 @@ function startAdminListener(){
   db.ref('delegates').on('value', function(snap){
     delegates = snap.val() || {};
     updateHomeStats();
+    updatePublicStats();
     updateDashboard();
     renderDels();
     populateScoreComs();
@@ -616,6 +617,9 @@ function loadDelegateById(id){
 // ── AUTH STATE ───────────────────────────────────
 auth.onAuthStateChanged(function(user){
   $('ldOv').classList.add('hide');
+  // SIEMPRE escuchar cambios en estadísticas públicas para actualizar la home en tiempo real
+  startPublicStatsListener();
+  
   if(user){
     curUser = user;
     db.ref('admins/' + user.uid).once('value').then(function(snap){
@@ -637,7 +641,6 @@ auth.onAuthStateChanged(function(user){
     });
   } else {
     curUser = null; curRole = null; curComision = null;
-    startPublicStatsListener();
     var urlId = new URLSearchParams(location.search).get('id');
     if(urlId){
       loadAndShowProfile(urlId);
