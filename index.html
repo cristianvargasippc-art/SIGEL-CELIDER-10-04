@@ -249,12 +249,26 @@ tbody tr:hover td{background:#f8fafc}
 .mBox p{font-size:11.5px;color:rgba(255,255,255,.32);margin-bottom:16px}
 .mQR{background:#fff;border-radius:9px;padding:11px;display:inline-block;margin-bottom:14px}
 .mActs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
-.pub-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--bord);margin-top:6px;gap:8px;flex-wrap:wrap}
+.pub-row{background:var(--bg);border:1px solid var(--bord);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.pub-row-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px;flex-wrap:wrap}
 .pub-row .del-nm{font-weight:600;font-size:13px;color:var(--c1);flex:1;min-width:120px}
 .pub-row .del-tot{font-family:'DM Mono',monospace;font-size:12px;color:var(--mut)}
 .pub-status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
 .ps-pub{background:#d1fae5;color:#065f46}
 .ps-npub{background:var(--warn-bg);color:var(--warn)}
+/* Feedback section */
+.fb-section{border-top:1px solid var(--bord);padding:10px 12px;background:var(--sur)}
+.fb-label{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.fb-label svg{width:12px;height:12px;stroke:var(--c3);fill:none;stroke-width:2;stroke-linecap:round}
+.fb-textarea{width:100%;padding:8px 11px;border:1px solid var(--bord);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;resize:vertical;min-height:72px;transition:border-color .15s;line-height:1.5}
+.fb-textarea:focus{border-color:var(--c3)}
+.fb-counter{font-size:10.5px;color:var(--hin);text-align:right;margin-top:3px}
+/* Feedback display in profile */
+.feedback-card{background:rgba(0,135,241,.06);border:1px solid rgba(0,135,241,.15);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.feedback-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.feedback-card-hd svg{width:15px;height:15px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.feedback-card-hd span{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:rgba(255,255,255,.5)}
+.feedback-text{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-wrap}
 #toast{position:fixed;bottom:18px;right:18px;background:var(--c1);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .25s;box-shadow:var(--shlg);pointer-events:none;max-width:260px;display:flex;align-items:center;gap:8px;border:1px solid rgba(0,203,255,.15)}
 #toast.on{transform:translateY(0);opacity:1}
 #toast svg{width:13px;height:13px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
@@ -654,6 +668,16 @@ function openProfile(id){
         <span class="bk-val">${v}</span><span class="bk-max">/${f.m}</span>
       </div>`;}).join('')}
     </div>`;
+    // Feedback del admin (solo si existe y esta publicado)
+    if(d.feedback&&d.feedback.trim()){
+      html+=`<div class="feedback-card">
+        <div class="feedback-card-hd">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Comentario de la Mesa Directiva</span>
+        </div>
+        <div class="feedback-text">${esc(d.feedback.trim())}</div>
+      </div>`;
+    }
   }
 
   html+=`<div class="qr-sec">
@@ -692,6 +716,12 @@ function printProfile(id,d,t,lb,qd){
   const qrSrc=c?c.toDataURL():'';
   const s=d.scores||{};
   const rows=SF.map(f=>`<tr><td>${f.l}</td><td style="text-align:right"><strong>${s[f.k]||0}/${f.m}</strong></td></tr>`).join('');
+  const feedbackHtml=d.feedback&&d.feedback.trim()
+    ?`<div style="margin-top:14px;background:#eff6ff;border:1px solid #93c5fd;border-radius:9px;padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Comentario de la Mesa Directiva</div>
+        <div style="font-size:12px;color:#1e3a5f;line-height:1.6;white-space:pre-wrap">${esc(d.feedback.trim())}</div>
+      </div>`
+    :'';
   const w=window.open('','_blank');if(!w)return;
   w.document.write(`<!DOCTYPE html><html><head><title>${d.nombre} — CELIDER 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -712,6 +742,7 @@ function printProfile(id,d,t,lb,qd){
   <div style="font-size:11px;color:#64748b;margin-bottom:6px">${d.comision||''} · ${d.delegacion||''}</div>
   <div class="tt">${t}/100</div><div style="font-size:12px;color:#64748b">${lb}</div></div></div>
   <table><thead><tr><th style="text-align:left">Criterio</th><th style="text-align:right">Puntaje</th></tr></thead><tbody>${rows}</tbody></table>
+  ${feedbackHtml}
   <script>window.onload=()=>window.print()<\/script></body></html>`);
 }
 
@@ -749,8 +780,9 @@ function buildAdminUI(){
   } else {
     nav.innerHTML=`
       <button class="atn on" data-tab="score"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificar</button>
+      <button class="atn" data-tab="comexport"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>
       <button class="atn" data-tab="rub"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rubrica</button>`;
-    ac.innerHTML=tabScore()+tabRub();
+    ac.innerHTML=tabScore()+tabComExport()+tabRub();
     setTimeout(()=>{const s=$('scorCom');if(s&&curComision){s.value=curComision;renderScoring();}},300);
   }
   nav.querySelectorAll('.atn').forEach(btn=>{
@@ -851,6 +883,122 @@ function tabAdmins(){return`<div class="atab" id="tabAdmins">
   </div>
 </div>`;}
 
+function tabComExport(){return`<div class="atab" id="tabComExport">
+  <div class="ph"><div><h2>Exportar Comision</h2><p>Descarga el Excel y la Rubrica de tu comision asignada</p></div></div>
+  <div id="comExportBody">
+    <div class="card" style="margin-bottom:14px">
+      <div class="chd"><h3>Descargar Excel de tu Comision</h3></div>
+      <div style="padding:18px 20px">
+        <p style="font-size:13px;color:var(--mut);margin-bottom:14px;line-height:1.6">Descarga el listado completo de delegados de tu comision con calificaciones, feedback y estado de publicacion.</p>
+        <button class="btn btn-pri" id="btnExportCom">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar Excel de mi Comision
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chd"><h3>Descargar Rubrica en PDF (imprimible)</h3></div>
+      <div style="padding:18px 20px">
+        <p style="font-size:13px;color:var(--mut);margin-bottom:14px;line-height:1.6">Descarga la rubrica oficial de evaluacion CELIDER 2026 en formato imprimible.</p>
+        <button class="btn btn-out" id="btnExportRub">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Imprimir / Descargar Rubrica
+        </button>
+      </div>
+    </div>
+  </div>
+</div>`;}
+
+function renderComExport(){
+  setTimeout(()=>{
+    $('btnExportCom')?.addEventListener('click',()=>exportExcelByComision(curComision));
+    $('btnExportRub')?.addEventListener('click',()=>printRubrica());
+  },50);
+}
+
+function exportExcelByComision(com){
+  if(!com){showToast('Sin comision asignada');return;}
+  const wb=XLSX.utils.book_new();
+  const all=Object.entries(delegates);
+  const mem=all.filter(([,d])=>d.comision===com);
+  if(!mem.length){showToast('Sin delegados en esta comision');return;}
+  // Hoja principal de la comision
+  const header=['ID','Nombre','Delegacion','Institucion','Comision',...SF.map(f=>f.l),'Total','Nivel','Publicado','Feedback'];
+  const rows=mem.map(([id,d])=>{
+    const s=d.scores||{};const t=tot(s);const[,lb]=lvl(t);
+    return[id,d.nombre||'',d.delegacion||'',d.institucion||'',d.comision||'',
+      ...SF.map(f=>s[f.k]!==undefined&&s[f.k]!==null?Number(s[f.k]):0),
+      t,lb,d.published?'Si':'No',d.feedback||''];
+  });
+  const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
+  ws['!cols']=[{wch:10},{wch:28},{wch:20},{wch:28},{wch:14},...SF.map(()=>({wch:12})),{wch:7},{wch:14},{wch:11},{wch:40}];
+  // Estilo header
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let C=range.s.c;C<=range.e.c;C++){
+    const cell=ws[XLSX.utils.encode_cell({r:0,c:C})];
+    if(cell){cell.s={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'002247'}}};}
+  }
+  XLSX.utils.book_append_sheet(wb,ws,com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'')||'Comision');
+  // Hoja de rubrica
+  const rubHeader=['Criterio','Puntaje Maximo','Descripcion'];
+  const rubRows=SF.map(f=>[f.l,f.m,'Ver rubrica oficial CELIDER 2026']);
+  rubRows.push(['TOTAL',100,'Suma de todos los criterios']);
+  const wsRub=XLSX.utils.aoa_to_sheet([rubHeader,...rubRows]);
+  wsRub['!cols']=[{wch:26},{wch:16},{wch:45}];
+  XLSX.utils.book_append_sheet(wb,wsRub,'Rubrica');
+  XLSX.writeFile(wb,'CELIDER_'+com.replace(/\s+/g,'_')+'_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  showToast('Excel de '+com+' descargado');
+}
+
+function printRubrica(){
+  const w=window.open('','_blank');if(!w)return;
+  const rubRows=SF.map(f=>`<tr><td><strong>${f.l}</strong></td><td style="text-align:center;font-weight:700;color:#002247">${f.m}</td><td style="color:#64748b;font-size:11px">${getRubDesc(f.k)}</td></tr>`).join('');
+  w.document.write(`<!DOCTYPE html><html><head><title>Rubrica CELIDER 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:#fff;padding:24px;max-width:700px;margin:0 auto}
+  .hd{background:#002247;color:#fff;border-radius:11px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+  .hd h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+  .hd p{font-size:11px;opacity:.5;margin-top:3px}
+  .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+  .lv{border-radius:8px;padding:10px 12px;border:1px solid;text-align:center}
+  .lv-n{font-family:'Bebas Neue',sans-serif;font-size:16px}
+  .lv-l{font-size:10px;margin-top:1px;color:#64748b}
+  .lv.A{background:#ecfdf5;border-color:#6ee7b7}.lv.A .lv-n{color:#065f46}
+  .lv.B{background:#eff6ff;border-color:#93c5fd}.lv.B .lv-n{color:#1e40af}
+  .lv.C{background:#fffbeb;border-color:#fcd34d}.lv.C .lv-n{color:#92400e}
+  .lv.D{background:#fef2f2;border-color:#fca5a5}.lv.D .lv-n{color:#991b1b}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{background:#f0f3f7;color:#526070;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid #dde3ec}
+  tbody td{padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+  tfoot td{background:#002247;color:#fff;padding:10px 12px;font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px}
+  @media print{@page{margin:8mm}}</style></head><body>
+  <div class="hd"><div><h1>Rubrica de Evaluacion — CELIDER 2026</h1><p>Regional 10 · PLERD · MINERD · 100 puntos totales</p></div>${curComision?`<div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600">${esc(curComision)}</div>`:''}</div>
+  <div class="levels">
+    <div class="lv A"><div class="lv-n">90–100</div><div class="lv-l">Excelente</div></div>
+    <div class="lv B"><div class="lv-n">75–89</div><div class="lv-l">Muy Bueno</div></div>
+    <div class="lv C"><div class="lv-n">60–74</div><div class="lv-l">Satisfactorio</div></div>
+    <div class="lv D"><div class="lv-n">&lt;60</div><div class="lv-l">En Desarrollo</div></div>
+  </div>
+  <table><thead><tr><th>Criterio</th><th>Pts Max</th><th>Descripcion</th></tr></thead>
+  <tbody>${rubRows}</tbody>
+  <tfoot><tr><td>CALIFICACION TOTAL</td><td>100</td><td>Suma de todos los criterios</td></tr></tfoot>
+  </table>
+  <script>window.onload=()=>window.print()<\/script></body></html>`);
+}
+
+function getRubDesc(k){
+  const m={investigacion:'Profundidad y precision de la investigacion previa. Uso correcto de fuentes y datos actualizados.',
+    pensamiento:'Capacidad de analisis, sintesis y evaluacion de argumentos propios y contrarios.',
+    oratoria:'Claridad, fluidez, proyeccion de voz y dominio del lenguaje formal durante los discursos.',
+    argumentacion:'Solidez logica. Uso de evidencias y refutacion efectiva de argumentos contrarios.',
+    redaccion:'Calidad de documentos escritos: resoluciones, enmiendas y posicion de pais.',
+    negociacion:'Habilidad para alcanzar acuerdos mediante dialogo estrategico y diplomatico.',
+    conflictos:'Gestion de desacuerdos y propuestas de soluciones constructivas bajo presion.',
+    liderazgo:'Iniciativa, influencia positiva y capacidad de guiar al grupo hacia objetivos comunes.',
+    colaboracion:'Trabajo en equipo, respeto hacia otros delegados y contribucion al ambiente positivo.'};
+  return m[k]||'';
+}
+
 function tabRub(){return`<div class="atab" id="tabRub">
   <div class="ph"><div><h2>Rubrica de Evaluacion</h2><p>CELIDER 2026 — 100 puntos totales</p></div></div>
   <div class="lvlbar">
@@ -874,12 +1022,13 @@ function tabRub(){return`<div class="atab" id="tabRub">
 
 function showAdminTab(name){
   document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
-  const map={dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',admins:'tabAdmins',rub:'tabRub'};
+  const map={dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',admins:'tabAdmins',rub:'tabRub',comexport:'tabComExport'};
   $(map[name])?.classList.add('on');
   if(name==='score')populateScoreComs();
   if(name==='dels')renderDels();
   if(name==='dash')updateDashboard();
   if(name==='admins'){loadAdmins();populateAdmComs();}
+  if(name==='comexport')renderComExport();
 }
 
 function updateDashboard(){
@@ -997,16 +1146,27 @@ function renderScoring(){
   if(!mem.length){area.innerHTML='<div style="padding:24px;text-align:center;color:var(--hin)">Sin delegados en esta comision</div>';return;}
   const pubRows=mem.map(([id,d])=>{
     const s=d.scores||{};const t=tot(s);const pub=d.published===true;
-    return`<div class="pub-row" style="margin-bottom:8px">
-      <div style="display:flex;flex-direction:column;flex:1;min-width:0">
-        <span class="del-nm">${esc(d.nombre)}</span>
-        <span style="font-size:11px;color:var(--hin)">${esc(id)} · ${esc(d.delegacion||'—')}</span>
+    const fb=d.feedback||'';
+    return`<div class="pub-row">
+      <div class="pub-row-top">
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0">
+          <span class="del-nm">${esc(d.nombre)}</span>
+          <span style="font-size:11px;color:var(--hin)">${esc(id)} · ${esc(d.delegacion||'—')}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="del-tot" id="st2_${id}">${t}/100</span>
+          <span class="pub-status ${pub?'ps-pub':'ps-npub'}" id="pst_${id}">${pub?'Publicado':'No publicado'}</span>
+          <button class="btn btn-ok btn-xs" data-pubid="${id}" data-pub="true"${pub?' disabled':''}>Publicar</button>
+          ${pub?`<button class="btn btn-warn btn-xs" data-pubid="${id}" data-pub="false">Despublicar</button>`:''}
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="del-tot" id="st2_${id}">${t}/100</span>
-        <span class="pub-status ${pub?'ps-pub':'ps-npub'}" id="pst_${id}">${pub?'Publicado':'No publicado'}</span>
-        <button class="btn btn-ok btn-xs" data-pubid="${id}" data-pub="true"${pub?' disabled':''}>Publicar</button>
-        ${pub?`<button class="btn btn-warn btn-xs" data-pubid="${id}" data-pub="false">Despublicar</button>`:''}
+      <div class="fb-section">
+        <div class="fb-label">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Feedback / Comentario para el delegado
+        </div>
+        <textarea class="fb-textarea" id="fb_${id}" placeholder="Escribe aqui el comentario o retroalimentacion para el delegado. Este mensaje sera visible cuando escanee su QR..." maxlength="600">${esc(fb)}</textarea>
+        <div class="fb-counter"><span id="fbc_${id}">${fb.length}</span>/600 caracteres</div>
       </div>
     </div>`;
   }).join('');
@@ -1023,7 +1183,7 @@ function renderScoring(){
           <td><span class="tdid">${esc(id)}</span></td>
           <td class="tdn">${esc(d.nombre)}</td>
           <td>${esc(d.delegacion||'—')}</td>
-          ${SF.map(f=>`<td><input class="sinp" type="number" min="0" max="${f.m}" value="${s[f.k]!==undefined&&s[f.k]!==null?s[f.k]:''}" placeholder="0" data-id="${id}" data-k="${f.k}"></td>`).join('')}
+          ${SF.map(f=>`<td><input class="sinp" type="number" min="0" max="${f.m}" step="1" value="${s[f.k]!==undefined&&s[f.k]!==null?s[f.k]:''}" placeholder="0" data-id="${id}" data-k="${f.k}"></td>`).join('')}
           <td><strong id="st_${id}">${t}</strong>/100</td>
         </tr>`;
       }).join('')}</tbody>
@@ -1039,19 +1199,39 @@ function renderScoring(){
       const id=inp.dataset.id;
       const inputs=area.querySelectorAll(`[data-id="${id}"]`);
       let t=0;inputs.forEach(i=>t+=parseInt(i.value)||0);
-      const el=$('st_'+id);if(el)el.textContent=t+'/100';
-      const el2=$('st2_'+id);if(el2)el2.textContent=t+'/100';
+      const el=$('st_'+id);
+      const el2=$('st2_'+id);
+      let updated = false;
+      if(el){el.textContent=t+'/100'; updated = true;}
+      if(el2){el2.textContent=t+'/100'; updated = true;}
+      if(!updated){console.warn(`Score element not found for id: ${id}`);}
     });
   });
 
-  area.querySelectorAll('[data-pubid]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const id=btn.dataset.pubid;const pub=btn.dataset.pub==='true';
-      db.ref('delegates/'+id+'/published').set(pub)
-        .then(()=>{showToast(pub?'Calificacion publicada':'Calificacion despublicada');renderScoring();updatePublicStats();})
-        .catch(e=>showToast('Error: '+e.message));
+  // Feedback counters
+  mem.forEach(([id])=>{
+    const ta=$('fb_'+id);const ctr=$('fbc_'+id);
+    if(ta&&ctr){ta.addEventListener('input',()=>{ctr.textContent=ta.value.length;});}
+  });
+
+  area.querySelectorAll('[data-pubid]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.pubid;
+      const pub = btn.dataset.pub === 'true';
+      // Save feedback junto con la publicacion
+      const ta = $('fb_' + id);
+      const updates = { ['delegates/' + id + '/published']: pub };
+      if (ta) updates['delegates/' + id + '/feedback'] = ta.value.trim();
+      db.ref().update(updates)
+        .then(() => {
+          showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
+          renderScoring();
+          updatePublicStats();
+        })
+        .catch(e => showToast('Error: ' + e.message));
     });
   });
+
 }
 
 function saveAllScores(){
@@ -1062,10 +1242,13 @@ function saveAllScores(){
   mem.forEach(([id])=>{
     const inputs=area.querySelectorAll(`[data-id="${id}"]`);
     if(inputs.length){const s={};inputs.forEach(i=>{s[i.dataset.k]=parseInt(i.value)||0;});updates['delegates/'+id+'/scores']=s;}
+    // Guardar feedback si existe el textarea
+    const ta=$('fb_'+id);
+    if(ta){updates['delegates/'+id+'/feedback']=ta.value.trim();}
   });
   if(!Object.keys(updates).length){showToast('Sin cambios que guardar');return;}
   db.ref().update(updates)
-    .then(()=>{showToast('Calificaciones guardadas — '+com);updatePublicStats();})
+    .then(()=>{showToast('Calificaciones y feedback guardados — '+com);updatePublicStats();})
     .catch(e=>showToast('Error: '+e.message));
 }
 
@@ -1073,24 +1256,24 @@ function saveAllScores(){
 function exportExcel(){
   const wb=XLSX.utils.book_new();
   const all=Object.entries(delegates);
-  const header=['ID','Nombre','Delegacion','Institucion','Comision',...SF.map(f=>f.l),'Total','Nivel','Publicado'];
+  const header=['ID','Nombre','Delegacion','Institucion','Comision',...SF.map(f=>f.l),'Total','Nivel','Publicado','Feedback'];
   const rows=all.map(([id,d])=>{
     const s=d.scores||{};const t=tot(s);const[,lb]=lvl(t);
     return[id,d.nombre||'',d.delegacion||'',d.institucion||'',d.comision||'',
-      ...SF.map(f=>s[f.k]!==undefined&&s[f.k]!==null?Number(s[f.k]):0),t,lb,d.published?'Si':'No'];
+      ...SF.map(f=>s[f.k]!==undefined&&s[f.k]!==null?Number(s[f.k]):0),t,lb,d.published?'Si':'No',d.feedback||''];
   });
   const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
-  ws['!cols']=[{wch:10},{wch:28},{wch:20},{wch:28},{wch:14},...SF.map(()=>({wch:14})),{wch:8},{wch:14},{wch:12}];
+  ws['!cols']=[{wch:10},{wch:28},{wch:20},{wch:28},{wch:14},...SF.map(()=>({wch:12})),{wch:7},{wch:14},{wch:11},{wch:40}];
   XLSX.utils.book_append_sheet(wb,ws,'Delegados CELIDER');
   coms().forEach(com=>{
     const mem=all.filter(([,d])=>d.comision===com);
-    const comH=['ID','Nombre','Delegacion','Institucion',...SF.map(f=>f.l),'Total','Nivel','Publicado'];
+    const comH=['ID','Nombre','Delegacion','Institucion',...SF.map(f=>f.l),'Total','Nivel','Publicado','Feedback'];
     const comR=mem.map(([id,d])=>{
       const s=d.scores||{};const t=tot(s);const[,lb]=lvl(t);
-      return[id,d.nombre||'',d.delegacion||'',d.institucion||'',...SF.map(f=>s[f.k]!==undefined&&s[f.k]!==null?Number(s[f.k]):0),t,lb,d.published?'Si':'No'];
+      return[id,d.nombre||'',d.delegacion||'',d.institucion||'',...SF.map(f=>s[f.k]!==undefined&&s[f.k]!==null?Number(s[f.k]):0),t,lb,d.published?'Si':'No',d.feedback||''];
     });
     const comWS=XLSX.utils.aoa_to_sheet([comH,...comR]);
-    comWS['!cols']=[{wch:10},{wch:28},{wch:20},{wch:28},...SF.map(()=>({wch:14})),{wch:8},{wch:14},{wch:12}];
+    comWS['!cols']=[{wch:10},{wch:28},{wch:20},{wch:28},...SF.map(()=>({wch:12})),{wch:7},{wch:14},{wch:11},{wch:40}];
     XLSX.utils.book_append_sheet(wb,comWS,com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'')||'Comision');
   });
   XLSX.writeFile(wb,'SIGEL_CELIDER_1004_'+new Date().toISOString().split('T')[0]+'.xlsx');
@@ -1133,6 +1316,9 @@ function bindAdminEvents(){
   $('delF')?.addEventListener('input',renderDels);
   $('delFC')?.addEventListener('change',renderDels);
   $('scorCom')?.addEventListener('change',renderScoring);
+  // Commission export tab buttons
+  $('btnExportCom')?.addEventListener('click',()=>exportExcelByComision(curComision));
+  $('btnExportRub')?.addEventListener('click',()=>printRubrica());
   const upZ=$('upZone');
   if(upZ){
     upZ.addEventListener('click',()=>$('fIn')?.click());
