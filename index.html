@@ -1292,19 +1292,23 @@ function renderScoring(){
       ref1.set(pub).then(function(){
         showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
         updatePublicStats();
-        // Refresh just the badge and button for this card
+        
+        // Update badge and button locally WITHOUT re-rendering
         var pubBadge = $('pub_' + did);
         if(pubBadge){
           pubBadge.textContent = pub ? 'Publicado' : 'Pendiente';
           pubBadge.className   = 'pub-badge ' + (pub ? 'published' : 'pending');
         }
+        
+        // Flip the button locally
+        btn.dataset.pub = pub ? 'false' : 'true';
+        btn.textContent = pub ? 'Despublicar' : 'Publicar calificacion';
+        btn.className = pub ? 'btn btn-warn btn-xs pub-btn' : 'btn btn-ok btn-xs pub-btn';
         btn.disabled = false;
-        // Re-render to flip publish/unpublish button
-        renderScoring();
       }).catch(function(err){
         showToast('Error: ' + err.message);
         btn.disabled = false;
-        btn.textContent = pub ? 'Publicar calificacion' : 'Despublicar';
+        btn.textContent = pub ? 'Publicando...' : 'Despublicando...';
       });
     });
   });
