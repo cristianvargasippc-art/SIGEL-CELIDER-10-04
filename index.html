@@ -445,6 +445,9 @@ const coms=()=>[...new Set(Object.values(delegates).map(d=>d.comision).filter(Bo
 const genId=n=>'CEL-'+String(n).padStart(3,'0');
 const esc=s=>(s||'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Iniciar listener público para estadísticos siempre
+startPublicStatsListener();
+
 function showToast(msg){$('toastMsg').textContent=msg;$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),3000);}
 function showScr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$(id)?.classList.add('on');}
 
@@ -482,7 +485,7 @@ function startAdminListener(){
   adminListenerActive=true;
   db.ref('delegates').on('value',snap=>{
     delegates=snap.val()||{};
-    updateHomeStats(); updateDashboard(); renderDels(); populateScoreComs();
+    updateDashboard(); renderDels(); populateScoreComs();
   });
 }
 
@@ -643,20 +646,8 @@ function loadAndShowProfile(id){
 }
 
 // ── Stats (admin) ────────────────────────────────
-function updateHomeStats(){
-  const all=Object.values(delegates);
-  const rated=all.filter(d=>tot(d.scores)>0);
-  const avg=rated.length?(rated.reduce((a,d)=>a+tot(d.scores),0)/rated.length).toFixed(1):'—';
-  // Si el admin esta logueado, muestra sus propios stats
-  $('hsT').textContent=all.length||'—';
-  $('hsC').textContent=coms().length||'—';
-  $('hsR').textContent=rated.length||'—';
-  $('hsA').textContent=avg;
-}
-
 // ── BUSQUEDA ─────────────────────────────────────
-// Con las nuevas reglas, delegados publicos SOLO pueden buscar por ID exacto.
-// La busqueda por nombre solo funciona para admins (que tienen la lista completa).
+// Busqueda por ID exacto o por nombre (publica, sin login requerido).
 function doSearch(){
   const raw=($('homeSearch').value||'').trim();
   if(!raw){showToast('Escribe tu ID o nombre');return;}
@@ -683,26 +674,48 @@ function doSearch(){
     return;
   }
 
-  // Busqueda por nombre (solo si hay datos en cache — admin logueado o busqueda previa)
+  // Busqueda por nombre (publica: lee de Firebase si no hay cache)
   const entries=Object.entries(delegates);
-  if(!entries.length){
-    showSRP(`<div class="srp-empty">Para buscar por nombre usa tu <strong>ID de delegado</strong> (ejemplo: CEL-001).<br><small style="color:rgba(255,255,255,.18)">Tu ID esta en la hoja que te entrego la mesa directiva.</small></div>`,'');
-    return;
-  }
-  const found=entries.filter(([id,d])=>(d.nombre||'').toLowerCase().includes(q));
-  if(!found.length){
-    showSRP(`<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small style="color:rgba(255,255,255,.18)">Intenta con tu ID: CEL-001, CEL-002...</small></div>`,'0 resultados');
-    return;
-  }
-  if(found.length===1){openProfile(found[0][0]);return;}
-  const html=found.map(([id,d])=>`
-    <div class="srp-item" data-pid="${esc(id)}">
-      <div><div class="srp-iname">${esc(d.nombre)}</div>
+  if(entries.length){
+    // Usar cache si disponible
+    const found=entries.filter(([id,d])=>(d.nombre||'').toLowerCase().includes(q));
+    if(!found.length){
+      showSRP(`<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small style="color:rgba(255,255,255,.18)">Intenta con tu ID: CEL-001, CEL-002...</small></div>`,'0 resultados');
+      return;
+    }
+    if(found.length===1){openProfile(found[0][0]);return;}
+    const html=found.map(([id,d])=>`
+      <div class="srp-item" data-pid="${esc(id)}">
+        <div><div class="srp-iname">${esc(d.nombre)}</div>
       <div class="srp-imeta">${esc(d.comision||'—')} · ${esc(d.delegacion||'—')}</div></div>
       <span class="srp-iid">${esc(id)}</span>
     </div>`).join('');
   showSRP(html,found.length+' resultado(s)');
-}
+  } else {
+    // Busqueda publica: lee de Firebase
+    $('ldOv').classList.remove('hide');
+    db.ref('delegates').once('value')
+      .then(snap=>{
+        $('ldOv').classList.add('hide');
+        const all=snap.val()||{};
+        const found=Object.entries(all).filter(([id,d])=>(d.nombre||'').toLowerCase().includes(q));
+        // Cachear los encontrados para openProfile
+        found.forEach(([id,d])=>delegates[id]=d);
+        if(!found.length){
+          showSRP(`<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small style="color:rgba(255,255,255,.18)">Intenta con tu ID: CEL-001, CEL-002...</small></div>`,'0 resultados');
+          return;
+        }
+        if(found.length===1){openProfile(found[0][0]);return;}
+        const html=found.map(([id,d])=>`
+          <div class="srp-item" data-pid="${esc(id)}">
+            <div><div class="srp-iname">${esc(d.nombre)}</div>
+          <div class="srp-imeta">${esc(d.comision||'—')} · ${esc(d.delegacion||'—')}</div></div>
+          <span class="srp-iid">${esc(id)}</span>
+        </div>`).join('');
+      showSRP(html,found.length+' resultado(s)');
+      })
+      .catch(()=>{$('ldOv').classList.add('hide');showToast('Error al conectar');});
+  }
 
 function showSRP(html,count){
   $('srpList').innerHTML=html;$('srpCount').textContent=count;$('srpOv').classList.add('on');
