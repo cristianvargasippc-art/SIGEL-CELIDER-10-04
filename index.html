@@ -422,8 +422,9 @@ const auth=firebase.auth(), db=firebase.database();
 
 // ── Estado ───────────────────────────────────────
 let delegates={}, curUser=null, curRole=null, curComision=null, curQRId=null;
-let adminListenerActive=false, publicStatsListenerActive=false;
+let adminListenerActive=false, publicStatsListenerActive=false, adminActionsListenerActive=false;
 let delegateSaveTimers={};
+let activeProfileId=null, activeProfileRef=null, adminActions={};
 
 const SF=[
   {k:'investigacion',l:'Investigacion Academica',m:15},
@@ -463,6 +464,10 @@ function showScr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.re
 //     "admins": {
 //       ".read": "auth != null",
 //       ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'superadmin'"
+//     },
+//     "adminActions": {
+//       ".read": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'superadmin'",
+//       ".write": "auth != null"
 //     }
 //   }
 // }
@@ -494,6 +499,68 @@ function startPublicStatsListener(){
     $('hsR').textContent=s.calificados||'—';
     $('hsA').textContent=s.promedio||'—';
   });
+}
+
+function attachProfileListener(id){
+  if(activeProfileRef) activeProfileRef.off();
+  activeProfileId=id;
+  activeProfileRef=db.ref('delegates/'+id);
+  activeProfileRef.on('value',snap=>{
+    const data=snap.val();
+    if(data){
+      delegates[id]=data;
+      if(activeProfileId===id && $('sProfile')?.classList.contains('on')){
+        openProfile(id,false);
+      }
+    }
+  });
+}
+
+function detachProfileListener(){
+  if(activeProfileRef){
+    activeProfileRef.off();
+    activeProfileRef=null;
+    activeProfileId=null;
+  }
+}
+
+function logAdminAction(action,id,details=''){
+  if(!curUser) return;
+  const payload={
+    timestamp:firebase.database.ServerValue.TIMESTAMP,
+    adminUid:curUser.uid,
+    adminEmail:curUser.email||'',
+    role:curRole||'',
+    target:id||'',
+    action, details
+  };
+  db.ref('adminActions').push(payload).catch(()=>{});
+}
+
+function startAdminActionsListener(){
+  if(adminActionsListenerActive) return;
+  if(curRole!=='superadmin') return;
+  adminActionsListenerActive=true;
+  db.ref('adminActions').orderByChild('timestamp').limitToLast(40).on('value',snap=>{
+    adminActions=snap.val()||{};
+    renderAdminActivities(adminActions);
+  });
+}
+
+function renderAdminActivities(actions){
+  const el=$('activityTbl');
+  if(!el) return;
+  if(curRole!=='superadmin'){
+    el.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--hin)">Solo superadmin puede ver este registro.</td></tr>';
+    return;
+  }
+  const items=Object.values(actions||{}).sort((a,b)=>b.timestamp-a.timestamp);
+  el.innerHTML=items.length?items.map(a=>`<tr>
+      <td class="tdn">${esc(a.adminEmail||a.adminUid)}</td>
+      <td>${esc(a.role)}</td>
+      <td>${esc(a.action)} ${a.target?`(${esc(a.target)})`:''}${a.details?` — ${esc(a.details)}`:''}</td>
+      <td>${new Date(a.timestamp||Date.now()).toLocaleString('es-DO')}</td>
+    </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--hin)">Sin acciones registradas</td></tr>';
 }
 
 // ── Actualiza stats publicas (llamado por admin) ──
@@ -701,6 +768,7 @@ function openProfile(id){
   </div>`;
 
   $('profBody').innerHTML=html;
+  if(activeProfileId!==id) attachProfileListener(id);
 
   setTimeout(()=>{
     const qd=$('pQR');if(!qd)return;
@@ -803,6 +871,7 @@ function buildAdminUI(){
     });
   });
   setTimeout(bindAdminEvents,50);
+  if(isSA) startAdminActionsListener();
 }
 
 // ── TAB HTML ──────────────────────────────────────
@@ -817,6 +886,9 @@ function tabDash(){return`<div class="atab on" id="tabDash">
   <div class="card"><div class="chd"><h3>Por Comision</h3></div>
   <div class="tw"><table><thead><tr><th>Comision</th><th>Total</th><th>Calificados</th><th>Publicados</th><th>Promedio</th><th>Avance</th></tr></thead>
   <tbody id="dashTbl"></tbody></table></div></div>
+  <div class="card"><div class="chd"><h3>Registro de Administradores</h3><span style="font-size:12px;color:var(--hin)">Solo el superadmin ve lo que hacen los demas admins</span></div>
+  <div class="tw"><table><thead><tr><th>Admin</th><th>Rol</th><th>Accion</th><th>Fecha</th></tr></thead>
+  <tbody id="activityTbl"></tbody></table></div></div>
 </div>`;}
 
 function tabUpload(){return`<div class="atab" id="tabUpload">
@@ -845,10 +917,7 @@ function tabUpload(){return`<div class="atab" id="tabUpload">
 
 function tabScore(){return`<div class="atab" id="tabScore">
   <div class="ph">
-    <div><h2>Calificar y Publicar</h2><p>Califica y publica el resultado de cada delegado</p></div>
-    <button class="btn btn-pri btn-sm" id="btnSaveAll">
-      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Guardar Todo
-    </button>
+    <div><h2>Calificar y Publicar</h2><p>Calificaciones y feedback se guardan automaticamente al escribir.</p></div>
   </div>
   <div class="fbar">
     <select class="fsel" id="scorCom" style="min-width:200px"><option value="">-- Selecciona comision --</option></select>
@@ -1201,7 +1270,7 @@ function renderScoring(){
     </table></div>
   </div>
   <div class="card">
-    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Primero guarda, luego publica</small></div>
+    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Los cambios se guardan automaticamente. Publica cuando quieras.</small></div>
     <div style="padding:12px">${pubRows}</div>
   </div>`;
 
@@ -1214,32 +1283,71 @@ function renderScoring(){
       const el2=$('st2_'+id);
       if(el) el.textContent=t+'/100';
       if(el2) el2.textContent=t+'/100';
+      const scoreObj={};
+      inputs.forEach(i=>{scoreObj[i.dataset.k]=parseInt(i.value)||0;});
+      delegates[id].scores=scoreObj;
+      scheduleDelegateSave(id);
     });
   });
 
-  // Feedback counters
   mem.forEach(([id])=>{
     const ta=$('fb_'+id);const ctr=$('fbc_'+id);
-    if(ta&&ctr){ta.addEventListener('input',()=>{ctr.textContent=ta.value.length;});}
+    if(ta&&ctr){
+      ta.addEventListener('input',()=>{
+        ctr.textContent=ta.value.length;
+        delegates[id].feedback=ta.value.trim();
+        scheduleDelegateSave(id);
+      });
+    }
   });
 
   area.querySelectorAll('[data-pubid]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.pubid;
       const pub = btn.dataset.pub === 'true';
-      const ta = $('fb_' + id);
-      const updates = { ['delegates/' + id + '/published']: pub };
-      if (ta) updates['delegates/' + id + '/feedback'] = ta.value.trim();
-      db.ref().update(updates)
-        .then(() => {
-          showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
-          renderScoring();
-          updatePublicStats();
-        })
-        .catch(e => showToast('Error: ' + e.message));
+      togglePublished(id,pub);
     });
   });
+}
 
+function scheduleDelegateSave(id){
+  if(delegateSaveTimers[id]) clearTimeout(delegateSaveTimers[id]);
+  delegateSaveTimers[id]=setTimeout(()=>saveDelegateNow(id),1200);
+}
+
+function saveDelegateNow(id){
+  if(!id || !delegates[id]) return;
+  const d=delegates[id];
+  const updates={
+    ['delegates/'+id+'/scores']:d.scores||{},
+    ['delegates/'+id+'/feedback']:(d.feedback||'').trim()
+  };
+  db.ref().update(updates)
+    .then(()=>{
+      showToast('Guardado automático');
+      updatePublicStats();
+      logAdminAction('Guardó puntaje y feedback',id,'Auto-save');
+    })
+    .catch(e=>showToast('Error al guardar: '+e.message));
+}
+
+function togglePublished(id,publish){
+  if(!id || !delegates[id]) return;
+  const feedback=$('fb_'+id)?.value.trim()||'';
+  const updates={
+    ['delegates/'+id+'/published']: publish,
+    ['delegates/'+id+'/feedback']: feedback
+  };
+  db.ref().update(updates)
+    .then(()=>{
+      showToast(publish ? 'Publicado' : 'Despublicado');
+      delegates[id].published=publish;
+      delegates[id].feedback=feedback;
+      renderScoring();
+      updatePublicStats();
+      logAdminAction(publish ? 'Publicó resultados' : 'Despublicó resultados',id,feedback?'Feedback guardado':'');
+    })
+    .catch(e=>showToast('Error: '+e.message));
 }
 
 function saveAllScores(){
@@ -1349,6 +1457,7 @@ $('btnProfBack').addEventListener('click',()=>{
   const url=new URL(window.location);
   url.searchParams.delete('id');
   history.replaceState({},'',url);
+  detachProfileListener();
   showScr('sHome');
 });
 $('btnLoginSub').addEventListener('click',doLogin);
