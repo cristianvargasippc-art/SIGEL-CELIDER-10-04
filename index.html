@@ -412,32 +412,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── Firebase init (key split para ofuscar) ────────
 const _a='AIzaSyDNAo', _b='Ux40Ax8cu0IKREgle3Bnf271NdKXo', _p='sigel-celider-10-04';
-let auth=null, db=null;
-try {
-  firebase.initializeApp({
-    apiKey:_a+_b, authDomain:_p+'.firebaseapp.com', projectId:_p,
-    storageBucket:_p+'.firebasestorage.app', messagingSenderId:'331346792233',
-    appId:'1:331346792233:web:15589aa0b9b8c522d2f138',
-    databaseURL:'https://'+_p+'-default-rtdb.firebaseio.com'
-  });
-  auth = firebase.auth();
-  db = firebase.database();
-} catch(e) {
-  const ld=document.getElementById('ldOv');
-  if(ld) ld.classList.add('hide');
-  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
-  const home=document.getElementById('sHome');
-  if(home) home.classList.add('on');
-  const toast=document.getElementById('toast');
-  if(toast){
-    const span=toast.querySelector('span');
-    if(span) span.textContent='Firebase no disponible. Revisa tu conexión.';
-    toast.classList.add('on');
-    setTimeout(()=>toast.classList.remove('on'),3000);
-  }
-  console.error('Firebase init failed', e);
-  return;
-}
+firebase.initializeApp({
+  apiKey:_a+_b, authDomain:_p+'.firebaseapp.com', projectId:_p,
+  storageBucket:_p+'.firebasestorage.app', messagingSenderId:'331346792233',
+  appId:'1:331346792233:web:15589aa0b9b8c522d2f138',
+  databaseURL:'https://'+_p+'-default-rtdb.firebaseio.com'
+});
+const auth=firebase.auth(), db=firebase.database();
 
 // ── Estado ───────────────────────────────────────
 let delegates={}, curUser=null, curRole=null, curComision=null, curQRId=null;
@@ -538,31 +519,6 @@ function loadDelegateById(id){
   });
 }
 
-function saveDelegateDataById(id){
-  const area = $('scorArea');
-  if(!area) return;
-  const inputs = area.querySelectorAll(`[data-id="${id}"]`);
-  if(!inputs.length) return;
-  const scores = {};
-  inputs.forEach(i=>{scores[i.dataset.k] = parseInt(i.value) || 0;});
-  const feedbackEl = $('fb_' + id);
-  const updates = {['delegates/' + id + '/scores']: scores};
-  if(feedbackEl) updates['delegates/' + id + '/feedback'] = feedbackEl.value.trim();
-  db.ref().update(updates)
-    .then(()=>{
-      delegates[id] = delegates[id] || {};
-      delegates[id].scores = scores;
-      if(feedbackEl) delegates[id].feedback = feedbackEl.value.trim();
-      showToast('Guardado automático de ' + id);
-      updatePublicStats();
-    })
-    .catch(e=>showToast('Error guardando '+id+': '+e.message));
-}
-
-function scheduleAutoSaveDelegate(id){
-  if(delegateSaveTimers[id]) clearTimeout(delegateSaveTimers[id]);
-  delegateSaveTimers[id] = setTimeout(()=>{ saveDelegateDataById(id); delete delegateSaveTimers[id]; }, 800);
-}
 
 // ── Auth state ───────────────────────────────────
 auth.onAuthStateChanged(async user=>{
@@ -1202,8 +1158,6 @@ function renderScoring(){
   const pubRows=mem.map(([id,d])=>{
     const s=d.scores||{};const t=tot(s);const pub=d.published===true;
     const fb=d.feedback||'';
-    const pubLabel = pub ? 'Despublicar' : 'Publicar';
-    const pubClass = pub ? 'btn btn-warn btn-xs' : 'btn btn-ok btn-xs';
     return`<div class="pub-row">
       <div class="pub-row-top">
         <div style="display:flex;flex-direction:column;flex:1;min-width:0">
@@ -1213,7 +1167,8 @@ function renderScoring(){
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span class="del-tot" id="st2_${id}">${t}/100</span>
           <span class="pub-status ${pub?'ps-pub':'ps-npub'}" id="pst_${id}">${pub?'Publicado':'No publicado'}</span>
-          <button class="${pubClass}" data-pubid="${id}" data-pub="${pub?'false':'true'}">${pubLabel}</button>
+          <button class="btn btn-ok btn-xs" data-pubid="${id}" data-pub="true"${pub?' disabled':''}>Publicar</button>
+          ${pub?`<button class="btn btn-warn btn-xs" data-pubid="${id}" data-pub="false">Despublicar</button>`:''}
         </div>
       </div>
       <div class="fb-section">
@@ -1246,7 +1201,7 @@ function renderScoring(){
     </table></div>
   </div>
   <div class="card">
-    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Los cambios se guardan automáticamente en tiempo real</small></div>
+    <div class="chd"><h3>Publicar Resultados</h3><small style="color:var(--mut);font-size:12px">Primero guarda, luego publica</small></div>
     <div style="padding:12px">${pubRows}</div>
   </div>`;
 
@@ -1259,19 +1214,13 @@ function renderScoring(){
       const el2=$('st2_'+id);
       if(el) el.textContent=t+'/100';
       if(el2) el2.textContent=t+'/100';
-      scheduleAutoSaveDelegate(id);
     });
   });
 
   // Feedback counters
   mem.forEach(([id])=>{
     const ta=$('fb_'+id);const ctr=$('fbc_'+id);
-    if(ta&&ctr){
-      ta.addEventListener('input',()=>{
-        ctr.textContent=ta.value.length;
-        scheduleAutoSaveDelegate(id);
-      });
-    }
+    if(ta&&ctr){ta.addEventListener('input',()=>{ctr.textContent=ta.value.length;});}
   });
 
   area.querySelectorAll('[data-pubid]').forEach(btn => {
@@ -1291,8 +1240,6 @@ function renderScoring(){
     });
   });
 
-  const saveAllBtn = $('btnSaveAll');
-  if(saveAllBtn) saveAllBtn.style.display='none';
 }
 
 function saveAllScores(){
@@ -1371,8 +1318,7 @@ function addAdmin(){
 
 // ── BIND ADMIN EVENTS ─────────────────────────────
 function bindAdminEvents(){
-  const saveAllBtn = $('btnSaveAll');
-  if(saveAllBtn){ saveAllBtn.style.display = 'none'; saveAllBtn.removeEventListener('click', saveAllScores); }
+  $('btnSaveAll')?.addEventListener('click',saveAllScores);
   $('btnExport')?.addEventListener('click',exportExcel);
   $('btnAddAdm')?.addEventListener('click',addAdmin);
   $('delF')?.addEventListener('input',renderDels);
