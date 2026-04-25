@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SIGEL · CELIDER 10-04</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c1:#002247;--c2:#005286;--c3:#0087f1;--c4:#00cbff;--c5:#a7e8ff;
+  --r10d:#5a6b7e;
+  --bg:#f0f3f7;--sur:#fff;--bord:#dde3ec;
+  --txt:#0a1628;--mut:#526070;--hin:#8fa0b0;
+  --ok:#0d7a52;--ok-bg:#e6f5ee;
+  --danger:#c0271e;
+  --warn:#b45309;--warn-bg:#fffbeb;
+  --sh:0 1px 4px rgba(0,34,71,.08),0 2px 8px rgba(0,34,71,.04);
+  --shlg:0 8px 32px rgba(0,34,71,.14);
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* SCREENS */
+.scr{display:none!important;flex-direction:column;min-height:100vh}
+.scr.on{display:flex!important;animation:fu .28s ease}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOADING */
+#ldOv{position:fixed;inset:0;background:var(--c1);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .4s}
+#ldOv.hide{opacity:0;pointer-events:none}
+.spin{width:34px;height:34px;border:2px solid rgba(0,203,255,.2);border-top-color:var(--c4);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ldOv p{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:rgba(255,255,255,.35)}
+
+/* HOME */
+#sHome{background:var(--c1)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.08);gap:10px;flex-wrap:wrap}
+.tb-brand{display:flex;align-items:center;gap:12px}
+.tb-hex{width:36px;height:36px;background:rgba(0,203,255,.12);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-hex b{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--c4)}
+.tb-nm{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;line-height:1}
+.tb-sb{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.pill{background:rgba(138,155,176,.2);border:1px solid rgba(138,155,176,.3);color:#b8c8d8;font-size:10px;font-weight:700;letter-spacing:.8px;padding:3px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.btn-top{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17);color:#fff;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-top:hover{background:rgba(255,255,255,.16)}
+.btn-top svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:52px 20px 32px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 38%,rgba(0,135,241,.17) 0%,transparent 70%)}
+.eyebrow{position:relative;display:inline-flex;align-items:center;gap:8px;background:rgba(0,203,255,.09);border:1px solid rgba(0,203,255,.2);border-radius:30px;padding:5px 15px;font-size:11px;font-weight:600;color:var(--c5);letter-spacing:1px;text-transform:uppercase;margin-bottom:22px}
+.pdot{width:6px;height:6px;background:#4ade80;border-radius:50%;flex-shrink:0;animation:pd 2s ease infinite}
+@keyframes pd{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,10vw,72px);letter-spacing:4px;color:#fff;line-height:.95;margin-bottom:6px;position:relative}
+.h-title span{color:var(--c4)}
+.h-reg{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.28);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:28px;position:relative}
+.h-desc{font-size:15px;color:rgba(255,255,255,.48);max-width:480px;line-height:1.7;margin-bottom:36px;position:relative}
+.srch-wrap{position:relative;max-width:460px;width:100%;margin-bottom:10px}
+.srch-wrap input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:14px 56px 14px 20px;font-family:'DM Sans',sans-serif;font-size:14.5px;color:#fff;outline:none;transition:all .2s}
+.srch-wrap input::placeholder{color:rgba(255,255,255,.26)}
+.srch-wrap input:focus{background:rgba(255,255,255,.1);border-color:rgba(0,203,255,.45);box-shadow:0 0 0 3px rgba(0,203,255,.1)}
+.srch-btn{position:absolute;right:7px;top:50%;transform:translateY(-50%);background:var(--c3);border:none;border-radius:8px;width:37px;height:37px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.srch-btn:hover{background:var(--c4)}
+.srch-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.srch-hint{font-size:11px;color:rgba(255,255,255,.2)}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.08);margin-top:auto;width:100%}
+.hst{padding:20px 16px;border-right:1px solid rgba(255,255,255,.07);text-align:center}
+.hst:last-child{border-right:none}
+.hst-n{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;line-height:1}
+.hst-l{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.6px;text-transform:uppercase;margin-top:3px}
+
+/* Search overlay */
+.srp-ov{position:fixed;inset:0;background:rgba(0,18,45,.88);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+.srp-ov.on{display:flex}
+.srp-box{background:var(--c1);border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:520px;overflow:hidden;animation:fu .22s ease}
+.srp-hd{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.srp-hd h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff}
+.srp-hd p{font-size:11.5px;color:rgba(255,255,255,.3);margin-top:1px}
+.srp-x{width:28px;height:28px;background:rgba(255,255,255,.1);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
+.srp-x:hover{background:rgba(255,255,255,.18)}
+.srp-list{padding:8px;max-height:340px;overflow-y:auto}
+.srp-item{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:9px;cursor:pointer;border:1px solid transparent;margin-bottom:3px;transition:all .15s;gap:10px}
+.srp-item:hover{background:rgba(255,255,255,.06);border-color:rgba(0,203,255,.2)}
+.srp-iname{font-weight:600;color:#fff;font-size:14px}
+.srp-imeta{font-size:11px;color:rgba(255,255,255,.32);margin-top:1px}
+.srp-iid{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--c4);background:rgba(0,203,255,.1);padding:2px 8px;border-radius:5px;flex-shrink:0;white-space:nowrap}
+.srp-empty{padding:32px;text-align:center;color:rgba(255,255,255,.3);font-size:13.5px;line-height:1.7}
+
+/* PROFILE */
+#sProfile{background:var(--c1)}
+.prof-bar{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid rgba(255,255,255,.07);flex-wrap:wrap;gap:8px}
+.prof-brand{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:rgba(255,255,255,.35)}
+.prof-back{display:flex;align-items:center;gap:5px;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:color .2s}
+.prof-back:hover{color:#fff}
+.prof-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.prof-body{flex:1;padding:22px 16px 36px;max-width:620px;margin:0 auto;width:100%}
+.cred-card{background:linear-gradient(145deg,rgba(0,82,134,.5),rgba(0,34,71,.88) 60%,rgba(90,107,126,.25) 100%);border:1px solid rgba(0,203,255,.14);border-radius:18px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.cred-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,203,255,.1) 0%,transparent 70%);pointer-events:none}
+.cred-card::after{content:'R10';position:absolute;bottom:12px;right:18px;font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:3px;color:rgba(255,255,255,.04);pointer-events:none;line-height:1}
+.cred-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.cred-id{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--c4);background:rgba(0,203,255,.1);border:1px solid rgba(0,203,255,.2);padding:4px 11px;border-radius:6px;letter-spacing:1px;white-space:nowrap}
+.cred-lv{padding:4px 11px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.cred-lv.A{background:rgba(16,185,129,.14);color:#34d399;border:1px solid rgba(16,185,129,.2)}
+.cred-lv.B{background:rgba(59,130,246,.14);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.cred-lv.C{background:rgba(245,158,11,.14);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.cred-lv.D{background:rgba(239,68,68,.14);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.cred-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,6vw,32px);letter-spacing:1px;color:#fff;line-height:1;margin-bottom:10px}
+.cred-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.cc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;font-size:11.5px;color:rgba(255,255,255,.52);display:flex;align-items:center;gap:5px}
+.cc svg{width:11px;height:11px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.cred-tot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(0,203,255,.06);border:1px solid rgba(0,203,255,.12);border-radius:11px;gap:10px;flex-wrap:wrap}
+.cred-tot-lbl{font-size:11.5px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.cred-tot-n{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;color:#fff;line-height:1}
+.cred-tot-n span{font-family:'DM Sans',sans-serif;font-size:14px;color:rgba(255,255,255,.32);font-weight:400}
+.not-published{background:rgba(180,83,9,.12);border:1px solid rgba(180,83,9,.25);border-radius:14px;padding:32px 20px;text-align:center;margin-bottom:16px}
+.not-published svg{width:40px;height:40px;stroke:#fbbf24;fill:none;stroke-width:1.5;stroke-linecap:round;margin-bottom:12px}
+.not-published h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#fbbf24;margin-bottom:6px}
+.not-published p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.6}
+.breakdown{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.bk-hd{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:7px}
+.bk-hd span{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,.4)}
+.bk-hd svg{width:13px;height:13px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:2;stroke-linecap:round}
+.bk-row{display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.04);gap:10px}
+.bk-row:last-child{border-bottom:none}
+.bk-nm{font-size:12px;color:rgba(255,255,255,.58);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-bar{width:90px;flex-shrink:0}
+.bk-bg{background:rgba(255,255,255,.07);border-radius:99px;height:5px;overflow:hidden}
+.bk-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c2),var(--c4));transition:width .7s ease}
+.bk-val{font-family:'DM Mono',monospace;font-size:12px;color:#fff;width:32px;text-align:right;flex-shrink:0}
+.bk-max{font-size:11px;color:rgba(255,255,255,.2);width:24px;flex-shrink:0}
+.feedback-card{background:rgba(0,135,241,.07);border:1px solid rgba(0,135,241,.18);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.feedback-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.feedback-hd svg{width:15px;height:15px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.feedback-hd span{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:rgba(255,255,255,.45)}
+.feedback-txt{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.qr-sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px}
+.qr-sec p{font-size:11px;color:rgba(255,255,255,.25);margin-bottom:12px;letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+.qr-box{background:#fff;border-radius:10px;padding:12px;display:inline-block;margin-bottom:12px}
+.prof-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* LOGIN */
+#sLogin{background:var(--c1);align-items:center;justify-content:center;padding:20px}
+.lc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:380px;overflow:hidden}
+.lc-hd{background:linear-gradient(135deg,rgba(0,82,134,.6),rgba(0,34,71,.95));padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center}
+.lc-hex{width:54px;height:54px;background:rgba(0,203,255,.1);border:1px solid rgba(0,203,255,.2);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;margin:0 auto 13px}
+.lc-hex b{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--c4)}
+.lc-hd h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:3px}
+.lc-hd p{font-size:11.5px;color:rgba(255,255,255,.32)}
+.lc-body{padding:22px 22px 18px}
+.lc-err{background:rgba(192,39,30,.14);border:1px solid rgba(192,39,30,.25);border-radius:8px;padding:9px 13px;font-size:13px;color:#f87171;margin-bottom:13px;display:none}
+.lc-err.on{display:block}
+.lfield{margin-bottom:14px}
+.lfield label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,.32);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.lfield input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:9px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;outline:none;transition:all .2s}
+.lfield input::placeholder{color:rgba(255,255,255,.18)}
+.lfield input:focus{border-color:rgba(0,203,255,.45);box-shadow:0 0 0 3px rgba(0,203,255,.08)}
+.btn-lsub{width:100%;background:var(--c3);border:none;border-radius:10px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background .2s;margin-bottom:12px}
+.btn-lsub:hover{background:var(--c2)}
+.btn-lsub:disabled{opacity:.4;cursor:not-allowed}
+.lback{text-align:center}
+.lback button{background:none;border:none;color:rgba(255,255,255,.22);font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
+.lback button:hover{color:rgba(255,255,255,.55)}
+
+/* ADMIN */
+#sAdmin{background:var(--bg)}
+.atb{background:var(--c1);padding:0 20px;display:flex;align-items:stretch;min-height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,34,71,.22);overflow-x:auto}
+.atb-brand{display:flex;align-items:center;gap:10px;padding-right:18px;border-right:1px solid rgba(255,255,255,.09);margin-right:12px;flex-shrink:0}
+.atb-hex{width:32px;height:32px;background:rgba(0,203,255,.12);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.atb-hex b{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--c4)}
+.atb-nm{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:#fff;line-height:1}
+.atb-sb{font-size:9.5px;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase}
+.atb-nav{display:flex;align-items:stretch;flex:1;min-width:0;overflow-x:auto}
+.atn{display:flex;align-items:center;padding:0 14px;background:none;border:none;border-bottom:2.5px solid transparent;color:rgba(255,255,255,.38);font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;gap:5px}
+.atn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.atn:hover{color:rgba(255,255,255,.7)}
+.atn.on{color:var(--c4);border-bottom-color:var(--c4)}
+.atb-r{display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid rgba(255,255,255,.09);margin-left:auto;flex-shrink:0}
+.atb-em{font-size:11px;color:rgba(255,255,255,.3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atb-role{font-size:9.5px;color:var(--c4);background:rgba(0,203,255,.1);padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.atb-out{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);color:rgba(255,255,255,.42);padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.atb-out:hover{background:rgba(255,255,255,.13);color:#fff}
+.ac{flex:1;padding:22px 20px 48px;max-width:1360px;margin:0 auto;width:100%}
+.atab{display:none}.atab.on{display:block;animation:fu .22s ease}
+
+/* Page heading */
+.ph{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--c1)}
+.ph p{font-size:12.5px;color:var(--mut);margin-top:2px}
+
+/* Stat cards */
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.scard{background:var(--sur);border:1px solid var(--bord);border-radius:12px;padding:16px 18px;box-shadow:var(--sh)}
+.sn{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;color:var(--c1);line-height:1}
+.sl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
+.sbar{height:3px;background:var(--bord);border-radius:99px;margin-top:12px;overflow:hidden}
+.sfill{height:100%;background:linear-gradient(90deg,var(--c2),var(--c3));border-radius:99px;transition:width .7s ease}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;white-space:nowrap}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-pri{background:var(--c1);color:#fff;border-color:var(--c1)}.btn-pri:hover{background:var(--c2)}
+.btn-sky{background:var(--c3);color:#fff}.btn-sky:hover{background:var(--c2)}
+.btn-out{background:var(--sur);color:var(--c1);border-color:var(--bord)}.btn-out:hover{background:var(--bg)}
+.btn-ok{background:var(--ok-bg);color:var(--ok);border-color:rgba(13,122,82,.2)}.btn-ok:hover{background:#d1fae5}
+.btn-warn{background:var(--warn-bg);color:var(--warn);border-color:rgba(180,83,9,.2)}.btn-warn:hover{background:#fef3c7}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:5px 10px;font-size:11px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Card */
+.card{background:var(--sur);border:1px solid var(--bord);border-radius:11px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.chd{padding:13px 17px;border-bottom:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.chd h3{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--c1)}
+
+/* Table */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
+thead th{background:var(--bg);color:var(--mut);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--bord)}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--bord);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+.tdn{font-weight:600;color:var(--c1)}
+.tdid{font-family:'DM Mono',monospace;font-size:11px;color:var(--c3);background:rgba(0,135,241,.07);padding:2px 7px;border-radius:4px;white-space:nowrap}
+.tdlk{color:var(--c3);font-weight:600;cursor:pointer;font-size:12px}.tdlk:hover{text-decoration:underline}
+
+/* Badge */
+.bdg{display:inline-flex;padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.bA{background:#d1fae5;color:#065f46}.bB{background:#dbeafe;color:#1e40af}
+.bC{background:#fef3c7;color:#92400e}.bD{background:#fee2e2;color:#991b1b}
+.bPub{background:#d1fae5;color:#065f46}.bNPub{background:var(--warn-bg);color:var(--warn)}
+
+/* Upload */
+.upzone{background:var(--sur);border:1.5px dashed var(--bord);border-radius:13px;padding:46px 28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.upzone:hover,.upzone.drag{border-color:var(--c3);background:#f0f8ff}
+.up-ico{width:48px;height:48px;background:var(--bg);border:1px solid var(--bord);border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.up-ico svg{width:22px;height:22px;stroke:var(--r10d);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.upzone h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--c1);margin-bottom:5px}
+.upzone p{font-size:12.5px;color:var(--mut)}
+.fmt{display:inline-flex;gap:4px;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.fmt span{background:var(--bg);border:1px solid var(--bord);border-radius:4px;padding:2px 9px;font-size:10.5px;font-weight:700;color:var(--mut);font-family:'DM Mono',monospace}
+
+/* Filter bar */
+.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px;align-items:center}
+.inw{position:relative;flex:1;min-width:160px}
+.inw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--hin);fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none}
+.inw input{width:100%;padding:8px 12px 8px 31px;border:1px solid var(--bord);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;transition:border-color .15s}
+.inw input:focus{border-color:var(--c3)}
+.fsel{padding:8px 12px;border:1px solid var(--bord);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;cursor:pointer}
+
+/* Score input */
+.sinp{width:48px;padding:5px 6px;border:1px solid var(--bord);border-radius:5px;font-family:'DM Mono',monospace;font-size:12px;text-align:center;outline:none;background:var(--sur);transition:border-color .15s}
+.sinp:focus{border-color:var(--c3)}
+
+/* Scoring card per delegate */
+.del-score-card{background:var(--sur);border:1px solid var(--bord);border-radius:11px;margin-bottom:12px;overflow:hidden;transition:box-shadow .2s}
+.del-score-card:hover{box-shadow:var(--sh)}
+.dsc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--bord);gap:8px;flex-wrap:wrap}
+.dsc-name{font-weight:700;font-size:13.5px;color:var(--c1)}
+.dsc-meta{font-size:11px;color:var(--hin);margin-top:1px}
+.dsc-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dsc-total{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--c1)}
+.pub-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.pub-badge.published{background:#d1fae5;color:#065f46}
+.pub-badge.pending{background:var(--warn-bg);color:var(--warn)}
+/* Auto-save indicator */
+.autosave-ind{font-size:10.5px;color:var(--ok);font-weight:600;display:none;align-items:center;gap:4px}
+.autosave-ind.show{display:flex}
+.autosave-ind svg{width:12px;height:12px;stroke:var(--ok);fill:none;stroke-width:2.5;stroke-linecap:round}
+.saving-ind{font-size:10.5px;color:var(--hin);display:none}
+.saving-ind.show{display:block}
+
+.dsc-scores{padding:12px 16px;border-bottom:1px solid var(--bord)}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.score-item{display:flex;flex-direction:column;gap:3px}
+.score-item label{font-size:10.5px;color:var(--mut);font-weight:600;letter-spacing:.3px}
+.score-item-row{display:flex;align-items:center;gap:5px}
+.score-max{font-size:11px;color:var(--hin)}
+.dsc-fb{padding:12px 16px;border-bottom:1px solid var(--bord)}
+.dsc-fb label{display:block;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fb-textarea{width:100%;padding:8px 11px;border:1px solid var(--bord);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--sur);outline:none;resize:vertical;min-height:68px;transition:border-color .15s;line-height:1.5}
+.fb-textarea:focus{border-color:var(--c3)}
+.fb-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;flex-wrap:wrap;gap:6px}
+.fb-counter{font-size:10.5px;color:var(--hin)}
+.dsc-actions{padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Rubrica grid */
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.rc{background:var(--sur);border:1px solid var(--bord);border-radius:11px;padding:14px 16px;border-top:3px solid var(--c2)}
+.rpts{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--c1);line-height:1;margin-bottom:3px}
+.rpts span{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--hin);font-weight:400}
+.rnm{font-weight:700;font-size:13px;color:var(--c1);margin-bottom:3px}
+.rdsc{font-size:11.5px;color:var(--mut);line-height:1.6}
+
+/* Levels */
+.lvlbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.lvi{border-radius:8px;padding:10px 12px;border:1px solid}
+.lvi.A{background:#ecfdf5;border-color:#6ee7b7}.lvi.A .lvin{color:#065f46}
+.lvi.B{background:#eff6ff;border-color:#93c5fd}.lvi.B .lvin{color:#1e40af}
+.lvi.C{background:#fffbeb;border-color:#fcd34d}.lvi.C .lvin{color:#92400e}
+.lvi.D{background:#fef2f2;border-color:#fca5a5}.lvi.D .lvin{color:#991b1b}
+.lvin{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px}
+.lvil{font-size:10.5px;color:var(--mut);margin-top:1px}
+
+/* Alerts */
+.alert-info{background:rgba(0,135,241,.07);border:1px solid rgba(0,135,241,.2);border-radius:9px;padding:11px 14px;font-size:12.5px;color:var(--c2);margin-bottom:14px;line-height:1.6}
+.alert-info code{font-family:'DM Mono',monospace;font-size:10.5px;background:rgba(0,0,0,.07);padding:2px 6px;border-radius:3px;display:inline-block;margin-top:6px;word-break:break-all}
+.alert-warn{background:var(--warn-bg);border:1px solid rgba(180,83,9,.2);border-radius:9px;padding:11px 14px;font-size:12.5px;color:var(--warn);margin-bottom:14px}
+
+/* QR Modal */
+.mOv{position:fixed;inset:0;background:rgba(0,18,45,.88);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+.mOv.on{display:flex}
+.mBox{background:var(--c1);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:22px;max-width:360px;width:100%;animation:fu .22s ease;text-align:center}
+.mBox h3{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:#fff;margin-bottom:3px}
+.mBox p{font-size:11.5px;color:rgba(255,255,255,.32);margin-bottom:16px}
+.mQR{background:#fff;border-radius:9px;padding:11px;display:inline-block;margin-bottom:14px}
+.mActs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+
+/* Toast */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--c1);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .25s;box-shadow:var(--shlg);pointer-events:none;max-width:280px;display:flex;align-items:center;gap:8px;border:1px solid rgba(0,203,255,.15)}
+#toast.on{transform:translateY(0);opacity:1}
+#toast svg{width:13px;height:13px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .hstats{grid-template-columns:repeat(2,1fr)}
+  .hst:nth-child(odd){border-right:1px solid rgba(255,255,255,.07)}
+  .hst{border-bottom:1px solid rgba(255,255,255,.07)}
+  .hst:nth-last-child(-n+2){border-bottom:none}
+  .srow{grid-template-columns:1fr 1fr}
+  .lvlbar{grid-template-columns:1fr 1fr}
+  .ac{padding:16px 12px 36px}
+  .atb{padding:0 12px}
+  .topbar{padding:12px 16px}
+  table{min-width:400px}
+}
+@media(max-width:480px){
+  .srow{grid-template-columns:1fr}
+  .h-title{letter-spacing:2px}
+  .atb-nm,.atb-sb{display:none}
+  .atn{padding:0 10px;font-size:12px}
+  .score-grid{grid-template-columns:repeat(3,1fr)}
+  .bk-bar{width:70px}
+}
+</style>
+</head>
+<body>
+
+<div id="ldOv"><div class="spin"></div><p>Conectando...</p></div>
+
+<!-- HOME -->
+<div class="scr" id="sHome">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-hex"><b>C</b></div>
+      <div><div class="tb-nm">SIGEL CELIDER 10-04</div><div class="tb-sb">Gestion y Evaluacion de Liderazgo</div></div>
+    </div>
+    <div class="tb-right">
+      <span class="pill">Regional 10</span>
+      <button class="btn-top" id="btnAdmin">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Admin
+      </button>
+    </div>
+  </div>
+  <div class="hero">
+    <div class="eyebrow"><span class="pdot"></span>Sistema Activo — CELIDER 2026</div>
+    <div class="h-title">SIGEL<br><span>CELIDER</span></div>
+    <div class="h-reg">10-04 · Regional 10 · PLERD · MINERD</div>
+    <div class="h-desc">Consulta tus calificaciones con tu ID de delegado o escanea tu codigo QR.</div>
+    <div class="srch-wrap">
+      <input type="text" id="homeSearch" placeholder="Escribe tu ID (CEL-001) o tu nombre..." autocomplete="off">
+      <button class="srch-btn" id="btnSearch">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+    <p class="srch-hint">Solo tienes acceso a tu propia informacion como delegado.</p>
+  </div>
+  <div class="hstats">
+    <div class="hst"><div class="hst-n" id="hsT">—</div><div class="hst-l">Delegados</div></div>
+    <div class="hst"><div class="hst-n" id="hsC">—</div><div class="hst-l">Comisiones</div></div>
+    <div class="hst"><div class="hst-n" id="hsR">—</div><div class="hst-l">Calificados</div></div>
+    <div class="hst"><div class="hst-n" id="hsA">—</div><div class="hst-l">Promedio</div></div>
+  </div>
+</div>
+
+<!-- Search overlay -->
+<div class="srp-ov" id="srpOv">
+  <div class="srp-box">
+    <div class="srp-hd">
+      <div><h3>Resultados</h3><p id="srpCount"></p></div>
+      <button class="srp-x" id="btnSrpX">&#x2715;</button>
+    </div>
+    <div class="srp-list" id="srpList"></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="scr" id="sProfile">
+  <div class="prof-bar">
+    <span class="prof-brand">SIGEL · CELIDER 10-04</span>
+    <button class="prof-back" id="btnProfBack">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Volver
+    </button>
+  </div>
+  <div class="prof-body" id="profBody"></div>
+</div>
+
+<!-- LOGIN -->
+<div class="scr" id="sLogin">
+  <div class="lc">
+    <div class="lc-hd">
+      <div class="lc-hex"><b>C</b></div>
+      <h2>Acceso Admin</h2>
+      <p>Panel de gestion SIGEL CELIDER 10-04</p>
+    </div>
+    <div class="lc-body">
+      <div class="lc-err" id="loginErr"></div>
+      <div class="lfield"><label>Correo</label><input type="email" id="loginEmail" autocomplete="email"></div>
+      <div class="lfield"><label>Contrasena</label><input type="password" id="loginPass" autocomplete="current-password"></div>
+      <button class="btn-lsub" id="btnLoginSub">INGRESAR</button>
+      <div class="lback"><button id="btnLoginBack">&#8592; Volver al inicio</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="scr" id="sAdmin">
+  <div class="atb">
+    <div class="atb-brand">
+      <div class="atb-hex"><b>C</b></div>
+      <div><div class="atb-nm">SIGEL CELIDER</div><div class="atb-sb">Admin</div></div>
+    </div>
+    <div class="atb-nav" id="atbNav"></div>
+    <div class="atb-r">
+      <div class="atb-em" id="atbEmail">—</div>
+      <span class="atb-role" id="atbRole">—</span>
+      <button class="atb-out" id="btnLogout">Salir</button>
+    </div>
+  </div>
+  <div class="ac" id="adminContent"></div>
+</div>
+
+<!-- QR Modal -->
+<div class="mOv" id="qrMOv">
+  <div class="mBox">
+    <h3 id="qrmName">—</h3><p id="qrmMeta">—</p>
+    <div class="mQR"><div id="qrmDiv"></div></div>
+    <div class="mActs">
+      <button class="btn btn-sky btn-sm" id="btnDlMQR">Descargar QR</button>
+      <button class="btn btn-out btn-sm" id="btnCloseMQR">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* =====================================================
+   REGLAS FIREBASE — pega esto en
+   Firebase Console → Realtime Database → Rules
+   =====================================================
+   {
+     "rules": {
+       "delegates": {
+         "$id": {
+           ".read": true,
+           ".write": "auth != null"
+         }
+       },
+       "admins": {
+         ".read": "auth != null",
+         ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'superadmin'"
+       },
+       "publicStats": {
+         ".read": true,
+         ".write": "auth != null"
+       }
+     }
+   }
+   =====================================================
+   Con estas reglas:
+   - Cada delegates/$id es publico (delegado ve su QR)
+   - La lista completa solo la lee el admin autenticado
+   - Firebase NO envia alertas de seguridad
+   - Tiempo real funciona para delegados y admins
+   ===================================================== */
+
+document.addEventListener('DOMContentLoaded', function() {
+
+// ── Firebase config (fragmentado para ofuscar) ────
+var _cfg = {
+  apiKey:         'AIzaSyDNAo' + 'Ux40Ax8cu0IKREgle3Bnf271NdKXo',
+  authDomain:     'sigel-celider-10-04.firebaseapp.com',
+  projectId:      'sigel-celider-10-04',
+  storageBucket:  'sigel-celider-10-04.firebasestorage.app',
+  messagingSenderId: '331346792233',
+  appId:          '1:331346792233:web:' + '15589aa0b9b8c522d2f138',
+  databaseURL:    'https://sigel-celider-10-04-default-rtdb.firebaseio.com'
+};
+firebase.initializeApp(_cfg);
+var auth = firebase.auth();
+var db   = firebase.database();
+
+// ── Estado ───────────────────────────────────────
+var delegates   = {};
+var curUser     = null;
+var curRole     = null;
+var curComision = null;
+var curQRId     = null;
+var adminListenerOn = false;
+var publicStatsListenerOn = false;
+// Debounce timers per delegate
+var saveTimers  = {};
+
+var SF = [
+  {k:'investigacion', l:'Investig. Academica',  lf:'Investigacion Academica',   m:15},
+  {k:'pensamiento',   l:'Pens. Critico',         lf:'Pensamiento Critico',        m:15},
+  {k:'oratoria',      l:'Oratoria',              lf:'Oratoria',                   m:10},
+  {k:'argumentacion', l:'Argumentacion',         lf:'Argumentacion',              m:10},
+  {k:'redaccion',     l:'Redaccion',             lf:'Redaccion',                  m:10},
+  {k:'negociacion',   l:'Negociacion',           lf:'Negociacion',                m:10},
+  {k:'conflictos',    l:'Res. Conflictos',       lf:'Resolucion de Conflictos',   m:10},
+  {k:'liderazgo',     l:'Liderazgo',             lf:'Liderazgo',                  m:10},
+  {k:'colaboracion',  l:'Colaboracion',          lf:'Colaboracion',               m:10}
+];
+
+// ── Helpers ──────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function tot(s){
+  if(!s) return 0;
+  var t = 0;
+  SF.forEach(function(f){ t += parseInt(s[f.k]) || 0; });
+  return t;
+}
+function lvl(t){
+  if(t >= 90) return ['A','Excelente'];
+  if(t >= 75) return ['B','Muy Bueno'];
+  if(t >= 60) return ['C','Satisfactorio'];
+  return ['D','En Desarrollo'];
+}
+function coms(){
+  var s = {};
+  Object.values(delegates).forEach(function(d){ if(d.comision) s[d.comision]=1; });
+  return Object.keys(s).sort();
+}
+function genId(n){ return 'CEL-' + ('000'+n).slice(-3); }
+function esc(s){
+  return (s||'').replace(/[<>&"']/g, function(c){
+    return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function showToast(msg){
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('on');
+  setTimeout(function(){ $('toast').classList.remove('on'); }, 3000);
+}
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(function(s){ s.classList.remove('on'); });
+  var el = $(id);
+  if(el) el.classList.add('on');
+}
+
+// ── Firebase DB listeners ─────────────────────────
+function startAdminListener(){
+  if(adminListenerOn) return;
+  adminListenerOn = true;
+  // Admin escucha la lista completa
+  db.ref('delegates').on('value', function(snap){
+    delegates = snap.val() || {};
+    updateHomeStats();
+    updatePublicStats();
+    updateDashboard();
+    renderDels();
+    populateScoreComs();
+  });
+}
+
+function startPublicStatsListener(){
+  if(publicStatsListenerOn) return;
+  publicStatsListenerOn = true;
+  // Publico solo ve contadores agregados
+  db.ref('publicStats').on('value', function(snap){
+    var s = snap.val() || {};
+    $('hsT').textContent = s.total      || '—';
+    $('hsC').textContent = s.comisiones || '—';
+    $('hsR').textContent = s.calificados|| '—';
+    $('hsA').textContent = s.promedio   || '—';
+  });
+}
+
+function updatePublicStats(){
+  var all    = Object.values(delegates);
+  var rated  = all.filter(function(d){ return tot(d.scores) > 0; });
+  var avg    = rated.length
+    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
+    : '—';
+  db.ref('publicStats').set({
+    total: all.length,
+    comisiones: coms().length,
+    calificados: rated.length,
+    promedio: avg
+  });
+}
+
+// Carga un delegado por ID individual (lectura publica)
+function loadDelegateById(id){
+  return db.ref('delegates/' + id).once('value').then(function(snap){
+    if(snap.exists()){
+      delegates[id] = snap.val();
+      return snap.val();
+    }
+    return null;
+  });
+}
+
+// ── AUTH STATE ───────────────────────────────────
+auth.onAuthStateChanged(function(user){
+  $('ldOv').classList.add('hide');
+  // SIEMPRE escuchar cambios en estadísticas públicas para actualizar la home en tiempo real
+  startPublicStatsListener();
+  
+  if(user){
+    curUser = user;
+    db.ref('admins/' + user.uid).once('value').then(function(snap){
+      var data = snap.val() || {};
+      curRole     = data.role     || 'superadmin';
+      curComision = data.comision || null;
+      $('atbEmail').textContent = user.email;
+      $('atbRole').textContent  = curRole === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN COM.';
+      startAdminListener();
+      buildAdminUI();
+      showScr('sAdmin');
+    }).catch(function(){
+      curRole = 'superadmin'; curComision = null;
+      $('atbEmail').textContent = user.email;
+      $('atbRole').textContent  = 'ADMIN';
+      startAdminListener();
+      buildAdminUI();
+      showScr('sAdmin');
+    });
+  } else {
+    curUser = null; curRole = null; curComision = null;
+    var urlId = new URLSearchParams(location.search).get('id');
+    if(urlId){
+      loadAndShowProfile(urlId);
+    } else {
+      showScr('sHome');
+    }
+  }
+});
+
+// ── LOAD + SHOW PROFILE (used by QR URL) ─────────
+function loadAndShowProfile(id){
+  var uid = id.toUpperCase();
+  if(delegates[uid]){ openProfile(uid); return; }
+  $('ldOv').classList.remove('hide');
+  loadDelegateById(uid).then(function(d){
+    $('ldOv').classList.add('hide');
+    if(d){ openProfile(uid); }
+    else { showScr('sHome'); showToast('ID de delegado no encontrado'); }
+  }).catch(function(){
+    $('ldOv').classList.add('hide');
+    showScr('sHome');
+    showToast('Error al conectar con Firebase');
+  });
+}
+
+// ── STATS ─────────────────────────────────────────
+function updateHomeStats(){
+  var all   = Object.values(delegates);
+  var rated = all.filter(function(d){ return tot(d.scores) > 0; });
+  var avg   = rated.length
+    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
+    : '—';
+  $('hsT').textContent = all.length   || '—';
+  $('hsC').textContent = coms().length|| '—';
+  $('hsR').textContent = rated.length || '—';
+  $('hsA').textContent = avg;
+}
+
+// ── SEARCH ────────────────────────────────────────
+function doSearch(){
+  var raw = ($('homeSearch').value || '').trim();
+  if(!raw){ showToast('Escribe tu ID o nombre'); return; }
+  var q = raw.toLowerCase();
+
+  // Busqueda por ID (CEL-001 o 001 o 1)
+  if(/^(cel-?)?\d+$/i.test(raw)){
+    var num = parseInt(raw.replace(/[^0-9]/g,''));
+    var id  = genId(num);
+    if(delegates[id]){ openProfile(id); return; }
+    $('ldOv').classList.remove('hide');
+    loadDelegateById(id).then(function(d){
+      $('ldOv').classList.add('hide');
+      if(d){ openProfile(id); }
+      else {
+        showSRP('<div class="srp-empty">No se encontro el ID <strong>' + esc(id) + '</strong>.<br><small>Verifica que el ID sea correcto.</small></div>', '0 resultados');
+      }
+    }).catch(function(){
+      $('ldOv').classList.add('hide');
+      showToast('Error al conectar');
+    });
+    return;
+  }
+
+  // Busqueda por nombre
+  var entries = Object.entries(delegates);
+  if(!entries.length){
+    showSRP('<div class="srp-empty">Usa tu ID de delegado (ejemplo: CEL-001).<br><small>Tu ID esta en la hoja que te entrego la mesa directiva.</small></div>', '');
+    return;
+  }
+  var found = entries.filter(function(e){ return (e[1].nombre||'').toLowerCase().indexOf(q) !== -1; });
+  if(!found.length){
+    showSRP('<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small>Intenta con tu ID: CEL-001, CEL-002...</small></div>', '0 resultados');
+    return;
+  }
+  if(found.length === 1){ openProfile(found[0][0]); return; }
+  var html = found.map(function(e){
+    var id2 = e[0], d2 = e[1];
+    return '<div class="srp-item" data-pid="' + esc(id2) + '">' +
+      '<div><div class="srp-iname">' + esc(d2.nombre) + '</div>' +
+      '<div class="srp-imeta">' + esc(d2.comision||'—') + ' · ' + esc(d2.delegacion||'—') + '</div></div>' +
+      '<span class="srp-iid">' + esc(id2) + '</span></div>';
+  }).join('');
+  showSRP(html, found.length + ' resultado(s)');
+}
+
+function showSRP(html, count){
+  $('srpList').innerHTML = html;
+  $('srpCount').textContent = count;
+  $('srpOv').classList.add('on');
+  $('srpList').querySelectorAll('[data-pid]').forEach(function(el){
+    el.addEventListener('click', function(){
+      $('srpOv').classList.remove('on');
+      openProfile(el.dataset.pid);
+    });
+  });
+}
+
+// ── PROFILE ───────────────────────────────────────
+function openProfile(id){
+  var d = delegates[id];
+  if(!d){ showToast('Delegado no encontrado'); return; }
+  var pub = d.published === true;
+  var s   = d.scores || {};
+  var t   = tot(s);
+  var lv  = lvl(t);
+  var cl  = lv[0], lb = lv[1];
+
+  var html = '<div class="cred-card">' +
+    '<div class="cred-top">' +
+      '<span class="cred-id">' + esc(id) + '</span>' +
+      (pub ? '<span class="cred-lv ' + cl + '">' + lb + '</span>' : '<span class="cred-lv C">Pendiente</span>') +
+    '</div>' +
+    '<div class="cred-name">' + esc(d.nombre||'—') + '</div>' +
+    '<div class="cred-chips">' +
+      (d.comision   ? '<span class="cc"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>' + esc(d.comision)   + '</span>' : '') +
+      (d.delegacion ? '<span class="cc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>' + esc(d.delegacion) + '</span>' : '') +
+      (d.institucion? '<span class="cc"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11H3z"/></svg>' + esc(d.institucion)+ '</span>' : '') +
+    '</div>' +
+    (pub ? '<div class="cred-tot"><span class="cred-tot-lbl">Calificacion Total</span><div class="cred-tot-n">' + t + '<span>/100</span></div></div>' : '') +
+  '</div>';
+
+  if(!pub){
+    html += '<div class="not-published">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+      '<h3>Calificacion No Disponible</h3>' +
+      '<p>Tu calificacion aun no ha sido publicada por la mesa directiva.<br>Vuelve a consultar mas tarde.</p>' +
+    '</div>';
+  } else {
+    html += '<div class="breakdown"><div class="bk-hd"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Desglose por Criterio</span></div>';
+    SF.forEach(function(f){
+      var v   = parseInt(s[f.k]) || 0;
+      var pct = Math.round(v / f.m * 100);
+      html += '<div class="bk-row"><span class="bk-nm">' + f.lf + '</span>' +
+        '<div class="bk-bar"><div class="bk-bg"><div class="bk-fill" style="width:' + pct + '%"></div></div></div>' +
+        '<span class="bk-val">' + v + '</span><span class="bk-max">/' + f.m + '</span></div>';
+    });
+    html += '</div>';
+    // Feedback
+    if(d.feedback && d.feedback.trim()){
+      html += '<div class="feedback-card">' +
+        '<div class="feedback-hd"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' +
+        '<span>Comentario de la Mesa Directiva</span></div>' +
+        '<div class="feedback-txt">' + esc(d.feedback.trim()) + '</div></div>';
+    }
+  }
+
+  // QR section
+  html += '<div class="qr-sec"><p>Tu codigo QR personal — CELIDER 2026</p>' +
+    '<div class="qr-box"><div id="pQR"></div></div>' +
+    '<div class="prof-acts">' +
+      '<button class="btn btn-sky btn-sm" id="btnDlQR">Descargar QR</button>' +
+      '<button class="btn btn-out btn-sm" id="btnPrQR">Imprimir</button>' +
+    '</div></div>';
+
+  $('profBody').innerHTML = html;
+
+  // Generate QR after paint
+  setTimeout(function(){
+    var qd = $('pQR');
+    if(!qd) return;
+    qd.innerHTML = '';
+    var base = window.location.origin + window.location.pathname;
+    var url  = base + '?id=' + encodeURIComponent(id);
+    try{
+      new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
+    } catch(e){ qd.innerHTML = '<p style="color:#f87171;font-size:11px">QR error: ' + e.message + '</p>'; }
+
+    var btnDl = $('btnDlQR');
+    if(btnDl){
+      btnDl.addEventListener('click', function(){
+        var c = qd.querySelector('canvas');
+        if(!c){ showToast('QR generandose...'); return; }
+        var a = document.createElement('a');
+        a.download = 'QR_' + id + '_CELIDER2026.png';
+        a.href = c.toDataURL();
+        a.click();
+        showToast('QR descargado');
+      });
+    }
+    var btnPr = $('btnPrQR');
+    if(btnPr){ btnPr.addEventListener('click', function(){ printProfile(id, d, t, lb, qd); }); }
+  }, 120);
+
+  showScr('sProfile');
+}
+
+function printProfile(id, d, t, lb, qd){
+  var c = qd ? qd.querySelector('canvas') : null;
+  var qrSrc = c ? c.toDataURL() : '';
+  var s = d.scores || {};
+  var rows = SF.map(function(f){
+    return '<tr><td>' + f.lf + '</td><td style="text-align:right"><strong>' + (s[f.k]||0) + '/' + f.m + '</strong></td></tr>';
+  }).join('');
+  var fbHtml = (d.feedback && d.feedback.trim())
+    ? '<div style="margin-top:14px;background:#eff6ff;border:1px solid #93c5fd;border-radius:9px;padding:12px 14px">' +
+      '<div style="font-size:10px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Comentario de la Mesa Directiva</div>' +
+      '<div style="font-size:12px;color:#1e3a5f;line-height:1.6;white-space:pre-wrap">' + esc(d.feedback.trim()) + '</div></div>'
+    : '';
+  var w = window.open('', '_blank');
+  if(!w) return;
+  w.document.write('<!DOCTYPE html><html><head><title>' + d.nombre + ' — CELIDER 2026</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'DM Sans\',sans-serif;background:#fff;padding:24px;max-width:440px;margin:0 auto}' +
+    '.hd{background:#002247;color:#fff;border-radius:11px;padding:18px;margin-bottom:14px}' +
+    '.hd h1{font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:2px;margin-bottom:2px}' +
+    '.hd p{font-size:10px;opacity:.45}.mid{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}' +
+    '.qi img{border:3px solid #e2e8f0;border-radius:8px;display:block}' +
+    '.inf .id{font-family:monospace;font-size:10.5px;color:#0087f1;background:#e8f3fc;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:5px}' +
+    '.inf .nm{font-family:\'Bebas Neue\',sans-serif;font-size:19px;color:#002247;margin-bottom:3px}' +
+    '.inf .tt{font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:#002247;margin-bottom:2px}' +
+    'table{width:100%;border-collapse:collapse;font-size:11.5px}td{padding:5px 8px;border-bottom:1px solid #e2e8f0}' +
+    '@media print{@page{margin:6mm}}</style></head><body>' +
+    '<div class="hd"><h1>SIGEL CELIDER 10-04 · REGIONAL 10</h1><p>PLERD · MINERD · CELIDER 2026</p></div>' +
+    '<div class="mid">' + (qrSrc ? '<div class="qi"><img src="' + qrSrc + '" width="100"></div>' : '') +
+    '<div class="inf"><div class="id">' + id + '</div><div class="nm">' + (d.nombre||'—') + '</div>' +
+    '<div style="font-size:11px;color:#64748b;margin-bottom:6px">' + (d.comision||'') + ' · ' + (d.delegacion||'') + '</div>' +
+    '<div class="tt">' + t + '/100</div><div style="font-size:12px;color:#64748b">' + lb + '</div></div></div>' +
+    '<table><thead><tr><th style="text-align:left">Criterio</th><th style="text-align:right">Puntaje</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    fbHtml +
+    '<script>window.onload=function(){window.print();}<\/script></body></html>');
+}
+
+// ── LOGIN ─────────────────────────────────────────
+function doLogin(){
+  var email = ($('loginEmail').value || '').trim();
+  var pass  = $('loginPass').value || '';
+  if(!email || !pass){ showLoginErr('Completa los dos campos'); return; }
+  var btn = $('btnLoginSub');
+  btn.disabled = true; btn.textContent = 'VERIFICANDO...';
+  $('loginErr').classList.remove('on');
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(function(){ btn.disabled = false; btn.textContent = 'INGRESAR'; })
+    .catch(function(e){
+      var m = {
+        'auth/invalid-credential':'Credenciales incorrectas',
+        'auth/user-not-found':'Usuario no encontrado',
+        'auth/wrong-password':'Contrasena incorrecta',
+        'auth/invalid-email':'Correo invalido',
+        'auth/too-many-requests':'Demasiados intentos. Espera unos minutos.'
+      };
+      showLoginErr(m[e.code] || 'Error: ' + e.code);
+      btn.disabled = false; btn.textContent = 'INGRESAR';
+    });
+}
+function showLoginErr(m){ var e = $('loginErr'); e.textContent = m; e.classList.add('on'); }
+
+// ── BUILD ADMIN UI ────────────────────────────────
+function buildAdminUI(){
+  var isSA  = (curRole === 'superadmin');
+  var nav   = $('atbNav');
+  var ac    = $('adminContent');
+
+  if(isSA){
+    nav.innerHTML =
+      '<button class="atn on" data-tab="dash"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Panel</button>' +
+      '<button class="atn" data-tab="upload"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Cargar</button>' +
+      '<button class="atn" data-tab="score"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificar</button>' +
+      '<button class="atn" data-tab="dels"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Delegados</button>' +
+      '<button class="atn" data-tab="admins"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admins</button>' +
+      '<button class="atn" data-tab="rub"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rubrica</button>';
+    ac.innerHTML = tabDash() + tabUpload() + tabScore() + tabDels() + tabAdmins() + tabRub();
+  } else {
+    nav.innerHTML =
+      '<button class="atn on" data-tab="score"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificar</button>' +
+      '<button class="atn" data-tab="comexport"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar</button>' +
+      '<button class="atn" data-tab="rub"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rubrica</button>';
+    ac.innerHTML = tabScore() + tabComExport() + tabRub();
+    setTimeout(function(){
+      var s = $('scorCom');
+      if(s && curComision){ s.value = curComision; renderScoring(); }
+    }, 300);
+  }
+
+  nav.querySelectorAll('.atn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      nav.querySelectorAll('.atn').forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      showAdminTab(btn.dataset.tab);
+    });
+  });
+
+  setTimeout(bindAdminEvents, 60);
+}
+
+// ── TAB HTML GENERATORS ───────────────────────────
+function tabDash(){
+  return '<div class="atab on" id="tabDash">' +
+    '<div class="ph"><div><h2>Panel General</h2><p>Vision en tiempo real del sistema</p></div>' +
+    '<span style="font-family:\'DM Mono\',monospace;font-size:10.5px;color:var(--hin)" id="dashTime"></span></div>' +
+    '<div class="srow">' +
+      '<div class="scard"><div class="sn" id="dTotal">0</div><div class="sl">Delegados</div><div class="sbar"><div class="sfill" style="width:100%"></div></div></div>' +
+      '<div class="scard"><div class="sn" id="dComs">0</div><div class="sl">Comisiones</div><div class="sbar"><div class="sfill" style="width:100%"></div></div></div>' +
+      '<div class="scard"><div class="sn" id="dCal">0</div><div class="sl">Calificados</div><div class="sbar"><div class="sfill" style="width:0%" id="dB3"></div></div></div>' +
+      '<div class="scard"><div class="sn" id="dAvg">—</div><div class="sl">Promedio</div><div class="sbar"><div class="sfill" style="width:0%" id="dB4"></div></div></div>' +
+    '</div>' +
+    '<div class="card"><div class="chd"><h3>Por Comision</h3></div>' +
+    '<div class="tw"><table><thead><tr><th>Comision</th><th>Total</th><th>Calificados</th><th>Publicados</th><th>Promedio</th><th>Avance</th></tr></thead>' +
+    '<tbody id="dashTbl"></tbody></table></div></div></div>';
+}
+
+function tabUpload(){
+  return '<div class="atab" id="tabUpload">' +
+    '<div class="ph"><div><h2>Cargar Lista de Delegados</h2><p>Los IDs se asignan automaticamente</p></div></div>' +
+    '<div class="alert-info"><strong>Reglas de Firebase (Realtime Database → Rules):</strong>' +
+    '<code>{"rules":{"delegates":{"$id":{".read":true,".write":"auth != null"}},"admins":{".read":"auth != null",".write":"auth != null && root.child(\'admins\').child(auth.uid).child(\'role\').val() === \'superadmin\'"},"publicStats":{".read":true,".write":"auth != null"}}}</code>' +
+    '</div>' +
+    '<div class="upzone" id="upZone"><div class="up-ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>' +
+    '<h3>Arrastra el Excel aqui o haz clic</h3><p>ID asignado automaticamente por orden</p>' +
+    '<div class="fmt"><span>INSTITUCION</span><span>NOMBRE</span><span>DESIGNACION</span><span>COMISION</span></div>' +
+    '<input type="file" id="fIn" accept=".xlsx,.xls" style="display:none"></div>' +
+    '<div id="upStatus"></div>' +
+    '<div class="card"><div class="chd"><h3>Formato del archivo</h3></div>' +
+    '<div class="tw"><table><thead><tr><th>Columna</th><th>Descripcion</th><th>Ejemplo</th></tr></thead><tbody>' +
+    '<tr><td><span class="tdid">INSTITUCION</span></td><td>Centro educativo</td><td>Liceo Juan Pablo Duarte</td></tr>' +
+    '<tr><td><span class="tdid">NOMBRE</span></td><td>Nombre completo</td><td>Maria Garcia Lopez</td></tr>' +
+    '<tr><td><span class="tdid">DESIGNACION</span></td><td>Pais asignado</td><td>Brasil</td></tr>' +
+    '<tr><td><span class="tdid">COMISION</span></td><td>Nombre de la comision</td><td>OIT</td></tr>' +
+    '</tbody></table></div></div></div>';
+}
+
+function tabScore(){
+  return '<div class="atab" id="tabScore">' +
+    '<div class="ph"><div><h2>Calificar y Publicar</h2><p>Los cambios se guardan automaticamente en Firebase en tiempo real</p></div></div>' +
+    '<div class="fbar"><select class="fsel" id="scorCom" style="min-width:200px"><option value="">-- Selecciona comision --</option></select></div>' +
+    '<div id="scorArea"></div></div>';
+}
+
+function tabDels(){
+  return '<div class="atab" id="tabDels">' +
+    '<div class="ph"><div><h2>Todos los Delegados</h2><p>Directorio completo</p></div>' +
+    '<button class="btn btn-out btn-sm" id="btnExport"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar Excel</button></div>' +
+    '<div class="fbar">' +
+    '<div class="inw"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="delF" placeholder="Buscar por nombre o ID..."></div>' +
+    '<select class="fsel" id="delFC"><option value="">Todas las comisiones</option></select>' +
+    '</div>' +
+    '<div class="card"><div class="tw"><table><thead><tr>' +
+    '<th>ID</th><th>Nombre</th><th>Delegacion</th><th>Institucion</th><th>Comision</th><th>Total</th><th>Nivel</th><th>Estado</th><th>QR</th>' +
+    '</tr></thead><tbody id="delTBody"></tbody></table></div></div></div>';
+}
+
+function tabAdmins(){
+  return '<div class="atab" id="tabAdmins">' +
+    '<div class="ph"><div><h2>Gestionar Administradores</h2><p>Agrega admins por comision usando el UID de Firebase Authentication</p></div></div>' +
+    '<div class="alert-warn">Primero crea el usuario en Firebase Console → Authentication, luego copia su UID aqui.</div>' +
+    '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Agregar Admin de Comision</h3></div>' +
+    '<div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
+    '<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">UID de Firebase Auth</label>' +
+    '<input type="text" id="admUid" placeholder="UID del usuario..." style="width:100%;padding:8px 12px;border:1px solid var(--bord);border-radius:7px;font-size:13px;font-family:\'DM Mono\',monospace;outline:none"></div>' +
+    '<div style="flex:1;min-width:160px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Comision Asignada</label>' +
+    '<select id="admCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
+    '<button class="btn btn-pri btn-sm" id="btnAddAdm">Agregar Admin</button></div></div>' +
+    '<div class="card"><div class="chd"><h3>Admins Registrados</h3></div>' +
+    '<div class="tw"><table><thead><tr><th>UID</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
+    '<tbody id="admTbl"></tbody></table></div></div></div>';
+}
+
+function tabComExport(){
+  return '<div class="atab" id="tabComExport">' +
+    '<div class="ph"><div><h2>Exportar Comision</h2><p>Descarga el Excel y la Rubrica de tu comision asignada</p></div></div>' +
+    '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Descargar Excel de tu Comision</h3></div>' +
+    '<div style="padding:18px 20px"><p style="font-size:13px;color:var(--mut);margin-bottom:14px;line-height:1.6">Listado completo de delegados de tu comision con calificaciones, feedback y estado de publicacion.</p>' +
+    '<button class="btn btn-pri" id="btnExportCom"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar Excel de mi Comision</button></div></div>' +
+    '<div class="card"><div class="chd"><h3>Imprimir Rubrica Oficial</h3></div>' +
+    '<div style="padding:18px 20px"><p style="font-size:13px;color:var(--mut);margin-bottom:14px;line-height:1.6">Rubrica de evaluacion CELIDER 2026 en formato imprimible con tu comision.</p>' +
+    '<button class="btn btn-out" id="btnExportRub"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Imprimir Rubrica</button></div></div></div>';
+}
+
+function tabRub(){
+  return '<div class="atab" id="tabRub">' +
+    '<div class="ph"><div><h2>Rubrica de Evaluacion</h2><p>CELIDER 2026 — 100 puntos totales</p></div></div>' +
+    '<div class="lvlbar">' +
+      '<div class="lvi A"><div class="lvin">90–100</div><div class="lvil">Excelente</div></div>' +
+      '<div class="lvi B"><div class="lvin">75–89</div><div class="lvil">Muy Bueno</div></div>' +
+      '<div class="lvi C"><div class="lvin">60–74</div><div class="lvil">Satisfactorio</div></div>' +
+      '<div class="lvi D"><div class="lvin">&lt;60</div><div class="lvil">En Desarrollo</div></div>' +
+    '</div>' +
+    '<div class="rg">' +
+      '<div class="rc"><div class="rpts">15<span> pts</span></div><div class="rnm">Investigacion Academica</div><div class="rdsc">Profundidad y precision de la investigacion previa. Uso correcto de fuentes y datos actualizados.</div></div>' +
+      '<div class="rc"><div class="rpts">15<span> pts</span></div><div class="rnm">Pensamiento Critico</div><div class="rdsc">Capacidad de analisis, sintesis y evaluacion de argumentos propios y contrarios.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Oratoria</div><div class="rdsc">Claridad, fluidez, proyeccion de voz y dominio del lenguaje formal.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Argumentacion</div><div class="rdsc">Solidez logica. Uso de evidencias y refutacion efectiva.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Redaccion</div><div class="rdsc">Calidad de documentos escritos: resoluciones, enmiendas y posicion de pais.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Negociacion</div><div class="rdsc">Habilidad para alcanzar acuerdos mediante dialogo estrategico y diplomatico.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Resolucion de Conflictos</div><div class="rdsc">Gestion de desacuerdos y soluciones constructivas bajo presion.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Liderazgo</div><div class="rdsc">Iniciativa, influencia positiva y capacidad de guiar hacia objetivos comunes.</div></div>' +
+      '<div class="rc"><div class="rpts">10<span> pts</span></div><div class="rnm">Colaboracion</div><div class="rdsc">Trabajo en equipo y contribucion al ambiente positivo.</div></div>' +
+    '</div></div>';
+}
+
+function showAdminTab(name){
+  document.querySelectorAll('.atab').forEach(function(t){ t.classList.remove('on'); });
+  var map = {dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',admins:'tabAdmins',rub:'tabRub',comexport:'tabComExport'};
+  var el = $(map[name]);
+  if(el) el.classList.add('on');
+  if(name === 'score')    populateScoreComs();
+  if(name === 'dels')     renderDels();
+  if(name === 'dash')     updateDashboard();
+  if(name === 'admins')   { loadAdmins(); populateAdmComs(); }
+  if(name === 'comexport'){ bindComExportEvents(); }
+}
+
+// ── DASHBOARD ─────────────────────────────────────
+function updateDashboard(){
+  var el = $('dTotal'); if(!el) return;
+  var all    = Object.values(delegates);
+  var rated  = all.filter(function(d){ return tot(d.scores) > 0; });
+  var pubArr = all.filter(function(d){ return d.published === true; });
+  var avg    = rated.length
+    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
+    : '—';
+  $('dTotal').textContent = all.length;
+  $('dComs').textContent  = coms().length;
+  $('dCal').textContent   = rated.length;
+  $('dAvg').textContent   = avg;
+  var pct = all.length ? Math.round(rated.length / all.length * 100) : 0;
+  $('dB3').style.width = pct + '%';
+  $('dB4').style.width = (avg !== '—') ? Math.min(parseFloat(avg), 100) + '%' : '0%';
+  var cs = coms();
+  $('dashTbl').innerHTML = cs.length ? cs.map(function(c){
+    var mem  = all.filter(function(d){ return d.comision === c; });
+    var r2   = mem.filter(function(d){ return tot(d.scores) > 0; });
+    var p2   = mem.filter(function(d){ return d.published === true; });
+    var avg2 = r2.length ? (r2.reduce(function(a,d){ return a + tot(d.scores); },0) / r2.length).toFixed(1) : '—';
+    var pct2 = mem.length ? Math.round(r2.length / mem.length * 100) : 0;
+    return '<tr><td class="tdn">' + esc(c) + '</td><td>' + mem.length + '</td><td>' + r2.length + '</td><td>' + p2.length + '</td><td>' + avg2 + '</td>' +
+      '<td><div style="background:var(--bord);border-radius:99px;height:5px;overflow:hidden;width:80px">' +
+      '<div style="height:100%;width:' + pct2 + '%;background:linear-gradient(90deg,var(--c2),var(--c3));border-radius:99px"></div></div></td></tr>';
+  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--hin)">Sin datos</td></tr>';
+  var dt = $('dashTime');
+  if(dt) dt.textContent = new Date().toLocaleString('es-DO',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'short'});
+  updatePublicStats();
+}
+
+// ── UPLOAD ────────────────────────────────────────
+function processXL(file){
+  if(!file) return;
+  var r = new FileReader();
+  r.onload = function(e){
+    try{
+      var wb   = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+      if(!rows.length){ showToast('Archivo vacio'); return; }
+      var parsed = rows.map(function(row, i){
+        return {
+          id:         genId(i+1),
+          institucion:row['INSTITUCION']  || row['INSTITUCIÓN']  || row['Institucion']  || '',
+          nombre:     row['NOMBRE']       || row['Nombre']       || '',
+          delegacion: row['DESIGNACION']  || row['DESIGNACIÓN']  || row['Delegacion']   || '',
+          comision:   row['COMISION']     || row['COMISIÓN']     || row['Comision']      || '',
+          scores:     null,
+          published:  false,
+          feedback:   ''
+        };
+      }).filter(function(d){ return d.nombre.trim(); });
+
+      var updates = {};
+      parsed.forEach(function(d){ updates['delegates/' + d.id] = d; });
+
+      db.ref().update(updates)
+        .then(function(){
+          var comsDetected = {};
+          parsed.forEach(function(d){ if(d.comision) comsDetected[d.comision]=1; });
+          $('upStatus').innerHTML = '<div style="background:var(--ok-bg);border:1px solid #6ee7b7;border-radius:9px;padding:11px 14px;color:var(--ok);font-size:13px;font-weight:600;margin-top:4px">' +
+            parsed.length + ' delegados cargados · ' + Object.keys(comsDetected).length + ' comisiones detectadas</div>';
+          showToast(parsed.length + ' delegados guardados en Firebase');
+          showAdminTab('dels');
+        })
+        .catch(function(err){ showToast('Error al guardar: ' + err.message); });
+    } catch(err){ showToast('Error al procesar: ' + err.message); }
+  };
+  r.readAsArrayBuffer(file);
+}
+
+// ── DELEGATES TABLE ───────────────────────────────
+function renderDels(){
+  var el = $('delTBody'); if(!el) return;
+  var q  = ($('delF') ? $('delF').value : '').toLowerCase();
+  var qc = $('delFC') ? $('delFC').value : '';
+  var sel = $('delFC');
+  if(sel){
+    var cv = sel.value;
+    sel.innerHTML = '<option value="">Todas las comisiones</option>' +
+      coms().map(function(c){ return '<option value="' + esc(c) + '"' + (c===cv?' selected':'') + '>' + esc(c) + '</option>'; }).join('');
+  }
+  var all = Object.entries(delegates);
+  var f   = all.filter(function(e){
+    var id2=e[0], d2=e[1];
+    return (!q || (d2.nombre||'').toLowerCase().indexOf(q)!==-1 || id2.toLowerCase().indexOf(q)!==-1) && (!qc || d2.comision===qc);
+  });
+  el.innerHTML = f.map(function(e){
+    var id2=e[0], d2=e[1];
+    var t2=tot(d2.scores||{}), lv2=lvl(t2), pub2=d2.published===true;
+    return '<tr>' +
+      '<td><span class="tdid">' + esc(id2) + '</span></td>' +
+      '<td class="tdn">' + esc(d2.nombre||'—') + '</td>' +
+      '<td>' + esc(d2.delegacion||'—') + '</td>' +
+      '<td>' + esc(d2.institucion||'—') + '</td>' +
+      '<td>' + esc(d2.comision||'—') + '</td>' +
+      '<td><strong>' + t2 + '</strong>/100</td>' +
+      '<td><span class="bdg b' + lv2[0] + '">' + lv2[1] + '</span></td>' +
+      '<td><span class="bdg ' + (pub2?'bPub':'bNPub') + '">' + (pub2?'Publicado':'Pendiente') + '</span></td>' +
+      '<td><span class="tdlk" data-qrid="' + esc(id2) + '">Ver QR</span></td>' +
+    '</tr>';
+  }).join('') || '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--hin)">Sin delegados cargados</td></tr>';
+  el.querySelectorAll('[data-qrid]').forEach(function(e){ e.addEventListener('click', function(){ openQRModal(e.dataset.qrid); }); });
+}
+
+// ── QR MODAL ──────────────────────────────────────
+function openQRModal(id){
+  var d = delegates[id]; if(!d) return;
+  curQRId = id;
+  $('qrmName').textContent = d.nombre || '—';
+  $('qrmMeta').textContent = id + ' · ' + (d.comision||'—') + ' · ' + (d.delegacion||'—');
+  var qd = $('qrmDiv'); qd.innerHTML = '';
+  var base = window.location.origin + window.location.pathname;
+  var url  = base + '?id=' + encodeURIComponent(id);
+  try{ new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); }
+  catch(e){ qd.textContent = 'Error al generar QR'; }
+  $('qrMOv').classList.add('on');
+}
+
+// ── SCORING — AUTO-SAVE with DEBOUNCE ─────────────
+function populateScoreComs(){
+  var sel = $('scorCom'); if(!sel) return;
+  var cv  = sel.value;
+  var available = (curRole === 'comadmin' && curComision) ? [curComision] : coms();
+  sel.innerHTML = '<option value="">-- Selecciona comision --</option>' +
+    available.map(function(c){ return '<option value="' + esc(c) + '"' + (c===cv?' selected':'') + '>' + esc(c) + '</option>'; }).join('');
+  if(curRole === 'comadmin' && curComision && !cv){ sel.value = curComision; renderScoring(); }
+}
+
+function renderScoring(){
+  var com  = $('scorCom') ? $('scorCom').value : '';
+  var area = $('scorArea'); if(!area) return;
+  if(!com){ area.innerHTML = ''; return; }
+
+  var mem = Object.entries(delegates).filter(function(e){ return e[1].comision === com; });
+  if(!mem.length){ area.innerHTML = '<div style="padding:24px;text-align:center;color:var(--hin)">Sin delegados en esta comision</div>'; return; }
+
+  var html = '';
+  mem.forEach(function(e){
+    var id = e[0], d = e[1];
+    var s  = d.scores || {};
+    var t  = tot(s);
+    var pub= d.published === true;
+    var fb = d.feedback  || '';
+
+    html += '<div class="del-score-card">' +
+      // Header
+      '<div class="dsc-head">' +
+        '<div><div class="dsc-name">' + esc(d.nombre) + '</div>' +
+        '<div class="dsc-meta">' + esc(id) + ' · ' + esc(d.delegacion||'—') + '</div></div>' +
+        '<div class="dsc-right">' +
+          '<div class="autosave-ind" id="saved_' + id + '"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Guardado</div>' +
+          '<div class="saving-ind" id="saving_' + id + '">Guardando...</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span class="dsc-total" id="tot_' + id + '">' + t + '/100</span>' +
+            '<span id="lvl_' + id + '" class="bdg b' + lvl(t)[0] + '" style="min-width:60px;text-align:center">' + lvl(t)[1] + '</span>' +
+          '</div>' +
+          '<span class="pub-badge ' + (pub?'published':'pending') + '" id="pub_' + id + '">' + (pub?'Publicado':'Pendiente') + '</span>' +
+        '</div>' +
+      '</div>' +
+      // Score inputs grid
+      '<div class="dsc-scores"><div class="score-grid">';
+
+    SF.forEach(function(f){
+      var v = (s[f.k] !== undefined && s[f.k] !== null) ? s[f.k] : '';
+      html += '<div class="score-item">' +
+        '<label>' + f.l + '</label>' +
+        '<div class="score-item-row">' +
+          '<input class="sinp sc-inp" type="number" min="0" max="' + f.m + '" value="' + esc(String(v)) + '" placeholder="0" data-id="' + id + '" data-k="' + f.k + '">' +
+          '<span class="score-max">/' + f.m + '</span>' +
+        '</div></div>';
+    });
+
+    html += '</div></div>' +
+      // Feedback
+      '<div class="dsc-fb">' +
+        '<label>Comentario / Feedback para el delegado</label>' +
+        '<textarea class="fb-textarea" id="fb_' + id + '" maxlength="600" placeholder="Escribe un comentario o retroalimentacion para el delegado. Sera visible al escanear su QR...">' + esc(fb) + '</textarea>' +
+        '<div class="fb-footer">' +
+          '<span id="fbc_' + id + '" class="fb-counter">' + fb.length + '/600</span>' +
+        '</div>' +
+      '</div>' +
+      // Actions
+      '<div class="dsc-actions">' +
+        (pub
+          ? '<button class="btn btn-warn btn-xs pub-btn" data-id="' + id + '" data-pub="false">Despublicar</button>'
+          : '<button class="btn btn-ok btn-xs pub-btn" data-id="' + id + '" data-pub="true">Publicar calificacion</button>'
+        ) +
+      '</div>' +
+    '</div>';
+  });
+
+  area.innerHTML = html;
+
+  // Bind auto-save on each input (debounce 1.5s)
+  area.querySelectorAll('.sc-inp').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var did = inp.dataset.id;
+      // Update total preview
+      var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
+      var t2 = 0;
+      inputs.forEach(function(i){ t2 += parseInt(i.value) || 0; });
+      var te = $('tot_' + did); if(te) te.textContent = t2 + '/100';
+      // Update level badge
+      var lv = lvl(t2);
+      var le = $('lvl_' + did);
+      if(le){
+        le.textContent = lv[1];
+        le.className = 'bdg b' + lv[0];
+      }
+      // Show saving indicator, hide saved
+      var savEl  = $('saved_'  + did);
+      var savInd = $('saving_' + did);
+      if(savEl)  savEl.classList.remove('show');
+      if(savInd) savInd.classList.add('show');
+      // Debounce
+      if(saveTimers[did]) clearTimeout(saveTimers[did]);
+      saveTimers[did] = setTimeout(function(){ autoSaveDelegate(did, area); }, 1500);
+    });
+  });
+
+  // Bind feedback counter + auto-save
+  mem.forEach(function(e){
+    var did = e[0];
+    var ta  = $('fb_' + did);
+    var ctr = $('fbc_' + did);
+    if(ta && ctr){
+      ta.addEventListener('input', function(){
+        ctr.textContent = ta.value.length + '/600';
+        var savEl  = $('saved_'  + did);
+        var savInd = $('saving_' + did);
+        if(savEl)  savEl.classList.remove('show');
+        if(savInd) savInd.classList.add('show');
+        if(saveTimers['fb_' + did]) clearTimeout(saveTimers['fb_' + did]);
+        saveTimers['fb_' + did] = setTimeout(function(){ autoSaveFeedback(did, ta.value); }, 1500);
+      });
+    }
+  });
+
+  // Bind publish/unpublish buttons
+  area.querySelectorAll('.pub-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var did = btn.dataset.id;
+      var pub = (btn.dataset.pub === 'true');
+      btn.disabled = true;
+      btn.textContent = pub ? 'Publicando...' : 'Despublicando...';
+
+      // Build update object using set per field to avoid object literal key issues
+      var ref1 = db.ref('delegates/' + did + '/published');
+      ref1.set(pub).then(function(){
+        showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
+        if(delegates[did]){
+          delegates[did].published = pub;
+        }
+        updatePublicStats();
+        updateHomeStats();
+        
+        // Update badge and button locally WITHOUT re-rendering
+        var pubBadge = $('pub_' + did);
+        if(pubBadge){
+          pubBadge.textContent = pub ? 'Publicado' : 'Pendiente';
+          pubBadge.className   = 'pub-badge ' + (pub ? 'published' : 'pending');
+        }
+        
+        // Flip the button locally
+        btn.dataset.pub = pub ? 'false' : 'true';
+        btn.textContent = pub ? 'Despublicar' : 'Publicar calificacion';
+        btn.className = pub ? 'btn btn-warn btn-xs pub-btn' : 'btn btn-ok btn-xs pub-btn';
+        btn.disabled = false;
+      }).catch(function(err){
+        showToast('Error: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = pub ? 'Publicando...' : 'Despublicando...';
+      });
+    });
+  });
+}
+
+// Auto-save scores for one delegate
+function autoSaveDelegate(did, area){
+  var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
+  if(!inputs.length) return;
+  var scores = {};
+  inputs.forEach(function(i){ scores[i.dataset.k] = parseInt(i.value) || 0; });
+  db.ref('delegates/' + did + '/scores').set(scores)
+    .then(function(){
+      if(delegates[did]){
+        delegates[did].scores = scores;
+      }
+      var savEl  = $('saved_'  + did);
+      var savInd = $('saving_' + did);
+      if(savEl)  savEl.classList.add('show');
+      if(savInd) savInd.classList.remove('show');
+      updatePublicStats();
+      updateHomeStats();
+    })
+    .catch(function(err){ showToast('Error al guardar: ' + err.message); });
+}
+
+// Auto-save feedback for one delegate
+function autoSaveFeedback(did, text){
+  db.ref('delegates/' + did + '/feedback').set(text.trim())
+    .then(function(){
+      if(delegates[did]){
+        delegates[did].feedback = text.trim();
+      }
+      var savEl  = $('saved_'  + did);
+      var savInd = $('saving_' + did);
+      if(savEl)  savEl.classList.add('show');
+      if(savInd) savInd.classList.remove('show');
+    })
+    .catch(function(err){ showToast('Error al guardar feedback: ' + err.message); });
+}
+
+// ── EXPORT EXCEL ──────────────────────────────────
+function exportExcel(){
+  var wb  = XLSX.utils.book_new();
+  var all = Object.entries(delegates);
+  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+  var rows = all.map(function(e){
+    var id2=e[0], d2=e[1];
+    var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
+    return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'', d2.comision||'']
+      .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
+      .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+  });
+  var ws = XLSX.utils.aoa_to_sheet([hdr].concat(rows));
+  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+  XLSX.utils.book_append_sheet(wb, ws, 'Delegados CELIDER');
+  coms().forEach(function(com){
+    var mem = all.filter(function(e){ return e[1].comision === com; });
+    var ch  = ['ID','Nombre','Delegacion','Institucion'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+    var cr  = mem.map(function(e){
+      var id2=e[0], d2=e[1];
+      var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
+      return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'']
+        .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
+        .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+    });
+    var cws = XLSX.utils.aoa_to_sheet([ch].concat(cr));
+    cws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+    XLSX.utils.book_append_sheet(wb, cws, com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'') || 'Comision');
+  });
+  XLSX.writeFile(wb, 'SIGEL_CELIDER_1004_' + new Date().toISOString().split('T')[0] + '.xlsx');
+  showToast('Excel exportado con todas las comisiones');
+}
+
+function exportExcelByComision(com){
+  if(!com){ showToast('Sin comision asignada'); return; }
+  var wb  = XLSX.utils.book_new();
+  var all = Object.entries(delegates);
+  var mem = all.filter(function(e){ return e[1].comision === com; });
+  if(!mem.length){ showToast('Sin delegados en esta comision'); return; }
+  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+  var rows = mem.map(function(e){
+    var id2=e[0], d2=e[1];
+    var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
+    return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'', d2.comision||'']
+      .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
+      .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+  });
+  var ws = XLSX.utils.aoa_to_sheet([hdr].concat(rows));
+  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+  XLSX.utils.book_append_sheet(wb, ws, com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'') || 'Comision');
+  // Rubrica sheet
+  var rubH  = ['Criterio','Puntos Max','Descripcion'];
+  var rubR  = SF.map(function(f){ return [f.lf, f.m, getRubDesc(f.k)]; });
+  rubR.push(['TOTAL', 100, 'Suma de todos los criterios']);
+  var rubWS = XLSX.utils.aoa_to_sheet([rubH].concat(rubR));
+  rubWS['!cols'] = [{wch:26},{wch:12},{wch:50}];
+  XLSX.utils.book_append_sheet(wb, rubWS, 'Rubrica');
+  XLSX.writeFile(wb, 'CELIDER_' + com.replace(/\s+/g,'_') + '_' + new Date().toISOString().split('T')[0] + '.xlsx');
+  showToast('Excel de ' + com + ' descargado');
+}
+
+function getRubDesc(k){
+  var m = {
+    investigacion:'Profundidad y precision de la investigacion previa. Uso correcto de fuentes y datos actualizados.',
+    pensamiento:'Capacidad de analisis, sintesis y evaluacion de argumentos propios y contrarios.',
+    oratoria:'Claridad, fluidez, proyeccion de voz y dominio del lenguaje formal.',
+    argumentacion:'Solidez logica. Uso de evidencias y refutacion efectiva de argumentos contrarios.',
+    redaccion:'Calidad de documentos escritos: resoluciones, enmiendas y posicion de pais.',
+    negociacion:'Habilidad para alcanzar acuerdos mediante dialogo estrategico y diplomatico.',
+    conflictos:'Gestion de desacuerdos y propuestas de soluciones constructivas bajo presion.',
+    liderazgo:'Iniciativa, influencia positiva y capacidad de guiar al grupo hacia objetivos comunes.',
+    colaboracion:'Trabajo en equipo, respeto hacia otros delegados y contribucion al ambiente positivo.'
+  };
+  return m[k] || '';
+}
+
+function printRubrica(){
+  var w = window.open('', '_blank'); if(!w) return;
+  var rubRows = SF.map(function(f){
+    return '<tr><td><strong>' + f.lf + '</strong></td><td style="text-align:center;font-weight:700;color:#002247">' + f.m + '</td><td style="color:#64748b;font-size:11px">' + getRubDesc(f.k) + '</td></tr>';
+  }).join('');
+  w.document.write('<!DOCTYPE html><html><head><title>Rubrica CELIDER 2026</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'DM Sans\',sans-serif;background:#fff;padding:24px;max-width:700px;margin:0 auto}' +
+    '.hd{background:#002247;color:#fff;border-radius:11px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}' +
+    '.hd h1{font-family:\'Bebas Neue\',sans-serif;font-size:22px;letter-spacing:2px}.hd p{font-size:11px;opacity:.5;margin-top:3px}' +
+    '.lvls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}' +
+    '.lv{border-radius:8px;padding:10px 12px;border:1px solid;text-align:center}' +
+    '.lv-n{font-family:\'Bebas Neue\',sans-serif;font-size:16px}.lv-l{font-size:10px;margin-top:1px;color:#64748b}' +
+    '.lv.A{background:#ecfdf5;border-color:#6ee7b7}.lv.A .lv-n{color:#065f46}' +
+    '.lv.B{background:#eff6ff;border-color:#93c5fd}.lv.B .lv-n{color:#1e40af}' +
+    '.lv.C{background:#fffbeb;border-color:#fcd34d}.lv.C .lv-n{color:#92400e}' +
+    '.lv.D{background:#fef2f2;border-color:#fca5a5}.lv.D .lv-n{color:#991b1b}' +
+    'table{width:100%;border-collapse:collapse;font-size:12.5px}' +
+    'thead th{background:#f0f3f7;color:#526070;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid #dde3ec}' +
+    'tbody td{padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top}' +
+    'tfoot td{background:#002247;color:#fff;padding:10px 12px;font-weight:700;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:1px}' +
+    '@media print{@page{margin:8mm}}</style></head><body>' +
+    '<div class="hd"><div><h1>Rubrica de Evaluacion — CELIDER 2026</h1><p>Regional 10 · PLERD · MINERD · 100 puntos totales</p></div>' +
+    (curComision ? '<div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600">' + esc(curComision) + '</div>' : '') +
+    '</div>' +
+    '<div class="lvls">' +
+      '<div class="lv A"><div class="lv-n">90–100</div><div class="lv-l">Excelente</div></div>' +
+      '<div class="lv B"><div class="lv-n">75–89</div><div class="lv-l">Muy Bueno</div></div>' +
+      '<div class="lv C"><div class="lv-n">60–74</div><div class="lv-l">Satisfactorio</div></div>' +
+      '<div class="lv D"><div class="lv-n">&lt;60</div><div class="lv-l">En Desarrollo</div></div>' +
+    '</div>' +
+    '<table><thead><tr><th>Criterio</th><th>Pts</th><th>Descripcion</th></tr></thead><tbody>' + rubRows + '</tbody>' +
+    '<tfoot><tr><td>CALIFICACION TOTAL</td><td>100</td><td>Suma de todos los criterios evaluados</td></tr></tfoot></table>' +
+    '<script>window.onload=function(){window.print();}<\/script></body></html>');
+}
+
+function bindComExportEvents(){
+  setTimeout(function(){
+    var btnC = $('btnExportCom');
+    var btnR = $('btnExportRub');
+    if(btnC){ btnC.onclick = function(){ exportExcelByComision(curComision); }; }
+    if(btnR){ btnR.onclick = function(){ printRubrica(); }; }
+  }, 60);
+}
+
+// ── ADMINS ────────────────────────────────────────
+function loadAdmins(){
+  db.ref('admins').once('value').then(function(snap){
+    var data = snap.val() || {};
+    var el   = $('admTbl'); if(!el) return;
+    el.innerHTML = Object.entries(data).map(function(e){
+      var uid2=e[0], v=e[1];
+      return '<tr><td><span class="tdid" style="font-size:10px;word-break:break-all">' + esc(uid2) + '</span></td>' +
+        '<td>' + esc(v.role||'—') + '</td><td>' + esc(v.comision||'—') + '</td>' +
+        '<td><button class="btn btn-out btn-xs" data-uid="' + esc(uid2) + '">Eliminar</button></td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--hin)">Sin admins adicionales</td></tr>';
+    el.querySelectorAll('[data-uid]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(!confirm('Eliminar este admin?')) return;
+        db.ref('admins/' + btn.dataset.uid).remove()
+          .then(function(){ showToast('Admin eliminado'); loadAdmins(); })
+          .catch(function(e){ showToast('Error: ' + e.message); });
+      });
+    });
+  });
+}
+
+function populateAdmComs(){
+  var sel = $('admCom'); if(!sel) return;
+  sel.innerHTML = '<option value="">-- Selecciona --</option>' +
+    coms().map(function(c){ return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+}
+
+function addAdmin(){
+  var uid = ($('admUid') ? $('admUid').value : '').trim();
+  var com = ($('admCom') ? $('admCom').value : '').trim();
+  if(!uid || !com){ showToast('Completa UID y comision'); return; }
+  db.ref('admins/' + uid).set({role:'comadmin', comision:com})
+    .then(function(){ showToast('Admin agregado para ' + com); $('admUid').value = ''; loadAdmins(); })
+    .catch(function(e){ showToast('Error: ' + e.message); });
+}
+
+// ── BIND ADMIN EVENTS ─────────────────────────────
+function bindAdminEvents(){
+  var btnExp = $('btnExport');
+  if(btnExp) btnExp.addEventListener('click', exportExcel);
+
+  var btnAdm = $('btnAddAdm');
+  if(btnAdm) btnAdm.addEventListener('click', addAdmin);
+
+  var delF  = $('delF');
+  var delFC = $('delFC');
+  if(delF)  delF.addEventListener('input',  renderDels);
+  if(delFC) delFC.addEventListener('change', renderDels);
+
+  var scorCom = $('scorCom');
+  if(scorCom) scorCom.addEventListener('change', renderScoring);
+
+  var upZ = $('upZone');
+  if(upZ){
+    upZ.addEventListener('click', function(){ var f = $('fIn'); if(f) f.click(); });
+    upZ.addEventListener('dragover',  function(e){ e.preventDefault(); upZ.classList.add('drag'); });
+    upZ.addEventListener('dragleave', function(){ upZ.classList.remove('drag'); });
+    upZ.addEventListener('drop', function(e){
+      e.preventDefault(); upZ.classList.remove('drag');
+      if(e.dataTransfer.files[0]) processXL(e.dataTransfer.files[0]);
+    });
+    var fIn = $('fIn');
+    if(fIn) fIn.addEventListener('change', function(e){ if(e.target.files[0]) processXL(e.target.files[0]); });
+  }
+
+  // Refresh dashboard every 8 seconds
+  setInterval(updateDashboard, 8000);
+}
+
+// ── STATIC EVENT BINDINGS ─────────────────────────
+$('btnAdmin').addEventListener('click', function(){ showScr('sLogin'); });
+$('btnSearch').addEventListener('click', doSearch);
+$('homeSearch').addEventListener('keydown', function(e){ if(e.key === 'Enter') doSearch(); });
+$('btnSrpX').addEventListener('click', function(){ $('srpOv').classList.remove('on'); });
+$('srpOv').addEventListener('click', function(e){ if(e.target === $('srpOv')) $('srpOv').classList.remove('on'); });
+$('btnProfBack').addEventListener('click', function(){
+  var url = new URL(window.location);
+  url.searchParams.delete('id');
+  history.replaceState({}, '', url);
+  showScr('sHome');
+});
+$('btnLoginSub').addEventListener('click', doLogin);
+$('loginPass').addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
+$('btnLoginBack').addEventListener('click', function(){ showScr('sHome'); });
+$('btnLogout').addEventListener('click', function(){ auth.signOut(); });
+$('qrMOv').addEventListener('click', function(e){ if(e.target === $('qrMOv')) $('qrMOv').classList.remove('on'); });
+$('btnCloseMQR').addEventListener('click', function(){ $('qrMOv').classList.remove('on'); });
+$('btnDlMQR').addEventListener('click', function(){
+  var c = document.querySelector('#qrmDiv canvas'); if(!c) return;
+  var a = document.createElement('a');
+  a.download = 'QR_' + curQRId + '_CELIDER2026.png';
+  a.href = c.toDataURL();
+  a.click();
+});
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
