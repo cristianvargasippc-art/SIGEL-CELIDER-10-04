@@ -159,16 +159,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .lfield input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:9px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;outline:none;transition:all .2s}
 .lfield input::placeholder{color:rgba(255,255,255,.18)}
 .lfield input:focus{border-color:rgba(0,203,255,.45);box-shadow:0 0 0 3px rgba(0,203,255,.08)}
-.btn-lsub{width:100%;background:var(--c3);border:none;border-radius:10px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background .2s;margin-bottom:12px}
+.btn-lsub{width:100%;background:var(--c3);border:none;border-radius:10px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background .2s;margin-bottom:10px}
 .btn-lsub:hover{background:var(--c2)}
 .btn-lsub:disabled{opacity:.4;cursor:not-allowed}
-.lback{text-align:center}
-.lback button{background:none;border:none;color:rgba(255,255,255,.22);font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
-.lback button:hover{color:rgba(255,255,255,.55)}
 .lc-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:rgba(255,255,255,.2);font-size:11px}
 .lc-divider::before,.lc-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
 .btn-sec{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:10px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}
 .btn-sec:hover{background:rgba(255,255,255,.1);color:#fff}
+.lback{text-align:center;margin-top:10px}
+.lback button{background:none;border:none;color:rgba(255,255,255,.22);font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
+.lback button:hover{color:rgba(255,255,255,.55)}
 
 /* ADMIN */
 #sAdmin{background:var(--bg)}
@@ -458,7 +458,8 @@ tbody tr:hover td{background:#f8fafc}
       <div class="lfield"><label>Contrasena</label><input type="password" id="loginPass" autocomplete="current-password"></div>
       <button class="btn-lsub" id="btnLoginSub">INGRESAR</button>
       <div class="lc-divider">o</div>
-      <button class="btn-sec" id="btnLoginBack">&#8592; Volver al inicio</button>
+      <button class="btn-sec" id="btnRegister">Crear cuenta de admin</button>
+      <div class="lback"><button id="btnLoginBack">&#8592; Volver al inicio</button></div>
     </div>
   </div>
 </div>
@@ -512,16 +513,17 @@ var auth = firebase.auth();
 var db   = firebase.database();
 
 // ── Estado global ─────────────────────────────────
-var delegates      = {};      // Privado, admin only
-var publicProfiles = {};      // Público, para búsqueda
-var publishedScores= {};      // Público solo si published=true
-var admins         = {};      // Privado, admin only
-var curUser        = null;
-var curRole        = null;
-var curComision    = null;
-var curQRId        = null;
-var adminListenerOn= false;
-var saveTimers     = {};
+var delegates       = {};
+var publicProfiles  = {};
+var publishedScores = {};
+var admins          = {};
+var curUser         = null;
+var curRole         = null;
+var curComision     = null;
+var curQRId         = null;
+var adminListenerOn = false;
+var saveTimers      = {};
+var pendingReg      = false;
 
 var SF = [
   {k:'investigacion', l:'Investig. Academica',  lf:'Investigacion Academica',   m:15},
@@ -590,15 +592,16 @@ function logAccess(type, detail, success){
 // ── Auth State ────────────────────────────────────
 auth.onAuthStateChanged(function(user){
   $('ldOv').classList.add('hide');
+  startPublicListener();
   
   if(user){
+    if(pendingReg) return;
+    
     curUser = user;
-    // Verificar si es admin
     db.ref('admins/' + user.uid).once('value').then(function(snap){
       var data = snap.val();
       if(!data){
-        // Usuario autenticado pero NO admin
-        logAccess('UNAUTHORIZED_ACCESS', 'Usuario autenticado pero no es admin: ' + user.email, false);
+        logAccess('UNAUTHORIZED_ACCESS', 'Login sin permisos: ' + user.email + ' | UID: ' + user.uid, false);
         auth.signOut();
         showLoginErr('Esta cuenta no tiene permisos de administrador');
         showScr('sLogin');
@@ -619,8 +622,6 @@ auth.onAuthStateChanged(function(user){
     });
   } else {
     curUser = null; curRole = null; curComision = null;
-    // Modo público: cargar perfiles públicos y stats
-    startPublicListener();
     var urlId = new URLSearchParams(location.search).get('id');
     if(urlId){
       loadPublicProfile(urlId.toUpperCase());
@@ -634,7 +635,6 @@ auth.onAuthStateChanged(function(user){
 function startPublicListener(){
   db.ref('publicProfiles').on('value', function(snap){
     publicProfiles = snap.val() || {};
-    updateHomeStatsPublic();
   });
   db.ref('publishedStats').on('value', function(snap){
     var s = snap.val() || {};
@@ -648,7 +648,6 @@ function startPublicListener(){
 function startAdminListener(){
   if(adminListenerOn) return;
   adminListenerOn = true;
-  // Datos privados de admins
   db.ref('delegates').on('value', function(snap){
     delegates = snap.val() || {};
     updateDashboard();
@@ -658,7 +657,6 @@ function startAdminListener(){
   });
   db.ref('admins').on('value', function(snap){
     admins = snap.val() || {};
-    renderAdmins();
   });
 }
 
@@ -672,13 +670,6 @@ function updatePublishedStats(){
     calificados: rated.length,
     promedio: avg
   });
-}
-
-function updateHomeStatsPublic(){
-  // Solo contadores, no datos sensibles
-  var count = Object.keys(publicProfiles).length;
-  var comsSet = {};
-  Object.values(publicProfiles).forEach(function(p){ if(p.comision) comsSet[p.comision] = 1; });
 }
 
 // ── PUBLIC SEARCH (by name) ───────────────────────
@@ -729,7 +720,6 @@ function showSRP(html, count){
 
 // ── PUBLIC PROFILE ────────────────────────────────
 function openPublicProfile(id){
-  // Cargar publishedScores (público si published=true)
   $('ldOv').classList.remove('hide');
   db.ref('publishedScores/' + id).once('value').then(function(snap){
     $('ldOv').classList.add('hide');
@@ -783,7 +773,6 @@ function openPublicProfile(id){
       }
     }
     
-    // QR
     html += '<div class="qr-sec"><p>Tu codigo QR personal — CELIDER 2026</p>' +
       '<div class="qr-box"><div id="pQR"></div></div>' +
       '<div class="prof-acts">' +
@@ -868,7 +857,7 @@ function printPublicProfile(id, pubData, prof){
     '<script>window.onload=function(){window.print();}<\/script></body></html>');
 }
 
-// ── LOGIN ─────────────────────────────────────────
+// ── LOGIN / REGISTER ──────────────────────────────
 function doLogin(){
   var email = ($('loginEmail').value || '').trim();
   var pass  = $('loginPass').value || '';
@@ -892,6 +881,43 @@ function doLogin(){
       btn.disabled = false; btn.textContent = 'INGRESAR';
     });
 }
+
+function doRegister(){
+  var email = ($('loginEmail').value || '').trim();
+  var pass  = $('loginPass').value || '';
+  if(!email || !pass){ showLoginErr('Completa email y contrasena'); return; }
+  if(pass.length < 6){ showLoginErr('Contrasena minimo 6 caracteres'); return; }
+  
+  var btn = $('btnRegister');
+  btn.disabled = true; 
+  btn.textContent = 'CREANDO CUENTA...';
+  $('loginErr').classList.remove('on');
+  
+  pendingReg = true;
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(function(cred){
+      var uid = cred.user.uid;
+      logAccess('UNAUTHORIZED_ACCESS', 'Nuevo registro: ' + email + ' | UID: ' + uid, false);
+      pendingReg = false;
+      auth.signOut();
+      showLoginErr('Cuenta creada. Contacta al superadmin con tu email para que te asigne permisos.');
+      btn.disabled = false; 
+      btn.textContent = 'Crear cuenta de admin';
+    })
+    .catch(function(e){
+      pendingReg = false;
+      var m = {
+        'auth/email-already-in-use':'Este email ya esta registrado. Pide permisos al superadmin.',
+        'auth/invalid-email':'Correo invalido',
+        'auth/weak-password':'Contrasena muy debil (minimo 6 caracteres)'
+      };
+      showLoginErr(m[e.code] || 'Error: ' + e.message);
+      logAccess('REGISTER_FAIL', email + ' | ' + e.code, false);
+      btn.disabled = false; 
+      btn.textContent = 'Crear cuenta de admin';
+    });
+}
+
 function showLoginErr(m){ var e = $('loginErr'); e.textContent = m; e.classList.add('on'); }
 
 // ── BUILD ADMIN UI ────────────────────────────────
@@ -918,7 +944,7 @@ function buildAdminUI(){
     ac.innerHTML = tabScore() + tabComExport() + tabRub();
     setTimeout(function(){
       var s = $('scorCom');
-      if(s && curComision){ s.value = curComision; renderScoring(); }
+      if(s && curComision){ s.value = curComision; renderScoring(); renderBulkBar(); }
     }, 300);
   }
 
@@ -946,7 +972,12 @@ function tabDash(){
     '</div>' +
     '<div class="card"><div class="chd"><h3>Por Comision</h3></div>' +
     '<div class="tw"><table><thead><tr><th>Comision</th><th>Total</th><th>Calificados</th><th>Publicados</th><th>Regionales</th><th>Promedio</th><th>Avance</th></tr></thead>' +
-    '<tbody id="dashTbl"></tbody></table></div></div></div>';
+    '<tbody id="dashTbl"></tbody></table></div></div>' +
+    '<div style="margin-top:14px;padding:14px;background:rgba(0,135,241,.07);border:1px solid rgba(0,135,241,.2);border-radius:9px">' +
+    '<h4 style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:1px;color:var(--c1);margin-bottom:8px">Herramientas de Emergencia</h4>' +
+    '<button class="btn btn-warn btn-sm" id="btnSyncPub" style="margin-right:8px">Sincronizar Publicaciones</button>' +
+    '<button class="btn btn-out btn-sm" id="btnSyncProf">Recrear Perfiles Publicos</button>' +
+    '<p style="font-size:11px;color:var(--mut);margin-top:8px">Usa esto si las calificaciones no se ven desde la pagina publica.</p></div></div>';
 }
 
 function tabUpload(){
@@ -996,9 +1027,7 @@ function tabDels(){
 function tabAdmins(){
   return '<div class="atab" id="tabAdmins">' +
     '<div class="ph"><div><h2>Gestionar Administradores</h2><p>Supervision de accesos y roles</p></div></div>' +
-    
     '<div class="alert-warn">Metodo seguro: El usuario debe registrarse primero en la pantalla de login (crear cuenta), luego el superadmin copia su UID de los Logs de Acceso y le asigna rol aqui.</div>' +
-    
     '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Asignar Rol a UID Existente (Seguro)</h3></div>' +
     '<div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
     '<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">UID de Firebase Auth</label>' +
@@ -1006,7 +1035,6 @@ function tabAdmins(){
     '<div style="flex:1;min-width:160px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Comision Asignada</label>' +
     '<select id="admCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
     '<button class="btn btn-pri btn-sm" id="btnAddAdm">Asignar Rol</button></div></div>' +
-    
     '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Crear Nuevo Usuario Admin (Cerrara tu sesion)</h3></div>' +
     '<div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
     '<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Email nuevo admin</label>' +
@@ -1016,7 +1044,6 @@ function tabAdmins(){
     '<div style="flex:1;min-width:160px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Comision</label>' +
     '<select id="newAdmCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
     '<button class="btn btn-danger btn-sm" id="btnCreateAdm">Crear Cuenta</button></div></div>' +
-    
     '<div class="card"><div class="chd"><h3>Admins Registrados</h3></div>' +
     '<div class="tw"><table><thead><tr><th>UID</th><th>Email</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
     '<tbody id="admTbl"></tbody></table></div></div></div>';
@@ -1144,14 +1171,12 @@ function processXL(file){
       
       parsed.forEach(function(d){
         updates['delegates/' + d.id] = d;
-        // Public profile (sin datos sensibles)
         profUpdates['publicProfiles/' + d.id] = {
           nombre: d.nombre,
           comision: d.comision,
           delegacion: d.delegacion,
           institucion: d.institucion
         };
-        // Published scores (vacío inicialmente)
         pubUpdates['publishedScores/' + d.id] = {
           nombre: d.nombre,
           comision: d.comision,
@@ -1363,7 +1388,6 @@ function renderScoring(){
 
   area.innerHTML = html;
 
-  // Bind auto-save on each input
   area.querySelectorAll('.sc-inp').forEach(function(inp){
     inp.addEventListener('input', function(){
       var did = inp.dataset.id;
@@ -1383,7 +1407,6 @@ function renderScoring(){
     });
   });
 
-  // Bind feedback counter + auto-save
   mem.forEach(function(e){
     var did = e[0];
     var ta  = $('fb_' + did);
@@ -1401,7 +1424,6 @@ function renderScoring(){
     }
   });
 
-  // Bind regional toggle
   area.querySelectorAll('.reg-toggle').forEach(function(tgl){
     tgl.addEventListener('change', function(){
       var did = tgl.dataset.id;
@@ -1413,7 +1435,6 @@ function renderScoring(){
     });
   });
 
-  // Bind publish/unpublish buttons
   area.querySelectorAll('.pub-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       var did = btn.dataset.id;
@@ -1492,6 +1513,48 @@ function autoSaveFeedback(did, text){
       if(savInd) savInd.classList.remove('show');
     })
     .catch(function(err){ showToast('Error al guardar feedback: ' + err.message); });
+}
+
+// ── EMERGENCY SYNC ────────────────────────────────
+function syncPublishedScores(){
+  if(!confirm('Esto recreara todas las publicaciones. Continuar?')) return;
+  var updates = {};
+  Object.entries(delegates).forEach(function(e){
+    var id = e[0], d = e[1];
+    var t = tot(d.scores);
+    updates['publishedScores/' + id] = {
+      nombre: d.nombre || '',
+      comision: d.comision || '',
+      delegacion: d.delegacion || '',
+      institucion: d.institucion || '',
+      published: d.published === true,
+      regional: d.regional === true,
+      scores: d.scores || {},
+      feedback: d.feedback || '',
+      total: t,
+      nivel: lvl(t)[1]
+    };
+  });
+  db.ref().update(updates)
+    .then(function(){ showToast('Sincronizado: ' + Object.keys(updates).length + ' delegados'); })
+    .catch(function(e){ showToast('Error: ' + e.message); });
+}
+
+function syncPublicProfiles(){
+  if(!confirm('Esto recreara los perfiles publicos. Continuar?')) return;
+  var updates = {};
+  Object.entries(delegates).forEach(function(e){
+    var id = e[0], d = e[1];
+    updates['publicProfiles/' + id] = {
+      nombre: d.nombre || '',
+      comision: d.comision || '',
+      delegacion: d.delegacion || '',
+      institucion: d.institucion || ''
+    };
+  });
+  db.ref().update(updates)
+    .then(function(){ showToast('Perfiles sincronizados: ' + Object.keys(updates).length); })
+    .catch(function(e){ showToast('Error: ' + e.message); });
 }
 
 // ── EXPORT EXCEL ──────────────────────────────────
@@ -1666,7 +1729,6 @@ function createAdminAccount(){
     return; 
   }
   
-  // Crear usuario (esto cerrara la sesion actual)
   auth.createUserWithEmailAndPassword(email, pass)
     .then(function(cred){
       var uid = cred.user.uid;
@@ -1732,7 +1794,7 @@ function renderLogs(){
       if(dangerCount >= 3){
         alertEl.style.display = 'block';
         alertEl.className = 'alert-warn';
-        alertEl.innerHTML = '<strong>Alerta de seguridad:</strong> Se detectaron ' + dangerCount + ' intentos de acceso fallidos o no autorizados en los ultimos 5 minutos. Revisa los logs y considera cambiar las reglas de Firebase si persisten.';
+        alertEl.innerHTML = '<strong>Alerta de seguridad:</strong> Se detectaron ' + dangerCount + ' intentos de acceso fallidos o no autorizados en los ultimos 5 minutos.';
       } else {
         alertEl.style.display = 'none';
       }
@@ -1783,6 +1845,11 @@ function bindAdminEvents(){
   if(btnRefreshLogs) btnRefreshLogs.addEventListener('click', renderLogs);
   if(logFilter) logFilter.addEventListener('change', renderLogs);
 
+  var btnSyncPub = $('btnSyncPub');
+  var btnSyncProf = $('btnSyncProf');
+  if(btnSyncPub) btnSyncPub.addEventListener('click', syncPublishedScores);
+  if(btnSyncProf) btnSyncProf.addEventListener('click', syncPublicProfiles);
+
   setInterval(updateDashboard, 8000);
 }
 
@@ -1799,6 +1866,7 @@ $('btnProfBack').addEventListener('click', function(){
   showScr('sHome');
 });
 $('btnLoginSub').addEventListener('click', doLogin);
+$('btnRegister').addEventListener('click', doRegister);
 $('loginPass').addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
 $('btnLoginBack').addEventListener('click', function(){ showScr('sHome'); });
 $('btnLogout').addEventListener('click', function(){ auth.signOut(); });
