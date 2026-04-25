@@ -169,6 +169,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .lback{text-align:center;margin-top:10px}
 .lback button{background:none;border:none;color:rgba(255,255,255,.22);font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
 .lback button:hover{color:rgba(255,255,255,.55)}
+.reg-uid-box{background:rgba(0,203,255,.08);border:1px solid rgba(0,203,255,.2);border-radius:8px;padding:10px;margin:10px 0;text-align:center}
+.reg-uid-box code{font-family:'DM Mono',monospace;font-size:12px;color:var(--c4);word-break:break-all}
 
 /* ADMIN */
 #sAdmin{background:var(--bg)}
@@ -184,7 +186,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .atn:hover{color:rgba(255,255,255,.7)}
 .atn.on{color:var(--c4);border-bottom-color:var(--c4)}
 .atb-r{display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid rgba(255,255,255,.09);margin-left:auto;flex-shrink:0}
-.atb-em{font-size:11px;color:rgba(255,255,255,.3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atb-id{font-size:10px;color:rgba(255,255,255,.25);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'DM Mono',monospace}
 .atb-role{font-size:9.5px;color:var(--c4);background:rgba(0,203,255,.1);padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
 .atb-out{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);color:rgba(255,255,255,.42);padding:6px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
 .atb-out:hover{background:rgba(255,255,255,.13);color:#fff}
@@ -335,7 +337,7 @@ tbody tr:hover td{background:#f8fafc}
 .log-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bord);gap:10px;font-size:12.5px}
 .log-row:last-child{border-bottom:none}
 .log-time{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--hin);white-space:nowrap;width:130px;flex-shrink:0}
-.log-email{color:var(--c1);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.log-uid{color:var(--c1);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-family:'DM Mono',monospace;font-size:11px}
 .log-type{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
 .log-type.ok{background:#d1fae5;color:#065f46}
 .log-type.warn{background:#fef3c7;color:#92400e}
@@ -473,7 +475,7 @@ tbody tr:hover td{background:#f8fafc}
     </div>
     <div class="atb-nav" id="atbNav"></div>
     <div class="atb-r">
-      <div class="atb-em" id="atbEmail">—</div>
+      <div class="atb-id" id="atbUid"></div>
       <span class="atb-role" id="atbRole">—</span>
       <button class="atb-out" id="btnLogout">Salir</button>
     </div>
@@ -573,19 +575,15 @@ function showScr(id){
   if(el) el.classList.add('on');
 }
 
-// ── Logging de accesos ────────────────────────────
-function logAccess(type, detail, success){
+// ── Logging de accesos (SIN emails) ───────────────
+function logAccess(type, detail, uid){
   var entry = {
     type: type || 'unknown',
     detail: detail || '',
-    success: success === true,
     timestamp: firebase.database.ServerValue.TIMESTAMP,
     userAgent: navigator.userAgent.substring(0,120)
   };
-  if(curUser && curUser.email){
-    entry.email = curUser.email;
-    entry.uid = curUser.uid;
-  }
+  if(uid) entry.uid = uid;
   db.ref('accessLogs').push(entry);
 }
 
@@ -601,7 +599,7 @@ auth.onAuthStateChanged(function(user){
     db.ref('admins/' + user.uid).once('value').then(function(snap){
       var data = snap.val();
       if(!data){
-        logAccess('UNAUTHORIZED_ACCESS', 'Login sin permisos: ' + user.email + ' | UID: ' + user.uid, false);
+        logAccess('UNAUTHORIZED_ACCESS', 'Login sin permisos', user.uid);
         auth.signOut();
         showLoginErr('Esta cuenta no tiene permisos de administrador');
         showScr('sLogin');
@@ -609,9 +607,9 @@ auth.onAuthStateChanged(function(user){
       }
       curRole     = data.role     || 'superadmin';
       curComision = data.comision || null;
-      $('atbEmail').textContent = user.email;
+      $('atbUid').textContent = user.uid.substring(0,12) + '...';
       $('atbRole').textContent  = curRole === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN COM.';
-      logAccess('ADMIN_LOGIN', curRole + (curComision ? ' | ' + curComision : ''), true);
+      logAccess('ADMIN_LOGIN', curRole + (curComision ? ' | ' + curComision : ''), user.uid);
       startAdminListener();
       buildAdminUI();
       showScr('sAdmin');
@@ -877,7 +875,7 @@ function doLogin(){
       };
       var msg = m[e.code] || 'Error: ' + e.code;
       showLoginErr(msg);
-      logAccess('LOGIN_FAIL', email + ' | ' + e.code, false);
+      logAccess('LOGIN_FAIL', 'Intento fallido | ' + e.code, null);
       btn.disabled = false; btn.textContent = 'INGRESAR';
     });
 }
@@ -897,10 +895,11 @@ function doRegister(){
   auth.createUserWithEmailAndPassword(email, pass)
     .then(function(cred){
       var uid = cred.user.uid;
-      logAccess('UNAUTHORIZED_ACCESS', 'Nuevo registro: ' + email + ' | UID: ' + uid, false);
+      logAccess('UNAUTHORIZED_ACCESS', 'Nuevo registro pendiente de activacion', uid);
       pendingReg = false;
       auth.signOut();
-      showLoginErr('Cuenta creada. Contacta al superadmin con tu email para que te asigne permisos.');
+      $('loginErr').className = 'lc-err on';
+      $('loginErr').innerHTML = 'Cuenta creada.<br><strong>Enviale este ID al superadmin:</strong><div class="reg-uid-box"><code>' + uid + '</code></div>';
       btn.disabled = false; 
       btn.textContent = 'Crear cuenta de admin';
     })
@@ -912,7 +911,7 @@ function doRegister(){
         'auth/weak-password':'Contrasena muy debil (minimo 6 caracteres)'
       };
       showLoginErr(m[e.code] || 'Error: ' + e.message);
-      logAccess('REGISTER_FAIL', email + ' | ' + e.code, false);
+      logAccess('REGISTER_FAIL', 'Error en registro | ' + e.code, null);
       btn.disabled = false; 
       btn.textContent = 'Crear cuenta de admin';
     });
@@ -1045,7 +1044,7 @@ function tabAdmins(){
     '<select id="newAdmCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
     '<button class="btn btn-danger btn-sm" id="btnCreateAdm">Crear Cuenta</button></div></div>' +
     '<div class="card"><div class="chd"><h3>Admins Registrados</h3></div>' +
-    '<div class="tw"><table><thead><tr><th>UID</th><th>Email</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
+    '<div class="tw"><table><thead><tr><th>UID</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
     '<tbody id="admTbl"></tbody></table></div></div></div>';
 }
 
@@ -1683,10 +1682,9 @@ function renderAdmins(){
   el.innerHTML = Object.entries(admins).map(function(e){
     var uid2=e[0], v=e[1];
     return '<tr><td><span class="tdid" style="font-size:10px;word-break:break-all">' + esc(uid2) + '</span></td>' +
-      '<td>' + esc(v.email||'—') + '</td>' +
       '<td>' + esc(v.role||'—') + '</td><td>' + esc(v.comision||'—') + '</td>' +
       '<td>' + (uid2 === curUser.uid ? '<span style="color:var(--hin);font-size:11px">Tu cuenta</span>' : '<button class="btn btn-out btn-xs" data-uid="' + esc(uid2) + '">Eliminar</button>') + '</td></tr>';
-  }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--hin)">Sin admins adicionales</td></tr>';
+  }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--hin)">Sin admins adicionales</td></tr>';
   
   el.querySelectorAll('[data-uid]').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -1732,7 +1730,7 @@ function createAdminAccount(){
   auth.createUserWithEmailAndPassword(email, pass)
     .then(function(cred){
       var uid = cred.user.uid;
-      return db.ref('admins/' + uid).set({role:'comadmin', comision:com, email:email});
+      return db.ref('admins/' + uid).set({role:'comadmin', comision:com});
     })
     .then(function(){
       showToast('Admin creado. Debes volver a iniciar sesion.');
@@ -1740,7 +1738,7 @@ function createAdminAccount(){
     })
     .catch(function(e){
       showToast('Error: ' + (e.message || e.code));
-      logAccess('ADMIN_CREATE_FAIL', email + ' | ' + e.code, false);
+      logAccess('ADMIN_CREATE_FAIL', 'Error creando cuenta', null);
     });
 }
 
@@ -1781,7 +1779,7 @@ function renderLogs(){
       
       html += '<div class="log-row">' +
         '<span class="log-time">' + esc(date) + '</span>' +
-        '<span class="log-email">' + esc(log.email || log.detail || 'Anonimo') + '</span>' +
+        '<span class="log-uid">' + esc((log.uid ? log.uid.substring(0,16) + '...' : 'Anonimo')) + '</span>' +
         '<span class="log-type ' + typeClass + '">' + typeLabel + '</span>' +
         '<span class="log-detail">' + esc(log.type) + '</span>' +
       '</div>';
