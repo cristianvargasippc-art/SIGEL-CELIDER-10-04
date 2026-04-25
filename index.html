@@ -18,7 +18,7 @@
   --bg:#f0f3f7;--sur:#fff;--bord:#dde3ec;
   --txt:#0a1628;--mut:#526070;--hin:#8fa0b0;
   --ok:#0d7a52;--ok-bg:#e6f5ee;
-  --danger:#c0271e;
+  --danger:#c0271e;--danger-bg:#fef2f2;
   --warn:#b45309;--warn-bg:#fffbeb;
   --sh:0 1px 4px rgba(0,34,71,.08),0 2px 8px rgba(0,34,71,.04);
   --shlg:0 8px 32px rgba(0,34,71,.14);
@@ -165,6 +165,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .lback{text-align:center}
 .lback button{background:none;border:none;color:rgba(255,255,255,.22);font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
 .lback button:hover{color:rgba(255,255,255,.55)}
+.lc-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:rgba(255,255,255,.2);font-size:11px}
+.lc-divider::before,.lc-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.btn-sec{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);border-radius:10px;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}
+.btn-sec:hover{background:rgba(255,255,255,.1);color:#fff}
 
 /* ADMIN */
 #sAdmin{background:var(--bg)}
@@ -208,6 +212,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .btn-out{background:var(--sur);color:var(--c1);border-color:var(--bord)}.btn-out:hover{background:var(--bg)}
 .btn-ok{background:var(--ok-bg);color:var(--ok);border-color:rgba(13,122,82,.2)}.btn-ok:hover{background:#d1fae5}
 .btn-warn{background:var(--warn-bg);color:var(--warn);border-color:rgba(180,83,9,.2)}.btn-warn:hover{background:#fef3c7}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:rgba(192,39,30,.2)}.btn-danger:hover{background:#fee2e2}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-xs{padding:5px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
@@ -233,6 +238,7 @@ tbody tr:hover td{background:#f8fafc}
 .bA{background:#d1fae5;color:#065f46}.bB{background:#dbeafe;color:#1e40af}
 .bC{background:#fef3c7;color:#92400e}.bD{background:#fee2e2;color:#991b1b}
 .bPub{background:#d1fae5;color:#065f46}.bNPub{background:var(--warn-bg);color:var(--warn)}
+.bReg{background:#e0e7ff;color:#3730a3}
 
 /* Upload */
 .upzone{background:var(--sur);border:1.5px dashed var(--bord);border-radius:13px;padding:46px 28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
@@ -267,7 +273,7 @@ tbody tr:hover td{background:#f8fafc}
 .pub-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
 .pub-badge.published{background:#d1fae5;color:#065f46}
 .pub-badge.pending{background:var(--warn-bg);color:var(--warn)}
-/* Auto-save indicator */
+.reg-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;background:#e0e7ff;color:#3730a3}
 .autosave-ind{font-size:10.5px;color:var(--ok);font-weight:600;display:none;align-items:center;gap:4px}
 .autosave-ind.show{display:flex}
 .autosave-ind svg{width:12px;height:12px;stroke:var(--ok);fill:none;stroke-width:2.5;stroke-linecap:round}
@@ -287,6 +293,10 @@ tbody tr:hover td{background:#f8fafc}
 .fb-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px;flex-wrap:wrap;gap:6px}
 .fb-counter{font-size:10.5px;color:var(--hin)}
 .dsc-actions{padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Bulk actions bar */
+.bulk-bar{background:var(--sur);border:1px solid var(--bord);border-radius:11px;padding:12px 16px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.bulk-bar span{font-size:12px;color:var(--mut);font-weight:600}
 
 /* Rubrica grid */
 .rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
@@ -310,6 +320,7 @@ tbody tr:hover td{background:#f8fafc}
 .alert-info{background:rgba(0,135,241,.07);border:1px solid rgba(0,135,241,.2);border-radius:9px;padding:11px 14px;font-size:12.5px;color:var(--c2);margin-bottom:14px;line-height:1.6}
 .alert-info code{font-family:'DM Mono',monospace;font-size:10.5px;background:rgba(0,0,0,.07);padding:2px 6px;border-radius:3px;display:inline-block;margin-top:6px;word-break:break-all}
 .alert-warn{background:var(--warn-bg);border:1px solid rgba(180,83,9,.2);border-radius:9px;padding:11px 14px;font-size:12.5px;color:var(--warn);margin-bottom:14px}
+.alert-ok{background:var(--ok-bg);border:1px solid rgba(13,122,82,.2);border-radius:9px;padding:11px 14px;font-size:12.5px;color:var(--ok);margin-bottom:14px}
 
 /* QR Modal */
 .mOv{position:fixed;inset:0;background:rgba(0,18,45,.88);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
@@ -320,10 +331,31 @@ tbody tr:hover td{background:#f8fafc}
 .mQR{background:#fff;border-radius:9px;padding:11px;display:inline-block;margin-bottom:14px}
 .mActs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
 
+/* Access Logs */
+.log-row{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bord);gap:10px;font-size:12.5px}
+.log-row:last-child{border-bottom:none}
+.log-time{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--hin);white-space:nowrap;width:130px;flex-shrink:0}
+.log-email{color:var(--c1);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.log-type{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.log-type.ok{background:#d1fae5;color:#065f46}
+.log-type.warn{background:#fef3c7;color:#92400e}
+.log-type.danger{background:#fee2e2;color:#991b1b}
+.log-type.info{background:#dbeafe;color:#1e40af}
+.log-detail{color:var(--mut);font-size:11px;flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+
 /* Toast */
 #toast{position:fixed;bottom:18px;right:18px;background:var(--c1);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .25s;box-shadow:var(--shlg);pointer-events:none;max-width:280px;display:flex;align-items:center;gap:8px;border:1px solid rgba(0,203,255,.15)}
 #toast.on{transform:translateY(0);opacity:1}
 #toast svg{width:13px;height:13px;stroke:var(--c4);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+/* Toggle switch */
+.tgl{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.tgl input{display:none}
+.tgl span{width:36px;height:20px;background:var(--bord);border-radius:99px;position:relative;transition:background .2s;flex-shrink:0}
+.tgl span::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tgl input:checked + span{background:var(--ok)}
+.tgl input:checked + span::after{transform:translateX(16px)}
+.tgl label{font-size:11px;font-weight:600;color:var(--mut);cursor:pointer}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -337,6 +369,8 @@ tbody tr:hover td{background:#f8fafc}
   .atb{padding:0 12px}
   .topbar{padding:12px 16px}
   table{min-width:400px}
+  .log-time{width:auto}
+  .log-detail{display:none}
 }
 @media(max-width:480px){
   .srow{grid-template-columns:1fr}
@@ -345,6 +379,7 @@ tbody tr:hover td{background:#f8fafc}
   .atn{padding:0 10px;font-size:12px}
   .score-grid{grid-template-columns:repeat(3,1fr)}
   .bk-bar{width:70px}
+  .bulk-bar{flex-direction:column;align-items:flex-start}
 }
 </style>
 </head>
@@ -370,9 +405,9 @@ tbody tr:hover td{background:#f8fafc}
     <div class="eyebrow"><span class="pdot"></span>Sistema Activo — CELIDER 2026</div>
     <div class="h-title">SIGEL<br><span>CELIDER</span></div>
     <div class="h-reg">10-04 · Regional 10 · PLERD · MINERD</div>
-    <div class="h-desc">Consulta tus calificaciones con tu ID de delegado o escanea tu codigo QR.</div>
+    <div class="h-desc">Consulta tus calificaciones con tu nombre completo. Si tu calificacion aun no ha sido publicada, aparecera como pendiente.</div>
     <div class="srch-wrap">
-      <input type="text" id="homeSearch" placeholder="Escribe tu ID (CEL-001) o tu nombre..." autocomplete="off">
+      <input type="text" id="homeSearch" placeholder="Escribe tu nombre completo..." autocomplete="off">
       <button class="srch-btn" id="btnSearch">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
@@ -422,7 +457,8 @@ tbody tr:hover td{background:#f8fafc}
       <div class="lfield"><label>Correo</label><input type="email" id="loginEmail" autocomplete="email"></div>
       <div class="lfield"><label>Contrasena</label><input type="password" id="loginPass" autocomplete="current-password"></div>
       <button class="btn-lsub" id="btnLoginSub">INGRESAR</button>
-      <div class="lback"><button id="btnLoginBack">&#8592; Volver al inicio</button></div>
+      <div class="lc-divider">o</div>
+      <button class="btn-sec" id="btnLoginBack">&#8592; Volver al inicio</button>
     </div>
   </div>
 </div>
@@ -459,39 +495,9 @@ tbody tr:hover td{background:#f8fafc}
 <div id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
 
 <script>
-/* =====================================================
-   REGLAS FIREBASE — pega esto en
-   Firebase Console → Realtime Database → Rules
-   =====================================================
-   {
-     "rules": {
-       "delegates": {
-         "$id": {
-           ".read": true,
-           ".write": "auth != null"
-         }
-       },
-       "admins": {
-         ".read": "auth != null",
-         ".write": "auth != null && root.child('admins').child(auth.uid).child('role').val() === 'superadmin'"
-       },
-       "publicStats": {
-         ".read": true,
-         ".write": "auth != null"
-       }
-     }
-   }
-   =====================================================
-   Con estas reglas:
-   - Cada delegates/$id es publico (delegado ve su QR)
-   - La lista completa solo la lee el admin autenticado
-   - Firebase NO envia alertas de seguridad
-   - Tiempo real funciona para delegados y admins
-   ===================================================== */
-
 document.addEventListener('DOMContentLoaded', function() {
 
-// ── Firebase config (fragmentado para ofuscar) ────
+// ── Firebase config (ofuscada) ────────────────────
 var _cfg = {
   apiKey:         'AIzaSyDNAo' + 'Ux40Ax8cu0IKREgle3Bnf271NdKXo',
   authDomain:     'sigel-celider-10-04.firebaseapp.com',
@@ -505,16 +511,17 @@ firebase.initializeApp(_cfg);
 var auth = firebase.auth();
 var db   = firebase.database();
 
-// ── Estado ───────────────────────────────────────
-var delegates   = {};
-var curUser     = null;
-var curRole     = null;
-var curComision = null;
-var curQRId     = null;
-var adminListenerOn = false;
-var publicStatsListenerOn = false;
-// Debounce timers per delegate
-var saveTimers  = {};
+// ── Estado global ─────────────────────────────────
+var delegates      = {};      // Privado, admin only
+var publicProfiles = {};      // Público, para búsqueda
+var publishedScores= {};      // Público solo si published=true
+var admins         = {};      // Privado, admin only
+var curUser        = null;
+var curRole        = null;
+var curComision    = null;
+var curQRId        = null;
+var adminListenerOn= false;
+var saveTimers     = {};
 
 var SF = [
   {k:'investigacion', l:'Investig. Academica',  lf:'Investigacion Academica',   m:15},
@@ -564,26 +571,72 @@ function showScr(id){
   if(el) el.classList.add('on');
 }
 
-// ── Firebase DB listeners ─────────────────────────
-function startAdminListener(){
-  if(adminListenerOn) return;
-  adminListenerOn = true;
-  // Admin escucha la lista completa
-  db.ref('delegates').on('value', function(snap){
-    delegates = snap.val() || {};
-    updateHomeStats();
-    updatePublicStats();
-    updateDashboard();
-    renderDels();
-    populateScoreComs();
-  });
+// ── Logging de accesos ────────────────────────────
+function logAccess(type, detail, success){
+  var entry = {
+    type: type || 'unknown',
+    detail: detail || '',
+    success: success === true,
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
+    userAgent: navigator.userAgent.substring(0,120)
+  };
+  if(curUser && curUser.email){
+    entry.email = curUser.email;
+    entry.uid = curUser.uid;
+  }
+  db.ref('accessLogs').push(entry);
 }
 
-function startPublicStatsListener(){
-  if(publicStatsListenerOn) return;
-  publicStatsListenerOn = true;
-  // Publico solo ve contadores agregados
-  db.ref('publicStats').on('value', function(snap){
+// ── Auth State ────────────────────────────────────
+auth.onAuthStateChanged(function(user){
+  $('ldOv').classList.add('hide');
+  
+  if(user){
+    curUser = user;
+    // Verificar si es admin
+    db.ref('admins/' + user.uid).once('value').then(function(snap){
+      var data = snap.val();
+      if(!data){
+        // Usuario autenticado pero NO admin
+        logAccess('UNAUTHORIZED_ACCESS', 'Usuario autenticado pero no es admin: ' + user.email, false);
+        auth.signOut();
+        showLoginErr('Esta cuenta no tiene permisos de administrador');
+        showScr('sLogin');
+        return;
+      }
+      curRole     = data.role     || 'superadmin';
+      curComision = data.comision || null;
+      $('atbEmail').textContent = user.email;
+      $('atbRole').textContent  = curRole === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN COM.';
+      logAccess('ADMIN_LOGIN', curRole + (curComision ? ' | ' + curComision : ''), true);
+      startAdminListener();
+      buildAdminUI();
+      showScr('sAdmin');
+    }).catch(function(err){
+      auth.signOut();
+      showLoginErr('Error de verificacion: ' + err.message);
+      showScr('sLogin');
+    });
+  } else {
+    curUser = null; curRole = null; curComision = null;
+    // Modo público: cargar perfiles públicos y stats
+    startPublicListener();
+    var urlId = new URLSearchParams(location.search).get('id');
+    if(urlId){
+      loadPublicProfile(urlId.toUpperCase());
+    } else {
+      showScr('sHome');
+    }
+  }
+});
+
+// ── Listeners ─────────────────────────────────────
+function startPublicListener(){
+  db.ref('publicProfiles').on('value', function(snap){
+    publicProfiles = snap.val() || {};
+    updateHomeStatsPublic();
+  });
+  db.ref('publishedStats').on('value', function(snap){
     var s = snap.val() || {};
     $('hsT').textContent = s.total      || '—';
     $('hsC').textContent = s.comisiones || '—';
@@ -592,13 +645,28 @@ function startPublicStatsListener(){
   });
 }
 
-function updatePublicStats(){
-  var all    = Object.values(delegates);
-  var rated  = all.filter(function(d){ return tot(d.scores) > 0; });
-  var avg    = rated.length
-    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
-    : '—';
-  db.ref('publicStats').set({
+function startAdminListener(){
+  if(adminListenerOn) return;
+  adminListenerOn = true;
+  // Datos privados de admins
+  db.ref('delegates').on('value', function(snap){
+    delegates = snap.val() || {};
+    updateDashboard();
+    renderDels();
+    populateScoreComs();
+    updatePublishedStats();
+  });
+  db.ref('admins').on('value', function(snap){
+    admins = snap.val() || {};
+    renderAdmins();
+  });
+}
+
+function updatePublishedStats(){
+  var all = Object.values(delegates);
+  var rated = all.filter(function(d){ return tot(d.scores) > 0; });
+  var avg = rated.length ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1) : '—';
+  db.ref('publishedStats').set({
     total: all.length,
     comisiones: coms().length,
     calificados: rated.length,
@@ -606,119 +674,37 @@ function updatePublicStats(){
   });
 }
 
-// Carga un delegado por ID individual (lectura publica)
-function loadDelegateById(id){
-  return db.ref('delegates/' + id).once('value').then(function(snap){
-    if(snap.exists()){
-      delegates[id] = snap.val();
-      return snap.val();
-    }
-    return null;
-  });
+function updateHomeStatsPublic(){
+  // Solo contadores, no datos sensibles
+  var count = Object.keys(publicProfiles).length;
+  var comsSet = {};
+  Object.values(publicProfiles).forEach(function(p){ if(p.comision) comsSet[p.comision] = 1; });
 }
 
-// ── AUTH STATE ───────────────────────────────────
-auth.onAuthStateChanged(function(user){
-  $('ldOv').classList.add('hide');
-  // SIEMPRE escuchar cambios en estadísticas públicas para actualizar la home en tiempo real
-  startPublicStatsListener();
-  
-  if(user){
-    curUser = user;
-    db.ref('admins/' + user.uid).once('value').then(function(snap){
-      var data = snap.val() || {};
-      curRole     = data.role     || 'superadmin';
-      curComision = data.comision || null;
-      $('atbEmail').textContent = user.email;
-      $('atbRole').textContent  = curRole === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN COM.';
-      startAdminListener();
-      buildAdminUI();
-      showScr('sAdmin');
-    }).catch(function(){
-      curRole = 'superadmin'; curComision = null;
-      $('atbEmail').textContent = user.email;
-      $('atbRole').textContent  = 'ADMIN';
-      startAdminListener();
-      buildAdminUI();
-      showScr('sAdmin');
-    });
-  } else {
-    curUser = null; curRole = null; curComision = null;
-    var urlId = new URLSearchParams(location.search).get('id');
-    if(urlId){
-      loadAndShowProfile(urlId);
-    } else {
-      showScr('sHome');
-    }
-  }
-});
-
-// ── LOAD + SHOW PROFILE (used by QR URL) ─────────
-function loadAndShowProfile(id){
-  var uid = id.toUpperCase();
-  if(delegates[uid]){ openProfile(uid); return; }
-  $('ldOv').classList.remove('hide');
-  loadDelegateById(uid).then(function(d){
-    $('ldOv').classList.add('hide');
-    if(d){ openProfile(uid); }
-    else { showScr('sHome'); showToast('ID de delegado no encontrado'); }
-  }).catch(function(){
-    $('ldOv').classList.add('hide');
-    showScr('sHome');
-    showToast('Error al conectar con Firebase');
-  });
-}
-
-// ── STATS ─────────────────────────────────────────
-function updateHomeStats(){
-  var all   = Object.values(delegates);
-  var rated = all.filter(function(d){ return tot(d.scores) > 0; });
-  var avg   = rated.length
-    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
-    : '—';
-  $('hsT').textContent = all.length   || '—';
-  $('hsC').textContent = coms().length|| '—';
-  $('hsR').textContent = rated.length || '—';
-  $('hsA').textContent = avg;
-}
-
-// ── SEARCH ────────────────────────────────────────
+// ── PUBLIC SEARCH (by name) ───────────────────────
 function doSearch(){
   var raw = ($('homeSearch').value || '').trim();
-  if(!raw){ showToast('Escribe tu ID o nombre'); return; }
-  var q = raw.toLowerCase();
-
-  // Busqueda por ID (CEL-001 o 001 o 1)
-  if(/^(cel-?)?\d+$/i.test(raw)){
-    var num = parseInt(raw.replace(/[^0-9]/g,''));
-    var id  = genId(num);
-    if(delegates[id]){ openProfile(id); return; }
-    $('ldOv').classList.remove('hide');
-    loadDelegateById(id).then(function(d){
-      $('ldOv').classList.add('hide');
-      if(d){ openProfile(id); }
-      else {
-        showSRP('<div class="srp-empty">No se encontro el ID <strong>' + esc(id) + '</strong>.<br><small>Verifica que el ID sea correcto.</small></div>', '0 resultados');
-      }
-    }).catch(function(){
-      $('ldOv').classList.add('hide');
-      showToast('Error al conectar');
-    });
-    return;
-  }
-
-  // Busqueda por nombre
-  var entries = Object.entries(delegates);
+  if(!raw || raw.length < 3){ showToast('Escribe al menos 3 letras de tu nombre'); return; }
+  var q = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  var entries = Object.entries(publicProfiles);
   if(!entries.length){
-    showSRP('<div class="srp-empty">Usa tu ID de delegado (ejemplo: CEL-001).<br><small>Tu ID esta en la hoja que te entrego la mesa directiva.</small></div>', '');
+    showSRP('<div class="srp-empty">El sistema aun no tiene delegados cargados.<br><small>Contacta a la mesa directiva.</small></div>', '');
     return;
   }
-  var found = entries.filter(function(e){ return (e[1].nombre||'').toLowerCase().indexOf(q) !== -1; });
+  
+  var found = entries.filter(function(e){
+    var nom = (e[1].nombre || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return nom.indexOf(q) !== -1;
+  });
+  
   if(!found.length){
-    showSRP('<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small>Intenta con tu ID: CEL-001, CEL-002...</small></div>', '0 resultados');
+    showSRP('<div class="srp-empty">No se encontro ningun delegado con ese nombre.<br><small>Verifica la ortografia o contacta a la mesa directiva.</small></div>', '0 resultados');
     return;
   }
-  if(found.length === 1){ openProfile(found[0][0]); return; }
+  
+  if(found.length === 1){ openPublicProfile(found[0][0]); return; }
+  
   var html = found.map(function(e){
     var id2 = e[0], d2 = e[1];
     return '<div class="srp-item" data-pid="' + esc(id2) + '">' +
@@ -736,115 +722,131 @@ function showSRP(html, count){
   $('srpList').querySelectorAll('[data-pid]').forEach(function(el){
     el.addEventListener('click', function(){
       $('srpOv').classList.remove('on');
-      openProfile(el.dataset.pid);
+      openPublicProfile(el.dataset.pid);
     });
   });
 }
 
-// ── PROFILE ───────────────────────────────────────
-function openProfile(id){
-  var d = delegates[id];
-  if(!d){ showToast('Delegado no encontrado'); return; }
-  var pub = d.published === true;
-  var s   = d.scores || {};
-  var t   = tot(s);
-  var lv  = lvl(t);
-  var cl  = lv[0], lb = lv[1];
-
-  var html = '<div class="cred-card">' +
-    '<div class="cred-top">' +
-      '<span class="cred-id">' + esc(id) + '</span>' +
-      (pub ? '<span class="cred-lv ' + cl + '">' + lb + '</span>' : '<span class="cred-lv C">Pendiente</span>') +
-    '</div>' +
-    '<div class="cred-name">' + esc(d.nombre||'—') + '</div>' +
-    '<div class="cred-chips">' +
-      (d.comision   ? '<span class="cc"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>' + esc(d.comision)   + '</span>' : '') +
-      (d.delegacion ? '<span class="cc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>' + esc(d.delegacion) + '</span>' : '') +
-      (d.institucion? '<span class="cc"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11H3z"/></svg>' + esc(d.institucion)+ '</span>' : '') +
-    '</div>' +
-    (pub ? '<div class="cred-tot"><span class="cred-tot-lbl">Calificacion Total</span><div class="cred-tot-n">' + t + '<span>/100</span></div></div>' : '') +
-  '</div>';
-
-  if(!pub){
-    html += '<div class="not-published">' +
-      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
-      '<h3>Calificacion No Disponible</h3>' +
-      '<p>Tu calificacion aun no ha sido publicada por la mesa directiva.<br>Vuelve a consultar mas tarde.</p>' +
+// ── PUBLIC PROFILE ────────────────────────────────
+function openPublicProfile(id){
+  // Cargar publishedScores (público si published=true)
+  $('ldOv').classList.remove('hide');
+  db.ref('publishedScores/' + id).once('value').then(function(snap){
+    $('ldOv').classList.add('hide');
+    var pubData = snap.val();
+    var prof = publicProfiles[id];
+    
+    if(!prof){ showToast('Delegado no encontrado'); return; }
+    
+    var pub = pubData && pubData.published === true;
+    var s   = pub ? (pubData.scores || {}) : {};
+    var t   = pub ? tot(s) : 0;
+    var lv  = pub ? lvl(t) : ['C','Pendiente'];
+    var cl  = lv[0], lb = lv[1];
+    
+    var html = '<div class="cred-card">' +
+      '<div class="cred-top">' +
+        '<span class="cred-id">' + esc(id) + '</span>' +
+        (pub ? '<span class="cred-lv ' + cl + '">' + lb + '</span>' : '<span class="cred-lv C">Pendiente</span>') +
+      '</div>' +
+      '<div class="cred-name">' + esc(prof.nombre||'—') + '</div>' +
+      '<div class="cred-chips">' +
+        (prof.comision   ? '<span class="cc"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>' + esc(prof.comision)   + '</span>' : '') +
+        (prof.delegacion ? '<span class="cc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>' + esc(prof.delegacion) + '</span>' : '') +
+        (prof.institucion? '<span class="cc"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11H3z"/></svg>' + esc(prof.institucion)+ '</span>' : '') +
+        (pubData && pubData.regional ? '<span class="cc" style="background:rgba(99,102,241,.14);color:#818cf8;border-color:rgba(99,102,241,.2)"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>Modelo Regional</span>' : '') +
+      '</div>' +
+      (pub ? '<div class="cred-tot"><span class="cred-tot-lbl">Calificacion Total</span><div class="cred-tot-n">' + t + '<span>/100</span></div></div>' : '') +
     '</div>';
-  } else {
-    html += '<div class="breakdown"><div class="bk-hd"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Desglose por Criterio</span></div>';
-    SF.forEach(function(f){
-      var v   = parseInt(s[f.k]) || 0;
-      var pct = Math.round(v / f.m * 100);
-      html += '<div class="bk-row"><span class="bk-nm">' + f.lf + '</span>' +
-        '<div class="bk-bar"><div class="bk-bg"><div class="bk-fill" style="width:' + pct + '%"></div></div></div>' +
-        '<span class="bk-val">' + v + '</span><span class="bk-max">/' + f.m + '</span></div>';
-    });
-    html += '</div>';
-    // Feedback
-    if(d.feedback && d.feedback.trim()){
-      html += '<div class="feedback-card">' +
-        '<div class="feedback-hd"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' +
-        '<span>Comentario de la Mesa Directiva</span></div>' +
-        '<div class="feedback-txt">' + esc(d.feedback.trim()) + '</div></div>';
-    }
-  }
-
-  // QR section
-  html += '<div class="qr-sec"><p>Tu codigo QR personal — CELIDER 2026</p>' +
-    '<div class="qr-box"><div id="pQR"></div></div>' +
-    '<div class="prof-acts">' +
-      '<button class="btn btn-sky btn-sm" id="btnDlQR">Descargar QR</button>' +
-      '<button class="btn btn-out btn-sm" id="btnPrQR">Imprimir</button>' +
-    '</div></div>';
-
-  $('profBody').innerHTML = html;
-
-  // Generate QR after paint
-  setTimeout(function(){
-    var qd = $('pQR');
-    if(!qd) return;
-    qd.innerHTML = '';
-    var base = window.location.origin + window.location.pathname;
-    var url  = base + '?id=' + encodeURIComponent(id);
-    try{
-      new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
-    } catch(e){ qd.innerHTML = '<p style="color:#f87171;font-size:11px">QR error: ' + e.message + '</p>'; }
-
-    var btnDl = $('btnDlQR');
-    if(btnDl){
-      btnDl.addEventListener('click', function(){
-        var c = qd.querySelector('canvas');
-        if(!c){ showToast('QR generandose...'); return; }
-        var a = document.createElement('a');
-        a.download = 'QR_' + id + '_CELIDER2026.png';
-        a.href = c.toDataURL();
-        a.click();
-        showToast('QR descargado');
+    
+    if(!pub){
+      html += '<div class="not-published">' +
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+        '<h3>Calificacion No Disponible</h3>' +
+        '<p>Tu calificacion aun no ha sido publicada por la mesa directiva.<br>Vuelve a consultar mas tarde.</p>' +
+      '</div>';
+    } else {
+      html += '<div class="breakdown"><div class="bk-hd"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Desglose por Criterio</span></div>';
+      SF.forEach(function(f){
+        var v   = parseInt(s[f.k]) || 0;
+        var pct = Math.round(v / f.m * 100);
+        html += '<div class="bk-row"><span class="bk-nm">' + f.lf + '</span>' +
+          '<div class="bk-bar"><div class="bk-bg"><div class="bk-fill" style="width:' + pct + '%"></div></div></div>' +
+          '<span class="bk-val">' + v + '</span><span class="bk-max">/' + f.m + '</span></div>';
       });
+      html += '</div>';
+      if(pubData.feedback && pubData.feedback.trim()){
+        html += '<div class="feedback-card">' +
+          '<div class="feedback-hd"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' +
+          '<span>Comentario de la Mesa Directiva</span></div>' +
+          '<div class="feedback-txt">' + esc(pubData.feedback.trim()) + '</div></div>';
+      }
     }
-    var btnPr = $('btnPrQR');
-    if(btnPr){ btnPr.addEventListener('click', function(){ printProfile(id, d, t, lb, qd); }); }
-  }, 120);
-
-  showScr('sProfile');
+    
+    // QR
+    html += '<div class="qr-sec"><p>Tu codigo QR personal — CELIDER 2026</p>' +
+      '<div class="qr-box"><div id="pQR"></div></div>' +
+      '<div class="prof-acts">' +
+        '<button class="btn btn-sky btn-sm" id="btnDlQR">Descargar QR</button>' +
+        '<button class="btn btn-out btn-sm" id="btnPrQR">Imprimir</button>' +
+      '</div></div>';
+    
+    $('profBody').innerHTML = html;
+    
+    setTimeout(function(){
+      var qd = $('pQR');
+      if(!qd) return;
+      qd.innerHTML = '';
+      var base = window.location.origin + window.location.pathname;
+      var url  = base + '?id=' + encodeURIComponent(id);
+      try{
+        new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
+      } catch(e){ qd.innerHTML = '<p style="color:#f87171;font-size:11px">QR error</p>'; }
+      
+      var btnDl = $('btnDlQR');
+      if(btnDl){
+        btnDl.addEventListener('click', function(){
+          var c = qd.querySelector('canvas');
+          if(!c){ showToast('QR generandose...'); return; }
+          var a = document.createElement('a');
+          a.download = 'QR_' + id + '_CELIDER2026.png';
+          a.href = c.toDataURL();
+          a.click();
+          showToast('QR descargado');
+        });
+      }
+      var btnPr = $('btnPrQR');
+      if(btnPr){ btnPr.addEventListener('click', function(){ printPublicProfile(id, pubData, prof); }); }
+    }, 120);
+    
+    showScr('sProfile');
+  }).catch(function(){
+    $('ldOv').classList.add('hide');
+    showToast('Error al cargar perfil');
+  });
 }
 
-function printProfile(id, d, t, lb, qd){
-  var c = qd ? qd.querySelector('canvas') : null;
+function loadPublicProfile(id){
+  openPublicProfile(id.toUpperCase());
+}
+
+function printPublicProfile(id, pubData, prof){
+  var c = document.querySelector('#pQR canvas');
   var qrSrc = c ? c.toDataURL() : '';
-  var s = d.scores || {};
+  var s = (pubData && pubData.published) ? (pubData.scores || {}) : {};
+  var t = tot(s);
+  var lv = lvl(t);
   var rows = SF.map(function(f){
     return '<tr><td>' + f.lf + '</td><td style="text-align:right"><strong>' + (s[f.k]||0) + '/' + f.m + '</strong></td></tr>';
   }).join('');
-  var fbHtml = (d.feedback && d.feedback.trim())
+  var fbHtml = (pubData && pubData.feedback && pubData.feedback.trim())
     ? '<div style="margin-top:14px;background:#eff6ff;border:1px solid #93c5fd;border-radius:9px;padding:12px 14px">' +
       '<div style="font-size:10px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Comentario de la Mesa Directiva</div>' +
-      '<div style="font-size:12px;color:#1e3a5f;line-height:1.6;white-space:pre-wrap">' + esc(d.feedback.trim()) + '</div></div>'
+      '<div style="font-size:12px;color:#1e3a5f;line-height:1.6;white-space:pre-wrap">' + esc(pubData.feedback.trim()) + '</div></div>'
     : '';
   var w = window.open('', '_blank');
   if(!w) return;
-  w.document.write('<!DOCTYPE html><html><head><title>' + d.nombre + ' — CELIDER 2026</title>' +
+  w.document.write('<!DOCTYPE html><html><head><title>' + prof.nombre + ' — CELIDER 2026</title>' +
     '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">' +
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'DM Sans\',sans-serif;background:#fff;padding:24px;max-width:440px;margin:0 auto}' +
     '.hd{background:#002247;color:#fff;border-radius:11px;padding:18px;margin-bottom:14px}' +
@@ -858,9 +860,9 @@ function printProfile(id, d, t, lb, qd){
     '@media print{@page{margin:6mm}}</style></head><body>' +
     '<div class="hd"><h1>SIGEL CELIDER 10-04 · REGIONAL 10</h1><p>PLERD · MINERD · CELIDER 2026</p></div>' +
     '<div class="mid">' + (qrSrc ? '<div class="qi"><img src="' + qrSrc + '" width="100"></div>' : '') +
-    '<div class="inf"><div class="id">' + id + '</div><div class="nm">' + (d.nombre||'—') + '</div>' +
-    '<div style="font-size:11px;color:#64748b;margin-bottom:6px">' + (d.comision||'') + ' · ' + (d.delegacion||'') + '</div>' +
-    '<div class="tt">' + t + '/100</div><div style="font-size:12px;color:#64748b">' + lb + '</div></div></div>' +
+    '<div class="inf"><div class="id">' + id + '</div><div class="nm">' + (prof.nombre||'—') + '</div>' +
+    '<div style="font-size:11px;color:#64748b;margin-bottom:6px">' + (prof.comision||'') + ' · ' + (prof.delegacion||'') + '</div>' +
+    '<div class="tt">' + t + '/100</div><div style="font-size:12px;color:#64748b">' + lv[1] + '</div></div></div>' +
     '<table><thead><tr><th style="text-align:left">Criterio</th><th style="text-align:right">Puntaje</th></tr></thead><tbody>' + rows + '</tbody></table>' +
     fbHtml +
     '<script>window.onload=function(){window.print();}<\/script></body></html>');
@@ -884,7 +886,9 @@ function doLogin(){
         'auth/invalid-email':'Correo invalido',
         'auth/too-many-requests':'Demasiados intentos. Espera unos minutos.'
       };
-      showLoginErr(m[e.code] || 'Error: ' + e.code);
+      var msg = m[e.code] || 'Error: ' + e.code;
+      showLoginErr(msg);
+      logAccess('LOGIN_FAIL', email + ' | ' + e.code, false);
       btn.disabled = false; btn.textContent = 'INGRESAR';
     });
 }
@@ -903,8 +907,9 @@ function buildAdminUI(){
       '<button class="atn" data-tab="score"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificar</button>' +
       '<button class="atn" data-tab="dels"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Delegados</button>' +
       '<button class="atn" data-tab="admins"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admins</button>' +
+      '<button class="atn" data-tab="logs"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Logs</button>' +
       '<button class="atn" data-tab="rub"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rubrica</button>';
-    ac.innerHTML = tabDash() + tabUpload() + tabScore() + tabDels() + tabAdmins() + tabRub();
+    ac.innerHTML = tabDash() + tabUpload() + tabScore() + tabDels() + tabAdmins() + tabLogs() + tabRub();
   } else {
     nav.innerHTML =
       '<button class="atn on" data-tab="score"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Calificar</button>' +
@@ -940,16 +945,14 @@ function tabDash(){
       '<div class="scard"><div class="sn" id="dAvg">—</div><div class="sl">Promedio</div><div class="sbar"><div class="sfill" style="width:0%" id="dB4"></div></div></div>' +
     '</div>' +
     '<div class="card"><div class="chd"><h3>Por Comision</h3></div>' +
-    '<div class="tw"><table><thead><tr><th>Comision</th><th>Total</th><th>Calificados</th><th>Publicados</th><th>Promedio</th><th>Avance</th></tr></thead>' +
+    '<div class="tw"><table><thead><tr><th>Comision</th><th>Total</th><th>Calificados</th><th>Publicados</th><th>Regionales</th><th>Promedio</th><th>Avance</th></tr></thead>' +
     '<tbody id="dashTbl"></tbody></table></div></div></div>';
 }
 
 function tabUpload(){
   return '<div class="atab" id="tabUpload">' +
     '<div class="ph"><div><h2>Cargar Lista de Delegados</h2><p>Los IDs se asignan automaticamente</p></div></div>' +
-    '<div class="alert-info"><strong>Reglas de Firebase (Realtime Database → Rules):</strong>' +
-    '<code>{"rules":{"delegates":{"$id":{".read":true,".write":"auth != null"}},"admins":{".read":"auth != null",".write":"auth != null && root.child(\'admins\').child(auth.uid).child(\'role\').val() === \'superadmin\'"},"publicStats":{".read":true,".write":"auth != null"}}}</code>' +
-    '</div>' +
+    '<div class="alert-info"><strong>Seguridad:</strong> Los datos se separan automaticamente en capas. El publico solo vera nombres y comisiones. Las calificaciones permanecen privadas hasta que las publiques.</div>' +
     '<div class="upzone" id="upZone"><div class="up-ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>' +
     '<h3>Arrastra el Excel aqui o haz clic</h3><p>ID asignado automaticamente por orden</p>' +
     '<div class="fmt"><span>INSTITUCION</span><span>NOMBRE</span><span>DESIGNACION</span><span>COMISION</span></div>' +
@@ -966,38 +969,68 @@ function tabUpload(){
 
 function tabScore(){
   return '<div class="atab" id="tabScore">' +
-    '<div class="ph"><div><h2>Calificar y Publicar</h2><p>Los cambios se guardan automaticamente en Firebase en tiempo real</p></div></div>' +
-    '<div class="fbar"><select class="fsel" id="scorCom" style="min-width:200px"><option value="">-- Selecciona comision --</option></select></div>' +
+    '<div class="ph"><div><h2>Calificar y Publicar</h2><p>Los cambios se guardan automaticamente en tiempo real</p></div></div>' +
+    '<div class="fbar">' +
+      '<select class="fsel" id="scorCom" style="min-width:200px"><option value="">-- Selecciona comision --</option></select>' +
+      '<div class="inw" style="flex:2;min-width:200px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="scorFilter" placeholder="Filtrar por nombre dentro de la comision..."></div>' +
+    '</div>' +
+    '<div id="scorBulk"></div>' +
     '<div id="scorArea"></div></div>';
 }
 
 function tabDels(){
   return '<div class="atab" id="tabDels">' +
-    '<div class="ph"><div><h2>Todos los Delegados</h2><p>Directorio completo</p></div>' +
+    '<div class="ph"><div><h2>Todos los Delegados</h2><p>Directorio completo con filtros</p></div>' +
     '<button class="btn btn-out btn-sm" id="btnExport"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar Excel</button></div>' +
     '<div class="fbar">' +
     '<div class="inw"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="delF" placeholder="Buscar por nombre o ID..."></div>' +
     '<select class="fsel" id="delFC"><option value="">Todas las comisiones</option></select>' +
+    '<select class="fsel" id="delFL"><option value="">Todos los niveles</option><option value="A">Excelente</option><option value="B">Muy Bueno</option><option value="C">Satisfactorio</option><option value="D">En Desarrollo</option></select>' +
+    '<select class="fsel" id="delFR"><option value="">Todos</option><option value="regional">Modelo Regional</option><option value="noregional">No Regional</option></select>' +
     '</div>' +
     '<div class="card"><div class="tw"><table><thead><tr>' +
-    '<th>ID</th><th>Nombre</th><th>Delegacion</th><th>Institucion</th><th>Comision</th><th>Total</th><th>Nivel</th><th>Estado</th><th>QR</th>' +
+    '<th>ID</th><th>Nombre</th><th>Delegacion</th><th>Institucion</th><th>Comision</th><th>Total</th><th>Nivel</th><th>Regional</th><th>Estado</th><th>QR</th>' +
     '</tr></thead><tbody id="delTBody"></tbody></table></div></div></div>';
 }
 
 function tabAdmins(){
   return '<div class="atab" id="tabAdmins">' +
-    '<div class="ph"><div><h2>Gestionar Administradores</h2><p>Agrega admins por comision usando el UID de Firebase Authentication</p></div></div>' +
-    '<div class="alert-warn">Primero crea el usuario en Firebase Console → Authentication, luego copia su UID aqui.</div>' +
-    '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Agregar Admin de Comision</h3></div>' +
+    '<div class="ph"><div><h2>Gestionar Administradores</h2><p>Supervision de accesos y roles</p></div></div>' +
+    
+    '<div class="alert-warn">Metodo seguro: El usuario debe registrarse primero en la pantalla de login (crear cuenta), luego el superadmin copia su UID de los Logs de Acceso y le asigna rol aqui.</div>' +
+    
+    '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Asignar Rol a UID Existente (Seguro)</h3></div>' +
     '<div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
     '<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">UID de Firebase Auth</label>' +
-    '<input type="text" id="admUid" placeholder="UID del usuario..." style="width:100%;padding:8px 12px;border:1px solid var(--bord);border-radius:7px;font-size:13px;font-family:\'DM Mono\',monospace;outline:none"></div>' +
+    '<input type="text" id="admUid" placeholder="Pega el UID aqui..." style="width:100%;padding:8px 12px;border:1px solid var(--bord);border-radius:7px;font-size:13px;font-family:\'DM Mono\',monospace;outline:none"></div>' +
     '<div style="flex:1;min-width:160px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Comision Asignada</label>' +
     '<select id="admCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
-    '<button class="btn btn-pri btn-sm" id="btnAddAdm">Agregar Admin</button></div></div>' +
+    '<button class="btn btn-pri btn-sm" id="btnAddAdm">Asignar Rol</button></div></div>' +
+    
+    '<div class="card" style="margin-bottom:14px"><div class="chd"><h3>Crear Nuevo Usuario Admin (Cerrara tu sesion)</h3></div>' +
+    '<div style="padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
+    '<div style="flex:1;min-width:180px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Email nuevo admin</label>' +
+    '<input type="email" id="newAdmEmail" placeholder="email@ejemplo.com" style="width:100%;padding:8px 12px;border:1px solid var(--bord);border-radius:7px;font-size:13px;outline:none"></div>' +
+    '<div style="flex:1;min-width:140px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Contrasena temporal</label>' +
+    '<input type="text" id="newAdmPass" placeholder="Min 6 caracteres" style="width:100%;padding:8px 12px;border:1px solid var(--bord);border-radius:7px;font-size:13px;outline:none"></div>' +
+    '<div style="flex:1;min-width:160px"><label style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block">Comision</label>' +
+    '<select id="newAdmCom" class="fsel" style="width:100%"><option value="">-- Selecciona --</option></select></div>' +
+    '<button class="btn btn-danger btn-sm" id="btnCreateAdm">Crear Cuenta</button></div></div>' +
+    
     '<div class="card"><div class="chd"><h3>Admins Registrados</h3></div>' +
-    '<div class="tw"><table><thead><tr><th>UID</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
+    '<div class="tw"><table><thead><tr><th>UID</th><th>Email</th><th>Rol</th><th>Comision</th><th>Accion</th></tr></thead>' +
     '<tbody id="admTbl"></tbody></table></div></div></div>';
+}
+
+function tabLogs(){
+  return '<div class="atab" id="tabLogs">' +
+    '<div class="ph"><div><h2>Logs de Acceso</h2><p>Supervision de intentos de entrada</p></div></div>' +
+    '<div class="fbar">' +
+    '<select class="fsel" id="logFilter"><option value="">Todos los eventos</option><option value="ok">Exitosos</option><option value="danger">Fallidos / Intrusos</option><option value="warn">Advertencias</option></select>' +
+    '<button class="btn btn-out btn-sm" id="btnRefreshLogs">Actualizar</button></div>' +
+    '<div class="alert-info" id="logAlert" style="display:none"></div>' +
+    '<div class="card"><div class="chd"><h3>Registro de eventos</h3></div>' +
+    '<div id="logList" style="max-height:500px;overflow-y:auto"></div></div></div>';
 }
 
 function tabComExport(){
@@ -1035,13 +1068,14 @@ function tabRub(){
 
 function showAdminTab(name){
   document.querySelectorAll('.atab').forEach(function(t){ t.classList.remove('on'); });
-  var map = {dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',admins:'tabAdmins',rub:'tabRub',comexport:'tabComExport'};
+  var map = {dash:'tabDash',upload:'tabUpload',score:'tabScore',dels:'tabDels',admins:'tabAdmins',logs:'tabLogs',rub:'tabRub',comexport:'tabComExport'};
   var el = $(map[name]);
   if(el) el.classList.add('on');
-  if(name === 'score')    populateScoreComs();
+  if(name === 'score')    { populateScoreComs(); renderBulkBar(); }
   if(name === 'dels')     renderDels();
   if(name === 'dash')     updateDashboard();
-  if(name === 'admins')   { loadAdmins(); populateAdmComs(); }
+  if(name === 'admins')   { renderAdmins(); populateAdmComs(); populateNewAdmComs(); }
+  if(name === 'logs')     renderLogs();
   if(name === 'comexport'){ bindComExportEvents(); }
 }
 
@@ -1051,30 +1085,33 @@ function updateDashboard(){
   var all    = Object.values(delegates);
   var rated  = all.filter(function(d){ return tot(d.scores) > 0; });
   var pubArr = all.filter(function(d){ return d.published === true; });
-  var avg    = rated.length
-    ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1)
-    : '—';
+  var regArr = all.filter(function(d){ return d.regional === true; });
+  var avg    = rated.length ? (rated.reduce(function(a,d){ return a + tot(d.scores); },0) / rated.length).toFixed(1) : '—';
+  
   $('dTotal').textContent = all.length;
   $('dComs').textContent  = coms().length;
   $('dCal').textContent   = rated.length;
   $('dAvg').textContent   = avg;
+  
   var pct = all.length ? Math.round(rated.length / all.length * 100) : 0;
   $('dB3').style.width = pct + '%';
   $('dB4').style.width = (avg !== '—') ? Math.min(parseFloat(avg), 100) + '%' : '0%';
+  
   var cs = coms();
   $('dashTbl').innerHTML = cs.length ? cs.map(function(c){
     var mem  = all.filter(function(d){ return d.comision === c; });
     var r2   = mem.filter(function(d){ return tot(d.scores) > 0; });
     var p2   = mem.filter(function(d){ return d.published === true; });
+    var rg2  = mem.filter(function(d){ return d.regional === true; });
     var avg2 = r2.length ? (r2.reduce(function(a,d){ return a + tot(d.scores); },0) / r2.length).toFixed(1) : '—';
     var pct2 = mem.length ? Math.round(r2.length / mem.length * 100) : 0;
-    return '<tr><td class="tdn">' + esc(c) + '</td><td>' + mem.length + '</td><td>' + r2.length + '</td><td>' + p2.length + '</td><td>' + avg2 + '</td>' +
+    return '<tr><td class="tdn">' + esc(c) + '</td><td>' + mem.length + '</td><td>' + r2.length + '</td><td>' + p2.length + '</td><td>' + rg2.length + '</td><td>' + avg2 + '</td>' +
       '<td><div style="background:var(--bord);border-radius:99px;height:5px;overflow:hidden;width:80px">' +
       '<div style="height:100%;width:' + pct2 + '%;background:linear-gradient(90deg,var(--c2),var(--c3));border-radius:99px"></div></div></td></tr>';
-  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--hin)">Sin datos</td></tr>';
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--hin)">Sin datos</td></tr>';
+  
   var dt = $('dashTime');
   if(dt) dt.textContent = new Date().toLocaleString('es-DO',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'short'});
-  updatePublicStats();
 }
 
 // ── UPLOAD ────────────────────────────────────────
@@ -1086,6 +1123,7 @@ function processXL(file){
       var wb   = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
       if(!rows.length){ showToast('Archivo vacio'); return; }
+      
       var parsed = rows.map(function(row, i){
         return {
           id:         genId(i+1),
@@ -1093,22 +1131,48 @@ function processXL(file){
           nombre:     row['NOMBRE']       || row['Nombre']       || '',
           delegacion: row['DESIGNACION']  || row['DESIGNACIÓN']  || row['Delegacion']   || '',
           comision:   row['COMISION']     || row['COMISIÓN']     || row['Comision']      || '',
-          scores:     null,
+          scores:     {},
           published:  false,
+          regional:   false,
           feedback:   ''
         };
       }).filter(function(d){ return d.nombre.trim(); });
 
       var updates = {};
-      parsed.forEach(function(d){ updates['delegates/' + d.id] = d; });
+      var pubUpdates = {};
+      var profUpdates = {};
+      
+      parsed.forEach(function(d){
+        updates['delegates/' + d.id] = d;
+        // Public profile (sin datos sensibles)
+        profUpdates['publicProfiles/' + d.id] = {
+          nombre: d.nombre,
+          comision: d.comision,
+          delegacion: d.delegacion,
+          institucion: d.institucion
+        };
+        // Published scores (vacío inicialmente)
+        pubUpdates['publishedScores/' + d.id] = {
+          nombre: d.nombre,
+          comision: d.comision,
+          delegacion: d.delegacion,
+          institucion: d.institucion,
+          published: false,
+          regional: false,
+          scores: {},
+          feedback: '',
+          total: 0,
+          nivel: ''
+        };
+      });
 
-      db.ref().update(updates)
+      db.ref().update(Object.assign({}, updates, profUpdates, pubUpdates))
         .then(function(){
           var comsDetected = {};
           parsed.forEach(function(d){ if(d.comision) comsDetected[d.comision]=1; });
           $('upStatus').innerHTML = '<div style="background:var(--ok-bg);border:1px solid #6ee7b7;border-radius:9px;padding:11px 14px;color:var(--ok);font-size:13px;font-weight:600;margin-top:4px">' +
             parsed.length + ' delegados cargados · ' + Object.keys(comsDetected).length + ' comisiones detectadas</div>';
-          showToast(parsed.length + ' delegados guardados en Firebase');
+          showToast(parsed.length + ' delegados guardados');
           showAdminTab('dels');
         })
         .catch(function(err){ showToast('Error al guardar: ' + err.message); });
@@ -1122,20 +1186,30 @@ function renderDels(){
   var el = $('delTBody'); if(!el) return;
   var q  = ($('delF') ? $('delF').value : '').toLowerCase();
   var qc = $('delFC') ? $('delFC').value : '';
+  var ql = $('delFL') ? $('delFL').value : '';
+  var qr = $('delFR') ? $('delFR').value : '';
+  
   var sel = $('delFC');
   if(sel){
     var cv = sel.value;
     sel.innerHTML = '<option value="">Todas las comisiones</option>' +
       coms().map(function(c){ return '<option value="' + esc(c) + '"' + (c===cv?' selected':'') + '>' + esc(c) + '</option>'; }).join('');
   }
+  
   var all = Object.entries(delegates);
   var f   = all.filter(function(e){
     var id2=e[0], d2=e[1];
-    return (!q || (d2.nombre||'').toLowerCase().indexOf(q)!==-1 || id2.toLowerCase().indexOf(q)!==-1) && (!qc || d2.comision===qc);
+    var t2=tot(d2.scores||{}), lv2=lvl(t2);
+    var nameMatch = !q || (d2.nombre||'').toLowerCase().indexOf(q)!==-1 || id2.toLowerCase().indexOf(q)!==-1;
+    var comMatch  = !qc || d2.comision===qc;
+    var lvlMatch  = !ql || lv2[0]===ql;
+    var regMatch  = !qr || (qr==='regional' ? d2.regional===true : d2.regional!==true);
+    return nameMatch && comMatch && lvlMatch && regMatch;
   });
+  
   el.innerHTML = f.map(function(e){
     var id2=e[0], d2=e[1];
-    var t2=tot(d2.scores||{}), lv2=lvl(t2), pub2=d2.published===true;
+    var t2=tot(d2.scores||{}), lv2=lvl(t2), pub2=d2.published===true, reg2=d2.regional===true;
     return '<tr>' +
       '<td><span class="tdid">' + esc(id2) + '</span></td>' +
       '<td class="tdn">' + esc(d2.nombre||'—') + '</td>' +
@@ -1144,10 +1218,12 @@ function renderDels(){
       '<td>' + esc(d2.comision||'—') + '</td>' +
       '<td><strong>' + t2 + '</strong>/100</td>' +
       '<td><span class="bdg b' + lv2[0] + '">' + lv2[1] + '</span></td>' +
+      '<td>' + (reg2 ? '<span class="bdg bReg">Regional</span>' : '—') + '</td>' +
       '<td><span class="bdg ' + (pub2?'bPub':'bNPub') + '">' + (pub2?'Publicado':'Pendiente') + '</span></td>' +
       '<td><span class="tdlk" data-qrid="' + esc(id2) + '">Ver QR</span></td>' +
     '</tr>';
-  }).join('') || '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--hin)">Sin delegados cargados</td></tr>';
+  }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--hin)">Sin delegados cargados</td></tr>';
+  
   el.querySelectorAll('[data-qrid]').forEach(function(e){ e.addEventListener('click', function(){ openQRModal(e.dataset.qrid); }); });
 }
 
@@ -1172,15 +1248,64 @@ function populateScoreComs(){
   var available = (curRole === 'comadmin' && curComision) ? [curComision] : coms();
   sel.innerHTML = '<option value="">-- Selecciona comision --</option>' +
     available.map(function(c){ return '<option value="' + esc(c) + '"' + (c===cv?' selected':'') + '>' + esc(c) + '</option>'; }).join('');
-  if(curRole === 'comadmin' && curComision && !cv){ sel.value = curComision; renderScoring(); }
+  if(curRole === 'comadmin' && curComision && !cv){ sel.value = curComision; renderScoring(); renderBulkBar(); }
+}
+
+function renderBulkBar(){
+  var com = $('scorCom') ? $('scorCom').value : '';
+  var area = $('scorBulk');
+  if(!area) return;
+  if(!com){ area.innerHTML = ''; return; }
+  area.innerHTML = '<div class="bulk-bar">' +
+    '<span>Acciones masivas para <strong>' + esc(com) + '</strong></span>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<button class="btn btn-ok btn-sm" id="btnPubAll">Publicar Toda la Comision</button>' +
+      '<button class="btn btn-warn btn-sm" id="btnUnpubAll">Despublicar Toda la Comision</button>' +
+    '</div></div>';
+  
+  $('btnPubAll').addEventListener('click', function(){ bulkPublish(com, true); });
+  $('btnUnpubAll').addEventListener('click', function(){ bulkPublish(com, false); });
+}
+
+function bulkPublish(com, publish){
+  if(!com) return;
+  if(!confirm((publish?'Publicar':'Despublicar') + ' TODAS las calificaciones de ' + com + '?')) return;
+  
+  var mem = Object.entries(delegates).filter(function(e){ return e[1].comision === com; });
+  if(!mem.length) return;
+  
+  var updates = {};
+  mem.forEach(function(e){
+    var id = e[0], d = e[1];
+    updates['delegates/' + id + '/published'] = publish;
+    updates['publishedScores/' + id + '/published'] = publish;
+    if(publish){
+      updates['publishedScores/' + id + '/scores'] = d.scores || {};
+      updates['publishedScores/' + id + '/feedback'] = d.feedback || '';
+      updates['publishedScores/' + id + '/total'] = tot(d.scores);
+      updates['publishedScores/' + id + '/nivel'] = lvl(tot(d.scores))[1];
+    }
+  });
+  
+  db.ref().update(updates)
+    .then(function(){
+      showToast(publish ? 'Toda la comision publicada' : 'Toda la comision despublicada');
+      mem.forEach(function(e){ delegates[e[0]].published = publish; });
+      renderScoring();
+    })
+    .catch(function(err){ showToast('Error: ' + err.message); });
 }
 
 function renderScoring(){
   var com  = $('scorCom') ? $('scorCom').value : '';
+  var filter = ($('scorFilter') ? $('scorFilter').value : '').toLowerCase();
   var area = $('scorArea'); if(!area) return;
   if(!com){ area.innerHTML = ''; return; }
 
-  var mem = Object.entries(delegates).filter(function(e){ return e[1].comision === com; });
+  var mem = Object.entries(delegates).filter(function(e){ 
+    return e[1].comision === com && (!filter || (e[1].nombre||'').toLowerCase().indexOf(filter) !== -1);
+  });
+  
   if(!mem.length){ area.innerHTML = '<div style="padding:24px;text-align:center;color:var(--hin)">Sin delegados en esta comision</div>'; return; }
 
   var html = '';
@@ -1189,10 +1314,10 @@ function renderScoring(){
     var s  = d.scores || {};
     var t  = tot(s);
     var pub= d.published === true;
+    var reg= d.regional === true;
     var fb = d.feedback  || '';
 
     html += '<div class="del-score-card">' +
-      // Header
       '<div class="dsc-head">' +
         '<div><div class="dsc-name">' + esc(d.nombre) + '</div>' +
         '<div class="dsc-meta">' + esc(id) + ' · ' + esc(d.delegacion||'—') + '</div></div>' +
@@ -1206,7 +1331,6 @@ function renderScoring(){
           '<span class="pub-badge ' + (pub?'published':'pending') + '" id="pub_' + id + '">' + (pub?'Publicado':'Pendiente') + '</span>' +
         '</div>' +
       '</div>' +
-      // Score inputs grid
       '<div class="dsc-scores"><div class="score-grid">';
 
     SF.forEach(function(f){
@@ -1220,7 +1344,6 @@ function renderScoring(){
     });
 
     html += '</div></div>' +
-      // Feedback
       '<div class="dsc-fb">' +
         '<label>Comentario / Feedback para el delegado</label>' +
         '<textarea class="fb-textarea" id="fb_' + id + '" maxlength="600" placeholder="Escribe un comentario o retroalimentacion para el delegado. Sera visible al escanear su QR...">' + esc(fb) + '</textarea>' +
@@ -1228,8 +1351,8 @@ function renderScoring(){
           '<span id="fbc_' + id + '" class="fb-counter">' + fb.length + '/600</span>' +
         '</div>' +
       '</div>' +
-      // Actions
       '<div class="dsc-actions">' +
+        '<label class="tgl"><input type="checkbox" class="reg-toggle" data-id="' + id + '"' + (reg?' checked':'') + '><span></span><label>Modelo Regional</label></label>' +
         (pub
           ? '<button class="btn btn-warn btn-xs pub-btn" data-id="' + id + '" data-pub="false">Despublicar</button>'
           : '<button class="btn btn-ok btn-xs pub-btn" data-id="' + id + '" data-pub="true">Publicar calificacion</button>'
@@ -1240,28 +1363,21 @@ function renderScoring(){
 
   area.innerHTML = html;
 
-  // Bind auto-save on each input (debounce 1.5s)
+  // Bind auto-save on each input
   area.querySelectorAll('.sc-inp').forEach(function(inp){
     inp.addEventListener('input', function(){
       var did = inp.dataset.id;
-      // Update total preview
       var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
       var t2 = 0;
       inputs.forEach(function(i){ t2 += parseInt(i.value) || 0; });
       var te = $('tot_' + did); if(te) te.textContent = t2 + '/100';
-      // Update level badge
       var lv = lvl(t2);
       var le = $('lvl_' + did);
-      if(le){
-        le.textContent = lv[1];
-        le.className = 'bdg b' + lv[0];
-      }
-      // Show saving indicator, hide saved
+      if(le){ le.textContent = lv[1]; le.className = 'bdg b' + lv[0]; }
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.remove('show');
       if(savInd) savInd.classList.add('show');
-      // Debounce
       if(saveTimers[did]) clearTimeout(saveTimers[did]);
       saveTimers[did] = setTimeout(function(){ autoSaveDelegate(did, area); }, 1500);
     });
@@ -1285,6 +1401,18 @@ function renderScoring(){
     }
   });
 
+  // Bind regional toggle
+  area.querySelectorAll('.reg-toggle').forEach(function(tgl){
+    tgl.addEventListener('change', function(){
+      var did = tgl.dataset.id;
+      var val = tgl.checked;
+      db.ref('delegates/' + did + '/regional').set(val);
+      db.ref('publishedScores/' + did + '/regional').set(val);
+      if(delegates[did]) delegates[did].regional = val;
+      showToast(val ? 'Marcado como Modelo Regional' : 'Desmarcado de Modelo Regional');
+    });
+  });
+
   // Bind publish/unpublish buttons
   area.querySelectorAll('.pub-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -1292,25 +1420,27 @@ function renderScoring(){
       var pub = (btn.dataset.pub === 'true');
       btn.disabled = true;
       btn.textContent = pub ? 'Publicando...' : 'Despublicando...';
-
-      // Build update object using set per field to avoid object literal key issues
-      var ref1 = db.ref('delegates/' + did + '/published');
-      ref1.set(pub).then(function(){
+      
+      var updates = {};
+      updates['delegates/' + did + '/published'] = pub;
+      updates['publishedScores/' + did + '/published'] = pub;
+      
+      if(pub){
+        var d = delegates[did];
+        updates['publishedScores/' + did + '/scores'] = d.scores || {};
+        updates['publishedScores/' + did + '/feedback'] = d.feedback || '';
+        updates['publishedScores/' + did + '/total'] = tot(d.scores);
+        updates['publishedScores/' + did + '/nivel'] = lvl(tot(d.scores))[1];
+      }
+      
+      db.ref().update(updates).then(function(){
         showToast(pub ? 'Calificacion publicada' : 'Calificacion despublicada');
-        if(delegates[did]){
-          delegates[did].published = pub;
-        }
-        updatePublicStats();
-        updateHomeStats();
-        
-        // Update badge and button locally WITHOUT re-rendering
+        if(delegates[did]) delegates[did].published = pub;
         var pubBadge = $('pub_' + did);
         if(pubBadge){
           pubBadge.textContent = pub ? 'Publicado' : 'Pendiente';
           pubBadge.className   = 'pub-badge ' + (pub ? 'published' : 'pending');
         }
-        
-        // Flip the button locally
         btn.dataset.pub = pub ? 'false' : 'true';
         btn.textContent = pub ? 'Despublicar' : 'Publicar calificacion';
         btn.className = pub ? 'btn btn-warn btn-xs pub-btn' : 'btn btn-ok btn-xs pub-btn';
@@ -1324,34 +1454,38 @@ function renderScoring(){
   });
 }
 
-// Auto-save scores for one delegate
 function autoSaveDelegate(did, area){
   var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
   if(!inputs.length) return;
   var scores = {};
   inputs.forEach(function(i){ scores[i.dataset.k] = parseInt(i.value) || 0; });
-  db.ref('delegates/' + did + '/scores').set(scores)
+  
+  var t = tot(scores);
+  var updates = {};
+  updates['delegates/' + did + '/scores'] = scores;
+  updates['publishedScores/' + did + '/scores'] = scores;
+  updates['publishedScores/' + did + '/total'] = t;
+  updates['publishedScores/' + did + '/nivel'] = lvl(t)[1];
+  
+  db.ref().update(updates)
     .then(function(){
-      if(delegates[did]){
-        delegates[did].scores = scores;
-      }
+      if(delegates[did]) delegates[did].scores = scores;
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.add('show');
       if(savInd) savInd.classList.remove('show');
-      updatePublicStats();
-      updateHomeStats();
     })
     .catch(function(err){ showToast('Error al guardar: ' + err.message); });
 }
 
-// Auto-save feedback for one delegate
 function autoSaveFeedback(did, text){
-  db.ref('delegates/' + did + '/feedback').set(text.trim())
+  var updates = {};
+  updates['delegates/' + did + '/feedback'] = text.trim();
+  updates['publishedScores/' + did + '/feedback'] = text.trim();
+  
+  db.ref().update(updates)
     .then(function(){
-      if(delegates[did]){
-        delegates[did].feedback = text.trim();
-      }
+      if(delegates[did]) delegates[did].feedback = text.trim();
       var savEl  = $('saved_'  + did);
       var savInd = $('saving_' + did);
       if(savEl)  savEl.classList.add('show');
@@ -1364,29 +1498,29 @@ function autoSaveFeedback(did, text){
 function exportExcel(){
   var wb  = XLSX.utils.book_new();
   var all = Object.entries(delegates);
-  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Regional','Feedback']);
   var rows = all.map(function(e){
     var id2=e[0], d2=e[1];
     var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
     return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'', d2.comision||'']
       .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
-      .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+      .concat([t2, lv2[1], d2.published?'Si':'No', d2.regional?'Si':'No', d2.feedback||'']);
   });
   var ws = XLSX.utils.aoa_to_sheet([hdr].concat(rows));
-  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:10},{wch:40}]);
   XLSX.utils.book_append_sheet(wb, ws, 'Delegados CELIDER');
   coms().forEach(function(com){
     var mem = all.filter(function(e){ return e[1].comision === com; });
-    var ch  = ['ID','Nombre','Delegacion','Institucion'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+    var ch  = ['ID','Nombre','Delegacion','Institucion'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Regional','Feedback']);
     var cr  = mem.map(function(e){
       var id2=e[0], d2=e[1];
       var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
       return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'']
         .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
-        .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+        .concat([t2, lv2[1], d2.published?'Si':'No', d2.regional?'Si':'No', d2.feedback||'']);
     });
     var cws = XLSX.utils.aoa_to_sheet([ch].concat(cr));
-    cws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+    cws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:10},{wch:40}]);
     XLSX.utils.book_append_sheet(wb, cws, com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'') || 'Comision');
   });
   XLSX.writeFile(wb, 'SIGEL_CELIDER_1004_' + new Date().toISOString().split('T')[0] + '.xlsx');
@@ -1399,18 +1533,17 @@ function exportExcelByComision(com){
   var all = Object.entries(delegates);
   var mem = all.filter(function(e){ return e[1].comision === com; });
   if(!mem.length){ showToast('Sin delegados en esta comision'); return; }
-  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Feedback']);
+  var hdr = ['ID','Nombre','Delegacion','Institucion','Comision'].concat(SF.map(function(f){ return f.lf; })).concat(['Total','Nivel','Publicado','Regional','Feedback']);
   var rows = mem.map(function(e){
     var id2=e[0], d2=e[1];
     var s2=d2.scores||{}, t2=tot(s2), lv2=lvl(t2);
     return [id2, d2.nombre||'', d2.delegacion||'', d2.institucion||'', d2.comision||'']
       .concat(SF.map(function(f){ return (s2[f.k]!==undefined&&s2[f.k]!==null) ? Number(s2[f.k]) : 0; }))
-      .concat([t2, lv2[1], d2.published?'Si':'No', d2.feedback||'']);
+      .concat([t2, lv2[1], d2.published?'Si':'No', d2.regional?'Si':'No', d2.feedback||'']);
   });
   var ws = XLSX.utils.aoa_to_sheet([hdr].concat(rows));
-  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:40}]);
+  ws['!cols'] = [{wch:10},{wch:28},{wch:20},{wch:28},{wch:14}].concat(SF.map(function(){ return {wch:12}; })).concat([{wch:7},{wch:14},{wch:11},{wch:10},{wch:40}]);
   XLSX.utils.book_append_sheet(wb, ws, com.substring(0,28).replace(/[\\\/\*\[\]\:\?]/g,'') || 'Comision');
-  // Rubrica sheet
   var rubH  = ['Criterio','Puntos Max','Descripcion'];
   var rubR  = SF.map(function(f){ return [f.lf, f.m, getRubDesc(f.k)]; });
   rubR.push(['TOTAL', 100, 'Suma de todos los criterios']);
@@ -1482,23 +1615,22 @@ function bindComExportEvents(){
 }
 
 // ── ADMINS ────────────────────────────────────────
-function loadAdmins(){
-  db.ref('admins').once('value').then(function(snap){
-    var data = snap.val() || {};
-    var el   = $('admTbl'); if(!el) return;
-    el.innerHTML = Object.entries(data).map(function(e){
-      var uid2=e[0], v=e[1];
-      return '<tr><td><span class="tdid" style="font-size:10px;word-break:break-all">' + esc(uid2) + '</span></td>' +
-        '<td>' + esc(v.role||'—') + '</td><td>' + esc(v.comision||'—') + '</td>' +
-        '<td><button class="btn btn-out btn-xs" data-uid="' + esc(uid2) + '">Eliminar</button></td></tr>';
-    }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--hin)">Sin admins adicionales</td></tr>';
-    el.querySelectorAll('[data-uid]').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        if(!confirm('Eliminar este admin?')) return;
-        db.ref('admins/' + btn.dataset.uid).remove()
-          .then(function(){ showToast('Admin eliminado'); loadAdmins(); })
-          .catch(function(e){ showToast('Error: ' + e.message); });
-      });
+function renderAdmins(){
+  var el = $('admTbl'); if(!el) return;
+  el.innerHTML = Object.entries(admins).map(function(e){
+    var uid2=e[0], v=e[1];
+    return '<tr><td><span class="tdid" style="font-size:10px;word-break:break-all">' + esc(uid2) + '</span></td>' +
+      '<td>' + esc(v.email||'—') + '</td>' +
+      '<td>' + esc(v.role||'—') + '</td><td>' + esc(v.comision||'—') + '</td>' +
+      '<td>' + (uid2 === curUser.uid ? '<span style="color:var(--hin);font-size:11px">Tu cuenta</span>' : '<button class="btn btn-out btn-xs" data-uid="' + esc(uid2) + '">Eliminar</button>') + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--hin)">Sin admins adicionales</td></tr>';
+  
+  el.querySelectorAll('[data-uid]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('Eliminar este admin?')) return;
+      db.ref('admins/' + btn.dataset.uid).remove()
+        .then(function(){ showToast('Admin eliminado'); })
+        .catch(function(e){ showToast('Error: ' + e.message); });
     });
   });
 }
@@ -1509,13 +1641,103 @@ function populateAdmComs(){
     coms().map(function(c){ return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
 }
 
+function populateNewAdmComs(){
+  var sel = $('newAdmCom'); if(!sel) return;
+  sel.innerHTML = '<option value="">-- Selecciona --</option>' +
+    coms().map(function(c){ return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+}
+
 function addAdmin(){
   var uid = ($('admUid') ? $('admUid').value : '').trim();
   var com = ($('admCom') ? $('admCom').value : '').trim();
   if(!uid || !com){ showToast('Completa UID y comision'); return; }
   db.ref('admins/' + uid).set({role:'comadmin', comision:com})
-    .then(function(){ showToast('Admin agregado para ' + com); $('admUid').value = ''; loadAdmins(); })
+    .then(function(){ showToast('Admin asignado a ' + com); $('admUid').value = ''; renderAdmins(); })
     .catch(function(e){ showToast('Error: ' + e.message); });
+}
+
+function createAdminAccount(){
+  var email = ($('newAdmEmail') ? $('newAdmEmail').value : '').trim();
+  var pass  = ($('newAdmPass') ? $('newAdmPass').value : '').trim();
+  var com   = ($('newAdmCom') ? $('newAdmCom').value : '').trim();
+  
+  if(!email || !pass || pass.length < 6 || !com){ 
+    showToast('Completa email, contrasena (min 6 chars) y comision'); 
+    return; 
+  }
+  
+  // Crear usuario (esto cerrara la sesion actual)
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(function(cred){
+      var uid = cred.user.uid;
+      return db.ref('admins/' + uid).set({role:'comadmin', comision:com, email:email});
+    })
+    .then(function(){
+      showToast('Admin creado. Debes volver a iniciar sesion.');
+      setTimeout(function(){ auth.signOut(); }, 2000);
+    })
+    .catch(function(e){
+      showToast('Error: ' + (e.message || e.code));
+      logAccess('ADMIN_CREATE_FAIL', email + ' | ' + e.code, false);
+    });
+}
+
+// ── ACCESS LOGS ───────────────────────────────────
+function renderLogs(){
+  var el = $('logList'); if(!el) return;
+  var filter = ($('logFilter') ? $('logFilter').value : '');
+  
+  db.ref('accessLogs').orderByChild('timestamp').limitToLast(200).once('value').then(function(snap){
+    var logs = [];
+    snap.forEach(function(c){ logs.push(c.val()); });
+    logs.reverse();
+    
+    var dangerCount = 0;
+    var last5Min = Date.now() - 5*60*1000;
+    
+    var html = '';
+    logs.forEach(function(log){
+      var date = log.timestamp ? new Date(log.timestamp).toLocaleString('es-DO') : '—';
+      var typeClass = 'info';
+      var typeLabel = 'Info';
+      
+      if(log.success === true && log.type === 'ADMIN_LOGIN'){
+        typeClass = 'ok'; typeLabel = 'OK';
+      } else if(log.success === false && log.type === 'LOGIN_FAIL'){
+        typeClass = 'danger'; typeLabel = 'Fallido';
+        if(log.timestamp > last5Min) dangerCount++;
+      } else if(log.type === 'UNAUTHORIZED_ACCESS'){
+        typeClass = 'danger'; typeLabel = 'Intruso';
+        if(log.timestamp > last5Min) dangerCount++;
+      } else if(log.type === 'ADMIN_CREATE_FAIL'){
+        typeClass = 'warn'; typeLabel = 'Alerta';
+      }
+      
+      if(filter === 'ok' && typeClass !== 'ok') return;
+      if(filter === 'danger' && typeClass !== 'danger') return;
+      if(filter === 'warn' && typeClass !== 'warn' && typeClass !== 'danger') return;
+      
+      html += '<div class="log-row">' +
+        '<span class="log-time">' + esc(date) + '</span>' +
+        '<span class="log-email">' + esc(log.email || log.detail || 'Anonimo') + '</span>' +
+        '<span class="log-type ' + typeClass + '">' + typeLabel + '</span>' +
+        '<span class="log-detail">' + esc(log.type) + '</span>' +
+      '</div>';
+    });
+    
+    el.innerHTML = html || '<div style="padding:24px;text-align:center;color:var(--hin)">Sin registros</div>';
+    
+    var alertEl = $('logAlert');
+    if(alertEl){
+      if(dangerCount >= 3){
+        alertEl.style.display = 'block';
+        alertEl.className = 'alert-warn';
+        alertEl.innerHTML = '<strong>Alerta de seguridad:</strong> Se detectaron ' + dangerCount + ' intentos de acceso fallidos o no autorizados en los ultimos 5 minutos. Revisa los logs y considera cambiar las reglas de Firebase si persisten.';
+      } else {
+        alertEl.style.display = 'none';
+      }
+    }
+  });
 }
 
 // ── BIND ADMIN EVENTS ─────────────────────────────
@@ -1525,14 +1747,23 @@ function bindAdminEvents(){
 
   var btnAdm = $('btnAddAdm');
   if(btnAdm) btnAdm.addEventListener('click', addAdmin);
+  
+  var btnCreateAdm = $('btnCreateAdm');
+  if(btnCreateAdm) btnCreateAdm.addEventListener('click', createAdminAccount);
 
   var delF  = $('delF');
   var delFC = $('delFC');
+  var delFL = $('delFL');
+  var delFR = $('delFR');
   if(delF)  delF.addEventListener('input',  renderDels);
   if(delFC) delFC.addEventListener('change', renderDels);
+  if(delFL) delFL.addEventListener('change', renderDels);
+  if(delFR) delFR.addEventListener('change', renderDels);
 
   var scorCom = $('scorCom');
-  if(scorCom) scorCom.addEventListener('change', renderScoring);
+  var scorFilter = $('scorFilter');
+  if(scorCom) scorCom.addEventListener('change', function(){ renderScoring(); renderBulkBar(); });
+  if(scorFilter) scorFilter.addEventListener('input', renderScoring);
 
   var upZ = $('upZone');
   if(upZ){
@@ -1547,7 +1778,11 @@ function bindAdminEvents(){
     if(fIn) fIn.addEventListener('change', function(e){ if(e.target.files[0]) processXL(e.target.files[0]); });
   }
 
-  // Refresh dashboard every 8 seconds
+  var btnRefreshLogs = $('btnRefreshLogs');
+  var logFilter = $('logFilter');
+  if(btnRefreshLogs) btnRefreshLogs.addEventListener('click', renderLogs);
+  if(logFilter) logFilter.addEventListener('change', renderLogs);
+
   setInterval(updateDashboard, 8000);
 }
 
