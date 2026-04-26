@@ -847,7 +847,7 @@ function printPublicProfile(id, pubData, prof){
     : '';
   var w = window.open('', '_blank');
   if(!w) return;
-  w.document.write('<!DOCTYPE html><html><head><title>' + prof.nombre + ' — CELIDER 2026</title>' +
+  w.document.write('<!DOCTYPE html><html><head><title>' + esc(prof.nombre||'') + ' — CELIDER 2026</title>' +
     '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">' +
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:\'DM Sans\',sans-serif;background:#fff;padding:24px;max-width:440px;margin:0 auto}' +
     '.hd{background:#002247;color:#fff;border-radius:11px;padding:18px;margin-bottom:14px}' +
@@ -861,8 +861,8 @@ function printPublicProfile(id, pubData, prof){
     '@media print{@page{margin:6mm}}</style></head><body>' +
     '<div class="hd"><h1>SIGEL CELIDER 10-04 · REGIONAL 10</h1><p>PLERD · MINERD · CELIDER 2026</p></div>' +
     '<div class="mid">' + (qrSrc ? '<div class="qi"><img src="' + qrSrc + '" width="100"></div>' : '') +
-    '<div class="inf"><div class="id">' + id + '</div><div class="nm">' + (prof.nombre||'—') + '</div>' +
-    '<div style="font-size:11px;color:#64748b;margin-bottom:6px">' + (prof.comision||'') + ' · ' + (prof.delegacion||'') + '</div>' +
+    '<div class="inf"><div class="id">' + esc(id) + '</div><div class="nm">' + esc(prof.nombre||'—') + '</div>' +
+    '<div style="font-size:11px;color:#64748b;margin-bottom:6px">' + esc(prof.comision||'') + ' · ' + esc(prof.delegacion||'') + '</div>' +
     '<div class="tt">' + t + '/100</div><div style="font-size:12px;color:#64748b">' + lv[1] + '</div></div></div>' +
     '<table><thead><tr><th style="text-align:left">Criterio</th><th style="text-align:right">Puntaje</th></tr></thead><tbody>' + rows + '</tbody></table>' +
     fbHtml +
