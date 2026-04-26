@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="./config.public.js"></script>
 <script src="./config.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -506,8 +507,8 @@ var _cfg = (window.__SIGEL_FIREBASE_CONFIG__ && typeof window.__SIGEL_FIREBASE_C
   : null;
 
 if(!_cfg){
-  console.error('Missing Firebase config. Create config.js from config.example.js');
-  alert('Configuracion faltante: crea config.js a partir de config.example.js');
+  console.error('Missing Firebase config. Add config.public.js (for hosting) or config.js (local)');
+  alert('Configuracion faltante: agrega config.public.js para hosting o config.js para local');
   return;
 }
 
@@ -524,7 +525,7 @@ var _requiredCfgKeys = [
 var _missingCfgKeys = _requiredCfgKeys.filter(function(k){ return !_cfg[k]; });
 if(_missingCfgKeys.length){
   console.error('Invalid Firebase config. Missing keys:', _missingCfgKeys);
-  alert('Configuracion incompleta en config.js: ' + _missingCfgKeys.join(', '));
+  alert('Configuracion incompleta en config.public.js/config.js: ' + _missingCfgKeys.join(', '));
   return;
 }
 
