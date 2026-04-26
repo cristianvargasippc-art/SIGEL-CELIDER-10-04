@@ -384,6 +384,7 @@ tbody tr:hover td{background:#f8fafc}
   .bulk-bar{flex-direction:column;align-items:flex-start}
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -417,8 +418,8 @@ tbody tr:hover td{background:#f8fafc}
     <p class="srch-hint">Solo tienes acceso a tu propia informacion como delegado.</p>
   </div>
   <div class="hstats">
-    <div class="hst"><div class="hst-n" id="hsT">—</div><div class="hst-l">Delegados</div>100</div>
-    <div class="hst"><div class="hst-n" id="hsC">—</div><div class="hst-l">Comisiones</div>4</div>
+    <div class="hst"><div class="hst-n">100</div><div class="hst-l">Delegados</div></div>
+    <div class="hst"><div class="hst-n">4</div><div class="hst-l">Comisiones</div></div>
   </div>
 </div>
 
@@ -632,13 +633,8 @@ function startPublicListener(){
   db.ref('publicProfiles').on('value', function(snap){
     publicProfiles = snap.val() || {};
   });
-  db.ref('publishedStats').on('value', function(snap){
-    var s = snap.val() || {};
-    $('hsT').textContent = s.total      || '—';
-    $('hsC').textContent = s.comisiones || '—';
-    $('hsR').textContent = s.calificados|| '—';
-    $('hsA').textContent = s.promedio   || '—';
-  });
+  // Estadísticas del home son valores fijos por seguridad (100 delegados, 4 comisiones)
+  // No se cargan desde Firebase para evitar exposición de datos sensibles
 }
 
 function startAdminListener(){
