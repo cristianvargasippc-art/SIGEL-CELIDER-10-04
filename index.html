@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.gstatic.com https://fonts.googleapis.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src https://*.firebaseio.com https://*.googleapis.com; img-src 'self' data: blob:; frame-ancestors 'none';">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>SIGEL · CELIDER 10-04</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<!-- Scripts externos: Verificar integridad en producción con SRI hashes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -474,7 +480,7 @@ tbody tr:hover td{background:#f8fafc}
     </div>
     <div class="atb-nav" id="atbNav"></div>
     <div class="atb-r">
-      <div class="atb-id" id="atbUid"></div>
+      <!-- UID oculto por seguridad -->
       <span class="atb-role" id="atbRole">—</span>
       <button class="atb-out" id="btnLogout">Salir</button>
     </div>
@@ -497,19 +503,41 @@ tbody tr:hover td{background:#f8fafc}
 <div id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
 
 <script>
+// Detección básica de apertura de DevTools (no infalible, pero disuasorio)
+(function(){
+  var threshold = 160;
+  var check = function(){
+    if(window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold){
+      console.clear();
+      console.log('%cSIGEL CELIDER 10-04','color:#002247;font-size:24px;font-weight:bold');
+      console.log('%cSistema de Gestión y Evaluación de Liderazgo - Regional 10','color:#005286;font-size:14px');
+    }
+  };
+  window.addEventListener('resize', check);
+  setInterval(check, 1000);
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
 
-// ── Firebase config (ofuscada) ────────────────────
-var _cfg = {
-  apiKey:         'AIzaSyDNAo' + 'Ux40Ax8cu0IKREgle3Bnf271NdKXo',
-  authDomain:     'sigel-celider-10-04.firebaseapp.com',
-  projectId:      'sigel-celider-10-04',
-  storageBucket:  'sigel-celider-10-04.firebasestorage.app',
-  messagingSenderId: '331346792233',
-  appId:          '1:331346792233:web:' + '15589aa0b9b8c522d2f138',
-  databaseURL:    'https://sigel-celider-10-04-default-rtdb.firebaseio.com'
-};
+// ── Firebase config (ofuscada runtime) ────────────────────
+// Configuración decodificada en runtime para dificultar extracción
+var _cfg = (function(){
+  var _0 = atob, _1 = String.fromCharCode, _2 = parseInt;
+  var k = _0('QUl6YVN5RE5Bb1V4NDBBeDhjZTBJS1JFZ2xlM0JuZjI3MU5kS1hv');
+  var d = _0('c2lnZWwtY2VsaWRlci0xMC0wNC5maXJlYmFzZWFwcC5jb20=');
+  var p = _0('c2lnZWwtY2VsaWRlci0xMC0wNA==');
+  var b = _0('c2lnZWwtY2VsaWRlci0xMC0wNC5maXJlYmFzZXN0b3JhZ2UuYXBw');
+  var m = _0('MzMxMzQ2NzkyMjMz');
+  var a = _0('MTozMzEzNDY3OTIyMzM6d2ViOjE1NTg5YWEwYjliOGM1MjJkMmYxMzg=');
+  var u = _0('aHR0cHM6Ly9zaWdlbC1jZWxpZGVyLTEwLTA0LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ==');
+  return {apiKey:k, authDomain:d, projectId:p, storageBucket:b, messagingSenderId:m, appId:a, databaseURL:u};
+})();
 firebase.initializeApp(_cfg);
+
+// ── Firebase App Check (protección contra abuso de API key) ────────────────────
+var appCheck = firebase.appCheck();
+appCheck.activate('6Lf-n8ssAAAAAFL4mStNINQ3e4kQf6y_KBQJgAL_', true);
+
 var auth = firebase.auth();
 var db   = firebase.database();
 
@@ -559,9 +587,18 @@ function coms(){
 }
 function genId(n){ return 'CEL-' + ('000'+n).slice(-3); }
 function esc(s){
-  return (s||'').replace(/[<>&"']/g, function(c){
-    return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];
-  });
+  if(s == null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\x00/g, '')
+    .replace(/\x0a/g, '\n')
+    .replace(/\x0d/g, '\r')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '');
 }
 function showToast(msg){
   $('toastMsg').textContent = msg;
@@ -576,11 +613,15 @@ function showScr(id){
 
 // ── Logging de accesos (SIN emails) ───────────────
 function logAccess(type, detail, uid){
+  var ua = navigator.userAgent;
+  var uaHash = 0;
+  for(var i=0;i<ua.length;i++){ uaHash = ((uaHash<<5)-uaHash)+ua.charCodeAt(i); uaHash |= 0; }
   var entry = {
     type: type || 'unknown',
     detail: detail || '',
     timestamp: firebase.database.ServerValue.TIMESTAMP,
-    userAgent: navigator.userAgent.substring(0,120)
+    uaHash: uaHash,
+    platform: navigator.platform ? navigator.platform.substring(0,20) : 'unknown'
   };
   if(uid) entry.uid = uid;
   db.ref('accessLogs').push(entry);
@@ -606,7 +647,7 @@ auth.onAuthStateChanged(function(user){
       }
       curRole     = data.role     || 'superadmin';
       curComision = data.comision || null;
-      $('atbUid').textContent = user.uid.substring(0,12) + '...';
+      // UID oculto por seguridad
       $('atbRole').textContent  = curRole === 'superadmin' ? 'SUPER ADMIN' : 'ADMIN COM.';
       logAccess('ADMIN_LOGIN', curRole + (curComision ? ' | ' + curComision : ''), user.uid);
       startAdminListener();
@@ -780,6 +821,7 @@ function openPublicProfile(id){
       qd.innerHTML = '';
       var base = window.location.origin + window.location.pathname;
       var url  = base + '?id=' + encodeURIComponent(id);
+  // Nota: En producción, usar un token aleatorio en lugar de ID secuencial para prevenir enumeración
       try{
         new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H});
       } catch(e){ qd.innerHTML = '<p style="color:#f87171;font-size:11px">QR error</p>'; }
@@ -854,9 +896,26 @@ function doLogin(){
   var email = ($('loginEmail').value || '').trim();
   var pass  = $('loginPass').value || '';
   if(!email || !pass){ showLoginErr('Completa los dos campos'); return; }
+  // Validación de dominio permitido
+  var allowedDomains = ['gmail.com','hotmail.com','outlook.com','yahoo.com','minerd.gob.do','plerdo.gob.do'];
+  var domain = email.split('@')[1];
+  if(!domain || allowedDomains.indexOf(domain.toLowerCase()) === -1){
+    showLoginErr('Dominio de correo no autorizado. Contacta al superadmin.');
+    logAccess('LOGIN_DOMAIN_REJECTED', 'Dominio: ' + domain, null);
+    return;
+  }
   var btn = $('btnLoginSub');
   btn.disabled = true; btn.textContent = 'VERIFICANDO...';
   $('loginErr').classList.remove('on');
+  // Rate limiting básico
+  var now = Date.now();
+  var lastAttempt = parseInt(localStorage.getItem('lastLoginAttempt') || '0');
+  if(now - lastAttempt < 3000){
+    showLoginErr('Espera 3 segundos entre intentos.');
+    btn.disabled = false; btn.textContent = 'INGRESAR';
+    return;
+  }
+  localStorage.setItem('lastLoginAttempt', String(now));
   auth.signInWithEmailAndPassword(email, pass)
     .then(function(){ btn.disabled = false; btn.textContent = 'INGRESAR'; })
     .catch(function(e){
@@ -879,6 +938,14 @@ function doRegister(){
   var pass  = $('loginPass').value || '';
   if(!email || !pass){ showLoginErr('Completa email y contrasena'); return; }
   if(pass.length < 6){ showLoginErr('Contrasena minimo 6 caracteres'); return; }
+  // Validación de dominio permitido
+  var allowedDomains = ['gmail.com','hotmail.com','outlook.com','yahoo.com','minerd.gob.do','plerdo.gob.do'];
+  var domain = email.split('@')[1];
+  if(!domain || allowedDomains.indexOf(domain.toLowerCase()) === -1){
+    showLoginErr('Dominio de correo no autorizado para registro.');
+    logAccess('REGISTER_DOMAIN_REJECTED', 'Dominio: ' + domain, null);
+    return;
+  }
   
   var btn = $('btnRegister');
   btn.disabled = true; 
@@ -1254,6 +1321,7 @@ function openQRModal(id){
   var qd = $('qrmDiv'); qd.innerHTML = '';
   var base = window.location.origin + window.location.pathname;
   var url  = base + '?id=' + encodeURIComponent(id);
+  // Nota: En producción, usar un token aleatorio en lugar de ID secuencial para prevenir enumeración
   try{ new QRCode(qd, {text:url, width:160, height:160, colorDark:'#002247', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.H}); }
   catch(e){ qd.textContent = 'Error al generar QR'; }
   $('qrMOv').classList.add('on');
@@ -1354,9 +1422,9 @@ function renderScoring(){
     SF.forEach(function(f){
       var v = (s[f.k] !== undefined && s[f.k] !== null) ? s[f.k] : '';
       html += '<div class="score-item">' +
-        '<label>' + f.l + '</label>' +
+        '<label>' + esc(f.l) + '</label>' +
         '<div class="score-item-row">' +
-          '<input class="sinp sc-inp" type="number" min="0" max="' + f.m + '" value="' + esc(String(v)) + '" placeholder="0" data-id="' + id + '" data-k="' + f.k + '">' +
+          '<input class="sinp sc-inp" type="number" min="0" max="' + f.m + '" value="' + esc(String(v)) + '" placeholder="0" data-id="' + esc(id) + '" data-k="' + esc(f.k) + '">' +
           '<span class="score-max">/' + f.m + '</span>' +
         '</div></div>';
     });
@@ -1472,7 +1540,13 @@ function autoSaveDelegate(did, area){
   var inputs = area.querySelectorAll('[data-id="' + did + '"].sc-inp');
   if(!inputs.length) return;
   var scores = {};
-  inputs.forEach(function(i){ scores[i.dataset.k] = parseInt(i.value) || 0; });
+  inputs.forEach(function(i){ 
+    var val = parseInt(i.value) || 0;
+    var max = parseInt(i.getAttribute('max')) || 100;
+    if(val < 0) val = 0;
+    if(val > max) val = max;
+    scores[i.dataset.k] = val; 
+  });
   
   var t = tot(scores);
   var updates = {};
