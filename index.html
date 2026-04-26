@@ -536,8 +536,20 @@ var _cfg = (function(){
 firebase.initializeApp(_cfg);
 
 // ── Firebase App Check (protección contra abuso de API key) ────────────────────
-var appCheck = firebase.appCheck();
-appCheck.activate('6Lf-n8ssAAAAAFL4mStNINQ3e4kQf6y_KBQJgAL_', true);
+// Se inicializa con delay para no bloquear el arranque de la app
+setTimeout(function(){
+  try {
+    if(typeof firebase !== 'undefined' && firebase.appCheck){
+      var appCheck = firebase.appCheck();
+      if(appCheck && typeof appCheck.activate === 'function'){
+        appCheck.activate('6Lf-n8ssAAAAAFL4mStNINQ3e4kQf6y_KBQJgAL_', true);
+        console.log('App Check activado');
+      }
+    }
+  } catch(e) {
+    console.warn('App Check no disponible:', e.message);
+  }
+}, 1000);
 
 var auth = firebase.auth();
 var db   = firebase.database();
