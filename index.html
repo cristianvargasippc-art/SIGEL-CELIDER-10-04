@@ -10,6 +10,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<!-- ✅ APP CHECK AGREGADO -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
 <script src="./config.public.js"></script>
 <script src="./config.js"></script>
 <style>
@@ -533,6 +535,19 @@ firebase.initializeApp(_cfg);
 var auth = firebase.auth();
 var db   = firebase.database();
 
+// ── ✅ ACTIVAR APP CHECK ──────────────────────────
+try {
+  // ⚠️ REEMPLAZA 'AQUI CLAVE' con tu clave real de reCAPTCHA v3
+  firebase.appCheck().activate(
+    new firebase.appCheck.ReCaptchaV3Provider('6Lf-n8ssAAAAAFL4mStNINQ3e4kQf6y_KBQJgAL_'),
+    true // isTokenAutoRefreshEnabled
+  );
+  console.log('✅ App Check activado correctamente');
+} catch (error) {
+  console.warn('⚠️ App Check no se pudo activar:', error.message);
+  // No bloqueamos la app si App Check falla, solo advertimos
+}
+
 // ── Estado global ─────────────────────────────────
 var delegates       = {};
 var publicProfiles  = {};
@@ -653,8 +668,6 @@ function startPublicListener(){
   db.ref('publicProfiles').on('value', function(snap){
     publicProfiles = snap.val() || {};
   });
-  // Estadísticas del home son valores fijos por seguridad (100 delegados, 4 comisiones)
-  // No se cargan desde Firebase para evitar exposición de datos sensibles
 }
 
 function startAdminListener(){

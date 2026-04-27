@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Jueces - SIGEL CELIDER</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #002247 0%, #005286 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: #002247;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0087f1;
+            box-shadow: 0 0 0 3px rgba(0, 135, 241, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #0087f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover:not(:disabled) {
+            background: #005286;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .message.show { display: block; }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #0087f1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Crear Juez</h1>
+            <p>Panel de Administración CELIDER 2026</p>
+        </div>
+
+        <div class="info-box">
+            <strong>Nota:</strong> Los jueces podrán calificar solo a los delegados de su comisión asignada.
+        </div>
+
+        <div id="mensaje" class="message"></div>
+
+        <form id="formJuez">
+            <div class="form-group">
+                <label>Nombre Completo del Juez</label>
+                <input type="text" id="nombre" placeholder="Ej: María García López" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email del Juez</label>
+                <input type="email" id="email" placeholder="juez@ejemplo.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña Temporal</label>
+                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
+            </div>
+
+            <div class="form-group">
+                <label>Comisión Asignada</label>
+                <select id="comision" required>
+                    <option value="">-- Selecciona una comisión --</option>
+                    <!-- Las comisiones se cargarán dinámicamente -->
+                </select>
+            </div>
+
+            <button type="submit" id="btnCrear">Crear Juez</button>
+        </form>
+
+        <div class="back-link">
+            <a href="../index.html">← Volver al sistema</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    
+    <!-- Configuración de Firebase -->
+    <script src="../config.js"></script>
+    
+    <!-- Script principal -->
+    <script src="../firebase/userManagement.js"></script>
+    <script>
+        // Inicializar Firebase
+        if (window.__SIGEL_FIREBASE_CONFIG__) {
+            firebase.initializeApp(window.__SIGEL_FIREBASE_CONFIG__);
+        } else {
+            alert('Error: Configuración de Firebase no encontrada');
+        }
+
+        const db = firebase.database();
+        const mensaje = document.getElementById('mensaje');
+        const form = document.getElementById('formJuez');
+        const btnCrear = document.getElementById('btnCrear');
+        const selectComision = document.getElementById('comision');
+
+        // Cargar comisiones disponibles desde la base de datos
+        function cargarComisiones() {
+            db.ref('delegates').once('value', snapshot => {
+                const delegates = snapshot.val() || {};
+                const comisiones = new Set();
+                
+                Object.values(delegates).forEach(delegado => {
+                    if (delegado.comision) {
+                        comisiones.add(delegado.comision);
+                    }
+                });
+
+                // Agregar opciones al select
+                Array.from(comisiones).sort().forEach(com => {
+                    const option = document.createElement('option');
+                    option.value = com;
+                    option.textContent = com;
+                    selectComision.appendChild(option);
+                });
+            });
+        }
+
+        // Mostrar mensaje
+        function mostrarMensaje(texto, tipo) {
+            mensaje.textContent = texto;
+            mensaje.className = `message ${tipo} show`;
+            setTimeout(() => {
+                mensaje.classList.remove('show');
+            }, 5000);
+        }
+
+        // Manejar envío del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const comision = selectComision.value;
+
+            if (!nombre || !email || !password || !comision) {
+                mostrarMensaje('⚠️ Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                mostrarMensaje('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+
+            btnCrear.disabled = true;
+            btnCrear.textContent = 'CREANDO JUEZ...';
+
+            // Llamar a la función crearJuez
+            const resultado = await crearJuez(email, password, nombre, comision);
+
+            if (resultado.success) {
+                mostrarMensaje(`✅ ${resultado.message}`, 'success');
+                form.reset();
+                
+                // Opcional: redirigir después de 2 segundos
+                setTimeout(() => {
+                    if (confirm('¿Quieres crear otro juez?')) {
+                        location.reload();
+                    } else {
+                        window.location.href = '../index.html';
+                    }
+                }, 2000);
+            } else {
+                mostrarMensaje(`❌ Error: ${resultado.error}`, 'error');
+            }
+
+            btnCrear.disabled = false;
+            btnCrear.textContent = 'CREAR JUEZ';
+        });
+
+        // Cargar comisiones al iniciar
+        cargarComisiones();
+    </script>
+</body>
+</html>
